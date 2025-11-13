@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Piezo_AT-1224-TWT-5V-2-R")(type "KiCad")(uri "/Users/augustsnyder/Downloads/AT_1224_TWT_5V_2_R/Piezo_AT-1224-TWT-5V-2-R.kicad_sym")(options "")(descr ""))
+)
