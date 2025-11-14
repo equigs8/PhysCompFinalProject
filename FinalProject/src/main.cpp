@@ -45,11 +45,7 @@ const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
 // Icon Bitmap Data (16x16 pixels, 1-bit monochrome)
 // This icon is a simple 3x3 grid for Tic-Tac-Toe
 const uint8_t TIC_TAC_TOE_ICON_BITS[] PROGMEM = {
- 0x00, 0x00, 0x00, 0x00, 
- 0x00, 0x18, 0x18, 0x00,
- 0x00, 0x24, 0x24, 0x00, 
- 0x00, 0x18, 0x18, 0x00,
- 0x00, 0x00, 0x00, 0x00 
+ 0x24, 0x24, 0xff, 0x24, 0x24, 0xff, 0x24, 0x24
 };
 
 
@@ -102,7 +98,7 @@ void displayStatus(const char* message, uint16_t color) {
  * @param color The color to draw the icon.
  */
 void drawMenuItemIcon(int itemIndex, int xPos, int yPos, uint16_t color) {
-  int iconSize = 16;
+  int iconSize = 8;
   
   // Clear the icon area before drawing the icon to prevent color artifacts
   tft.fillRect(xPos + 3, yPos + 3, iconSize, iconSize, BLACK); 
@@ -162,7 +158,7 @@ void drawMenuCursor(int prevSelection, int newSelection) {
     int prevYPos = yStart + prevSelection * 40;
     
     // Erase the background highlight
-    tft.fillRect(xPos + 3, prevYPos + 3, width, height, BLACK);
+    tft.fillRect(xPos, prevYPos, width, height, BLACK);
     
     // Redraw Text (WHITE)
     tft.setCursor(50, prevYPos);
@@ -171,7 +167,7 @@ void drawMenuCursor(int prevSelection, int newSelection) {
     tft.print(menuItems[prevSelection]);
     
     // Redraw Icon (WHITE) (Icon position: x=5, centered vertically around text line)
-    //drawMenuItemIcon(prevSelection, 15, prevYPos - 5, WHITE);
+    drawMenuItemIcon(prevSelection, 15, prevYPos - 5, WHITE);
   }
 
   // 2. Draw new cursor highlight and redraw text/icon in BLACK.
