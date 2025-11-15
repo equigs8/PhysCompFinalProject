@@ -59,6 +59,27 @@
       "top": 550,
       "left": 150,
       "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id":"btnHome",
+      "top": 500,
+      "left": 200,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id":"btnButtonA",
+      "top": 200,
+      "left": 300,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id":"btnButtonB",
+      "top": 200,
+      "left": 350,
+      "attrs": {}
     }
   ],
   "connections": [
@@ -88,7 +109,15 @@
     ["btnRight:2.l","esp:GND.4","black",[]],
     
     ["btnSelect:1.l","esp:21","red",[]],
-    ["btnSelect:2.l","esp:GND.4","black",[]]
+    ["btnSelect:2.l","esp:GND.4","black",[]],
     
+    ["btnHome:1.l","esp:7","red",[]],
+    ["btnHome:2.l","esp:GND.4","black",[]],
+
+    ["btnButtonA:1.l","esp:15","red",[]],
+    ["btnButtonA:2.l","esp:GND.4","black",[]],
+    
+    ["btnButtonB:1.l","esp:13","red",[]],
+    ["btnButtonB:2.l","esp:GND.4","black",[]]
   ]
 }
