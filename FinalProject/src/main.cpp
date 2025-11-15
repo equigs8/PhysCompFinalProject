@@ -58,6 +58,8 @@ const uint8_t TIC_TAC_TOE_ICON_BITS[] PROGMEM = {
 int board[BOARD_SIZE][BOARD_SIZE];
 int currentPlayer = PLAYER_X; // X starts
 int gameStatus = 0; // 0: Running, 1: X Win, 2: O Win, 3: Draw
+bool gameOverScreenDrawn = false;
+
 
 // Cursor position (0-2) for Tic-Tac-Toe
 int cursorX = 0;
@@ -72,7 +74,8 @@ int cursorY = 0;
 #define CURSOR_COLOR 0x69E0 // Light green/cyan for cursor outline
 
 // Forward declaration needed for handleMenuInput
-void resetGame(); 
+void resetGame();
+void ticTacToeSelected();
 
 // ==============================================================================
 // 3. DRAWING FUNCTIONS
@@ -82,11 +85,12 @@ void resetGame();
  * @brief Displays game status messages at the bottom of the screen.
  */
 void displayStatus(const char* message, uint16_t color) {
+  const int statusY = 220;
   tft.setTextSize(2);
   tft.setTextColor(color, BLACK);
   // Clear previous message area
-  tft.fillRect(10, 250, tft.width() - 20, 30, BLACK);
-  tft.setCursor(10, 250);
+  tft.fillRect(10, statusY, tft.width() - 20, 30, BLACK);
+  tft.setCursor(10, statusY);
   tft.print(message);
 }
 
@@ -183,7 +187,7 @@ void drawMenuCursor(int prevSelection, int newSelection) {
   tft.print(menuItems[newSelection]);
   
   // Redraw Icon (BLACK on the colored cursor)
-  drawMenuItemIcon(newSelection, 15, newYPos, BLACK);
+  drawMenuItemIcon(newSelection, 15, newYPos, WHITE);
 }
 
 // ==============================================================================
@@ -246,12 +250,11 @@ void handleMenuInput() {
     }
   }
 
-  // Handle Action (SELECT Button)
-  if (digitalRead(PIN_SELECT) == LOW) {
+  // Handle Action (A Button)
+  if (digitalRead(PIN_BUTTONA) == LOW) {
     if (menuSelection == 0) {
       // Option 0: Tic-Tac-Toe
-      currentState = STATE_TICTACTOE;
-      resetGame(); 
+      ticTacToeSelected();
     } else {
       // Placeholder for other games
       displayStatus("Game unavailable", RED);
@@ -260,11 +263,16 @@ void handleMenuInput() {
   }
 }
 
+void ticTacToeSelected()
+{
+  currentState = STATE_TICTACTOE;
+  resetGame();
+}
 // ==============================================================================
-// 5. TICTACTOE GAME LOGIC (Modified to only be active when in TICTACTOE state)
+// 5. TICTACTOE GAME LOGIC
 // ==============================================================================
 
-// --- Tic-Tac-Toe Drawing Functions (Kept the same) ---
+// --- Tic-Tac-Toe Drawing Functions ---
 
 /**
  * @brief Draws the initial board and title.
@@ -354,6 +362,7 @@ void resetGame() {
   gameStatus = 0;
   cursorX = 0;
   cursorY = 0;
+  gameOverScreenDrawn = false;
 
   drawBoard();
   drawCursor(0, 0, 0, 0); // Draw initial cursor at 0,0
@@ -398,27 +407,62 @@ bool checkDraw() {
 }
 
 /**
+ * @brief Handles the game over state for Tic-Tac-Toe.
+ * @param winner The player who won (1 for X, 2 for O, 3 for draw).
+ */
+void tikTacToeGameOver(int winner) {
+  if(!gameOverScreenDrawn){
+    tft.fillScreen(BLACK); // Clear the screen
+
+    tft.setFont();
+    tft.setTextSize(2);
+    tft.setTextColor(WHITE);
+    tft.setCursor(30, 10);
+    tft.print("Game Over!");
+
+    if (winner == 1) {
+      tft.setTextColor(RED);
+      tft.setCursor(30, 50);
+      tft.print("X Wins!");
+    } else if (winner == 2) {
+      tft.setTextColor(BLUE);
+      tft.setCursor(30, 50);
+      tft.print("O Wins!");
+    }else if (winner == 3) {
+      tft.setTextColor(YELLOW);
+      tft.setCursor(30, 50);
+      tft.print("Draw!");
+    }else{
+      displayStatus("ERROR! (Select to Reset)", YELLOW);
+    }
+
+    tft.setTextSize(2);
+    tft.setTextColor(WHITE);
+    tft.setCursor(30, 100);
+    tft.print("Press Select to Reset");
+    tft.setCursor(30, 130);
+    tft.print("Press Menu to Exit");
+
+    gameOverScreenDrawn = true;
+
+  }
+  if(digitalRead(PIN_SELECT) == LOW) {
+      resetGame();
+      delay(300);
+  }
+  
+}
+
+/**
  * @brief Reads physical button inputs and updates the Tic-Tac-Toe game state.
  */
 void handleTicTacToeInput() {
   static unsigned long lastMoveTime = 0;
   const unsigned long moveDelay = 150; // Throttle delay for cursor movement
 
-  // Use the LEFT button to return to the main menu
-  if (digitalRead(PIN_LEFT) == LOW) {
-    currentState = STATE_MENU;
-    drawMenu();
-    drawMenuCursor(-1, menuSelection); // Draw cursor at current selection
-    delay(300); // Debounce
-    return;
-  }
-
   // If the game is over, only the SELECT button can restart it.
   if (gameStatus != 0) {
-    if (digitalRead(PIN_SELECT) == LOW) {
-      resetGame();
-      delay(300); // Simple debounce for restart
-    }
+    tikTacToeGameOver(gameStatus);
     return;
   }
 
@@ -439,6 +483,9 @@ void handleTicTacToeInput() {
     } else if (digitalRead(PIN_RIGHT) == LOW) { // RIGHT is used for movement
       cursorX = min(BOARD_SIZE - 1, cursorX + 1);
       moved = true;
+    }else if (digitalRead(PIN_LEFT) == LOW) { // LEFT is used for movement
+      cursorX = max(0, cursorX - 1);
+      moved = true;
     }
 
     if (moved) {
@@ -448,8 +495,8 @@ void handleTicTacToeInput() {
     }
   }
 
-  // Handle Action (SELECT Button)
-  if (digitalRead(PIN_SELECT) == LOW) {
+  // Handle Action (A Button)
+  if (digitalRead(PIN_BUTTONA) == LOW) {
     // Only place a marker if the current cell is empty
     if (board[cursorX][cursorY] == EMPTY) {
       // 1. Place marker
@@ -483,6 +530,9 @@ void handleTicTacToeInput() {
     }
   }
 }
+
+
+
 
 // ==============================================================================
 // 6. ARDUINO SETUP & LOOP
