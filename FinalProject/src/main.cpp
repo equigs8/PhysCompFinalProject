@@ -42,7 +42,7 @@ int menuSelection = 0; // Index of the currently selected menu item
 const char* menuItems[] = {"Tic-Tac-Toe", "Coming Soon..."};
 const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
 
-// Icon Bitmap Data (16x16 pixels, 1-bit monochrome)
+// Icon Bitmap Data (8x8 pixels, 1-bit monochrome)
 // This icon is a simple 3x3 grid for Tic-Tac-Toe
 const uint8_t TIC_TAC_TOE_ICON_BITS[] PROGMEM = {
  0x24, 0x24, 0xff, 0x24, 0x24, 0xff, 0x24, 0x24
@@ -106,11 +106,11 @@ void drawMenuItemIcon(int itemIndex, int xPos, int yPos, uint16_t color) {
   if (itemIndex == 0) {
     // Icon for Tic-Tac-Toe: Draw a 16x16 Bitmap
     // x, y, bitmap array, width, height, color
-    tft.drawBitmap(xPos, yPos, TIC_TAC_TOE_ICON_BITS, iconSize, iconSize, color);
+    tft.drawBitmap(xPos + 7, yPos + 7, TIC_TAC_TOE_ICON_BITS, iconSize, iconSize, RED);
     
   } else if (itemIndex == 1) {
     // Icon for "Coming Soon...": Placeholder box with '?'
-    tft.drawRect(xPos + 3, yPos + 3, iconSize - 6, iconSize - 6, color);
+    tft.drawRect(xPos + 3, yPos + 3, iconSize + 2, iconSize + 2, color);
     tft.setCursor(xPos + 5, yPos + 5);
     tft.setTextSize(1);
     tft.setTextColor(color);
@@ -135,7 +135,7 @@ void drawMenu() {
     int yPos = 80 + i * 40;
 
     // Draw Icon
-    drawMenuItemIcon(i, 16, yPos, WHITE);
+    drawMenuItemIcon(i, 15, yPos, WHITE);
 
     // Draw Text
     tft.setCursor(50, 80 + i * 40);
@@ -167,7 +167,7 @@ void drawMenuCursor(int prevSelection, int newSelection) {
     tft.print(menuItems[prevSelection]);
     
     // Redraw Icon (WHITE) (Icon position: x=5, centered vertically around text line)
-    drawMenuItemIcon(prevSelection, 15, prevYPos - 5, WHITE);
+    drawMenuItemIcon(prevSelection, 15, prevYPos, WHITE);
   }
 
   // 2. Draw new cursor highlight and redraw text/icon in BLACK.
@@ -183,7 +183,7 @@ void drawMenuCursor(int prevSelection, int newSelection) {
   tft.print(menuItems[newSelection]);
   
   // Redraw Icon (BLACK on the colored cursor)
-  drawMenuItemIcon(newSelection, 15, newYPos - 5, BLACK);
+  drawMenuItemIcon(newSelection, 15, newYPos, BLACK);
 }
 
 // ==============================================================================
