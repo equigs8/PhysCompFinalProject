@@ -15,14 +15,14 @@
 // The CLK (SCK) and MOSI (SDA) pins for SPI are fixed on the ESP32 (GPIO18 and GPIO23 by default).
 
 // Input Button Pins (Assuming buttons are wired as Active-LOW: Press connects pin to GND)
-#define PIN_UP     37
+#define PIN_UP     0
 #define PIN_DOWN   48
 #define PIN_LEFT   39
 #define PIN_RIGHT  20
 #define PIN_SELECT 21
-#define PIN_HOME   7
+#define PIN_HOME   40
 #define PIN_BUTTONA 15
-#define PIN_BUTTONB 13
+#define PIN_BUTTONB 2
 
 // ==============================================================================
 // 2. DISPLAY SETUP & GLOBAL VARIABLES
@@ -49,7 +49,7 @@ const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
 #define RED     0xF800
 #define BLUE    0x001F
 #define YELLOW  0xFFE0
-#define CURSOR_COLOR 0x69E0 // Light green/cyan for cursor outline
+#define CURSOR_COLOR 0xF800 // Light green/cyan for cursor outline
 #define MAIN_MENU_COLOR BLACK
 
 
