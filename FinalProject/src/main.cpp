@@ -33,7 +33,8 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 // --- GAME STATE MANAGEMENT ---
 enum GameState {
   STATE_MENU,
-  STATE_TICTACTOE
+  STATE_TICTACTOE,
+  STATE_POKEMON_BATTLER
 };
 GameState currentState = STATE_MENU;
 
@@ -41,6 +42,17 @@ GameState currentState = STATE_MENU;
 int menuSelection = 0; // Index of the currently selected menu item
 const char* menuItems[] = {"Tic-Tac-Toe", "Coming Soon..."};
 const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
+
+// Color Definitions
+#define BLACK   0x0000
+#define WHITE   0xFFFF
+#define RED     0xF800
+#define BLUE    0x001F
+#define YELLOW  0xFFE0
+#define CURSOR_COLOR 0x69E0 // Light green/cyan for cursor outline
+#define MAIN_MENU_COLOR BLACK
+
+
 
 // Icon Bitmap Data (8x8 pixels, 1-bit monochrome)
 // This icon is a simple 3x3 grid for Tic-Tac-Toe
@@ -65,17 +77,13 @@ bool gameOverScreenDrawn = false;
 int cursorX = 0;
 int cursorY = 0;
 
-// Color Definitions
-#define BLACK   0x0000
-#define WHITE   0xFFFF
-#define RED     0xF800
-#define BLUE    0x001F
-#define YELLOW  0xFFE0
-#define CURSOR_COLOR 0x69E0 // Light green/cyan for cursor outline
+
 
 // Forward declaration needed for handleMenuInput
-void resetGame();
+void resetTicTacToe();
 void ticTacToeSelected();
+void pokemonBattlerSelected();
+void resetPokemonBattler();
 
 // ==============================================================================
 // 3. DRAWING FUNCTIONS
@@ -128,7 +136,7 @@ void drawMenuItemIcon(int itemIndex, int xPos, int yPos, uint16_t color) {
  * @brief Draws the initial main menu screen.
  */
 void drawMenu() {
-  tft.fillScreen(BLACK);
+  tft.fillScreen(MAIN_MENU_COLOR);
   tft.setTextSize(3);
   tft.setTextColor(WHITE);
   tft.setCursor(50, 20);
@@ -255,7 +263,10 @@ void handleMenuInput() {
     if (menuSelection == 0) {
       // Option 0: Tic-Tac-Toe
       ticTacToeSelected();
-    } else {
+    } else if (menuSelection == 1) {
+      // Option 1: POKEMON BATTLER
+      pokemonBattlerSelected();
+    }else {
       // Placeholder for other games
       displayStatus("Game unavailable", RED);
     }
@@ -266,7 +277,11 @@ void handleMenuInput() {
 void ticTacToeSelected()
 {
   currentState = STATE_TICTACTOE;
-  resetGame();
+  resetTicTacToe();
+}
+void pokemonBattlerSelected(){
+  currentState = STATE_POKEMON_BATTLER;
+  resetPokemonBattler();
 }
 // ==============================================================================
 // 5. TICTACTOE GAME LOGIC
@@ -352,7 +367,7 @@ void drawCursor(int prevX, int prevY, int newX, int newY) {
 /**
  * @brief Resets the board, state, and redraws the display for a new game.
  */
-void resetGame() {
+void resetTicTacToe() {
   for (int i = 0; i < BOARD_SIZE; i++) {
     for (int j = 0; j < BOARD_SIZE; j++) {
       board[i][j] = EMPTY;
@@ -447,7 +462,7 @@ void tikTacToeGameOver(int winner) {
 
   }
   if(digitalRead(PIN_SELECT) == LOW) {
-      resetGame();
+      resetTicTacToe();
       delay(300);
   }
   
@@ -531,6 +546,55 @@ void handleTicTacToeInput() {
   }
 }
 
+// ==============================================================================
+// 5.1 POKEMON BATTLER GAME
+// ==============================================================================
+
+// Define game state variables
+bool isPlayersTurn = true;
+
+
+
+
+
+
+
+
+void handlePokemonBattlerInput() {
+  // Handle input for the Pokemon Battler game here
+  // ...
+}
+
+void drawPokemonBattlerUI() {
+  // Draw the UI for the Pokemon Battler game here
+  // Select Menu
+  //tft.drawRect(0, selectMenuY, tft.width(), tft.height(), WHITE);
+  tft.fillRect(0, 200, tft.width(), tft.height(), WHITE);
+  
+  // The Select Menu shows the player options. Current options are: Move, Switch, Bag, Run
+  tft.setTextSize(2);
+  tft.setTextColor(BLACK);
+  tft.setCursor(10, 200);
+  tft.print("Move");
+  tft.setCursor(tft.getCursorX() + 5, tft.getCursorY());
+  tft.print("Switch");
+  tft.setCursor(10, 200);
+  tft.print("Bag");
+  tft.setCursor(10, 200);
+  tft.print("Run");
+}
+
+void drawPokemonBattler() {
+  // Draw the Pokemon Battler game screen here
+  tft.fillScreen(BLACK);
+
+  drawPokemonBattlerUI();
+}
+
+void resetPokemonBattler() {
+  // Reset the game state here
+  drawPokemonBattler();
+}
 
 
 
@@ -572,6 +636,9 @@ void loop() {
       break;
     case STATE_TICTACTOE:
       handleTicTacToeInput();
+      break;
+    case STATE_POKEMON_BATTLER:
+      handlePokemonBattlerInput();
       break;
   }
   delay(10);
