@@ -21,65 +21,56 @@
       "id": "btnUp",
       "top": 150,
       "left": 150,
-      "attrs": {}
+      "attrs": {"key": "w"}
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnDown",
       "top": 250,
       "left": 150,
-      "attrs": {
-        
-        
-      }
+      "attrs": {"key": "s"}
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnLeft",
       "top": 200,
       "left": 100,
-      "attrs": {
-        
-        
-      }
+      "attrs": {"key": "a"}
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnRight",
       "top": 200,
       "left": 200,
-      "attrs": {
-      
-        
-      }
+      "attrs": {"key": "d"}
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnSelect", 
       "top": 550,
       "left": 150,
-      "attrs": {}
+      "attrs": {"key": "Enter"}
     },
     {
       "type": "wokwi-pushbutton",
       "id":"btnHome",
       "top": 500,
       "left": 200,
-      "attrs": {}
+      "attrs": {"key": "Backspace"}
     },
     {
       "type": "wokwi-pushbutton",
       "id":"btnButtonA",
       "top": 200,
       "left": 300,
-      "attrs": {}
+      "attrs": {"key": "g"}
     },
     {
       "type": "wokwi-pushbutton",
       "id":"btnButtonB",
       "top": 200,
       "left": 350,
-      "attrs": {}
+      "attrs": {"key": "h"}
     }
   ],
   "connections": [
