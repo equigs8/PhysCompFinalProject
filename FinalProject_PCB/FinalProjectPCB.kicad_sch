@@ -5,7 +5,7 @@
 	(uuid "779a3c99-a5a8-445d-8f38-e1d85c7e87cc")
 	(paper "A4")
 	(lib_symbols
-		(symbol "Connector_Audio:AudioJack2"
+		(symbol "Connector_Audio:AudioJack3"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -17,7 +17,7 @@
 					)
 				)
 			)
-			(property "Value" "AudioJack2"
+			(property "Value" "AudioJack3"
 				(at 0 6.35 0)
 				(effects
 					(font
@@ -43,7 +43,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Audio Jack, 2 Poles (Mono / TS)"
+			(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
 				(at 0 0 0)
 				(effects
 					(font
@@ -52,7 +52,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "audio jack receptacle mono phone headphone TS connector"
+			(property "ki_keywords" "audio jack receptacle stereo headphones phones TRS connector"
 				(at 0 0 0)
 				(effects
 					(font
@@ -70,10 +70,10 @@
 					(hide yes)
 				)
 			)
-			(symbol "AudioJack2_0_1"
+			(symbol "AudioJack3_0_1"
 				(rectangle
-					(start -3.81 0)
-					(end -2.54 -2.54)
+					(start -5.08 -5.08)
+					(end -6.35 -2.54)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -82,9 +82,33 @@
 						(type outline)
 					)
 				)
+				(polyline
+					(pts
+						(xy -1.905 -2.54) (xy -1.27 -3.175) (xy -0.635 -2.54) (xy -0.635 0) (xy 2.54 0)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 -2.54) (xy 0.635 -3.175) (xy 1.27 -2.54) (xy 2.54 -2.54)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
 				(rectangle
-					(start -2.54 3.81)
-					(end 2.54 -2.54)
+					(start 2.54 3.81)
+					(end -5.08 -5.08)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -95,19 +119,7 @@
 				)
 				(polyline
 					(pts
-						(xy 0 0) (xy 0.635 -0.635) (xy 1.27 0) (xy 2.54 0)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 2.54) (xy -0.635 2.54) (xy -0.635 0) (xy -1.27 -0.635) (xy -1.905 0)
+						(xy 2.54 2.54) (xy -2.54 2.54) (xy -2.54 -2.54) (xy -3.175 -3.175) (xy -3.81 -2.54)
 					)
 					(stroke
 						(width 0.254)
@@ -118,7 +130,7 @@
 					)
 				)
 			)
-			(symbol "AudioJack2_1_1"
+			(symbol "AudioJack3_1_1"
 				(pin passive line
 					(at 5.08 2.54 180)
 					(length 2.54)
@@ -139,6 +151,24 @@
 				)
 				(pin passive line
 					(at 5.08 0 180)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "R"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -2.54 180)
 					(length 2.54)
 					(name "~"
 						(effects
@@ -2835,6 +2865,16 @@
 		)
 		(uuid "ae94d6a3-ee96-420b-ac34-7d6aed3be412")
 	)
+	(text "Need to add Ground pin"
+		(exclude_from_sim no)
+		(at 169.418 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "d41ec91a-984f-4146-b1ee-f26d65300c6c")
+	)
 	(text "RESET\n"
 		(exclude_from_sim no)
 		(at 87.122 137.414 0)
@@ -3049,7 +3089,7 @@
 	)
 	(global_label "RX"
 		(shape input)
-		(at 151.13 52.07 180)
+		(at 163.83 48.26 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3059,7 +3099,7 @@
 		)
 		(uuid "1343a368-4330-475e-8930-846af1730a06")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 145.6653 52.07 0)
+			(at 158.3653 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3104,6 +3144,28 @@
 		(uuid "186239d8-09c1-4890-90e0-16a9e51ab95e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 70.6143 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SCK"
+		(shape input)
+		(at 81.28 81.28 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1a184b78-aa0a-4383-bbc4-a520c9c354a0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 74.5453 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3443,7 +3505,7 @@
 			)
 		)
 	)
-	(global_label "GPIO18"
+	(global_label "GPIO07"
 		(shape input)
 		(at 77.47 139.7 180)
 		(fields_autoplaced yes)
@@ -3575,31 +3637,9 @@
 			)
 		)
 	)
-	(global_label "GPIO18"
-		(shape input)
-		(at 81.28 81.28 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "65da454c-6545-4508-9f78-669963313aa1")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 71.4005 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "TX"
 		(shape input)
-		(at 151.13 49.53 180)
+		(at 163.83 45.72 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3609,7 +3649,7 @@
 		)
 		(uuid "6616fa43-71ce-450c-b6ef-d0bb3210c08f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 145.9677 49.53 0)
+			(at 158.6677 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3769,6 +3809,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SDI{slash}MOSI"
+		(shape input)
+		(at 81.28 96.52 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9492078a-3f08-402b-b776-f1c0d0c42569")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 69.2838 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -4015,6 +4077,28 @@
 			)
 		)
 	)
+	(global_label "GND"
+		(shape input)
+		(at 163.83 50.8 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "d8fc2b84-af74-4172-b65d-5bc8009c2fa0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 156.9743 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "GPIO1"
 		(shape input)
 		(at 132.08 63.5 0)
@@ -4169,7 +4253,7 @@
 			)
 		)
 	)
-	(global_label "GPIO7"
+	(global_label "SCK"
 		(shape input)
 		(at 77.47 129.54 180)
 		(fields_autoplaced yes)
@@ -4181,7 +4265,7 @@
 		)
 		(uuid "f9deff33-539b-4a4e-b374-07d339064fd0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 68.8 129.54 0)
+			(at 70.7353 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4191,7 +4275,7 @@
 			)
 		)
 	)
-	(global_label "GPIO15"
+	(global_label "SDI{slash}MOSI"
 		(shape input)
 		(at 77.47 132.08 180)
 		(fields_autoplaced yes)
@@ -4203,7 +4287,7 @@
 		)
 		(uuid "fc8e12b9-32aa-4ec7-bdff-3452a78fa83a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 67.5905 132.08 0)
+			(at 65.4738 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4392,6 +4476,79 @@
 			(project ""
 				(path "/779a3c99-a5a8-445d-8f38-e1d85c7e87cc"
 					(reference "SW1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Audio:AudioJack3")
+		(at 168.91 48.26 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6243fc8d-84ae-4f6d-a32c-60f8b350cbb4")
+		(property "Reference" "J3"
+			(at 176.53 46.3549 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "AudioJack3"
+			(at 176.53 48.8949 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 168.91 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 168.91 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
+			(at 168.91 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "R"
+			(uuid "3b5b8a6c-5caf-4e44-b7cf-1ac029846c28")
+		)
+		(pin "S"
+			(uuid "5f3d9547-99f8-4263-8809-09ab9f11e295")
+		)
+		(pin "T"
+			(uuid "211ed651-df4e-4db6-8640-8ffa4010d8a0")
+		)
+		(instances
+			(project ""
+				(path "/779a3c99-a5a8-445d-8f38-e1d85c7e87cc"
+					(reference "J3")
 					(unit 1)
 				)
 			)
@@ -5343,76 +5500,6 @@
 			(project "FinalProjectPCB"
 				(path "/779a3c99-a5a8-445d-8f38-e1d85c7e87cc"
 					(reference "SW6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Audio:AudioJack2")
-		(at 156.21 49.53 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d95e10a8-8dbb-4b34-8f27-bb2e863f3ab2")
-		(property "Reference" "J1"
-			(at 161.29 48.8949 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "SerialJack"
-			(at 161.29 51.4349 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 156.21 49.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 156.21 49.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Audio Jack, 2 Poles (Mono / TS)"
-			(at 156.21 49.53 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "T"
-			(uuid "22d8e537-2262-4f40-a36f-9c3179aa1116")
-		)
-		(pin "S"
-			(uuid "efbbf3ef-6b29-40ab-915c-0ddfece24213")
-		)
-		(instances
-			(project ""
-				(path "/779a3c99-a5a8-445d-8f38-e1d85c7e87cc"
-					(reference "J1")
 					(unit 1)
 				)
 			)
