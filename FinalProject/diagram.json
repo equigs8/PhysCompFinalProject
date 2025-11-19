@@ -87,7 +87,7 @@
     ["tft1:CS", "esp:5","green", [ "v28.8", "h-249.6", "v-211.2" ]],    
     ["tft1:D/C", "esp:4","blue", [ "v140", "h-680", "v-1"]],
 
-    ["btnUp:1.l","esp:37","red",[]],
+    ["btnUp:1.l","esp:0","red",[]],
     ["btnUp:2.l","esp:GND.4","black",[]],
 
     ["btnDown:1.l","esp:48","red",[]],
@@ -102,13 +102,13 @@
     ["btnSelect:1.l","esp:21","red",[]],
     ["btnSelect:2.l","esp:GND.4","black",[]],
     
-    ["btnHome:1.l","esp:7","red",[]],
+    ["btnHome:1.l","esp:40","red",[]],
     ["btnHome:2.l","esp:GND.4","black",[]],
 
     ["btnButtonA:1.l","esp:15","red",[]],
     ["btnButtonA:2.l","esp:GND.4","black",[]],
     
-    ["btnButtonB:1.l","esp:13","red",[]],
+    ["btnButtonB:1.l","esp:2","red",[]],
     ["btnButtonB:2.l","esp:GND.4","black",[]]
   ]
 }

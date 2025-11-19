@@ -354,8 +354,14 @@ void drawCursor(int prevX, int prevY, int newX, int newY) {
                cellSize - 2 * margin, cellSize - 2 * margin, BLACK);
 
 
-  // 2. Draw new cursor position only if the game is running AND the spot is empty
-  if (gameStatus == 0 && board[newX][newY] == EMPTY) {
+  // // 2. Draw new cursor position only if the game is running AND the spot is empty
+  // if (gameStatus == 0 && board[newX][newY] == EMPTY) {
+  //   tft.drawRect(startX + newX * cellSize + margin,
+  //                startY + newY * cellSize + margin,
+  //                cellSize - 2 * margin, cellSize - 2 * margin, CURSOR_COLOR);
+  // }
+  // 2. Draw new cursor position only if the game is running
+  if (gameStatus == 0) {
     tft.drawRect(startX + newX * cellSize + margin,
                  startY + newY * cellSize + margin,
                  cellSize - 2 * margin, cellSize - 2 * margin, CURSOR_COLOR);
@@ -425,7 +431,7 @@ bool checkDraw() {
  * @brief Handles the game over state for Tic-Tac-Toe.
  * @param winner The player who won (1 for X, 2 for O, 3 for draw).
  */
-void tikTacToeGameOver(int winner) {
+void ticTacToeGameOver(int winner) {
   if(!gameOverScreenDrawn){
     tft.fillScreen(BLACK); // Clear the screen
 
@@ -477,7 +483,7 @@ void handleTicTacToeInput() {
 
   // If the game is over, only the SELECT button can restart it.
   if (gameStatus != 0) {
-    tikTacToeGameOver(gameStatus);
+    ticTacToeGameOver(gameStatus);
     return;
   }
 
@@ -495,10 +501,10 @@ void handleTicTacToeInput() {
     } else if (digitalRead(PIN_DOWN) == LOW) {
       cursorY = min(BOARD_SIZE - 1, cursorY + 1);
       moved = true;
-    } else if (digitalRead(PIN_RIGHT) == LOW) { // RIGHT is used for movement
+    } else if (digitalRead(PIN_RIGHT) == LOW) { 
       cursorX = min(BOARD_SIZE - 1, cursorX + 1);
       moved = true;
-    }else if (digitalRead(PIN_LEFT) == LOW) { // LEFT is used for movement
+    }else if (digitalRead(PIN_LEFT) == LOW) { 
       cursorX = max(0, cursorX - 1);
       moved = true;
     }
@@ -517,7 +523,7 @@ void handleTicTacToeInput() {
       // 1. Place marker
       board[cursorX][cursorY] = currentPlayer;
       drawMarker(cursorX, cursorY, currentPlayer);
-      drawCursor(cursorX, cursorY, cursorX, cursorY); // This call erases the cursor
+      //drawCursor(cursorX, cursorY, cursorX, cursorY); // This call erases the cursor
 
       // 2. Check game status
       if (checkWin(currentPlayer)) {
