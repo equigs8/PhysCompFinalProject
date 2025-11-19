@@ -87,7 +87,7 @@
     ["tft1:CS", "esp:5","green", [ "v28.8", "h-249.6", "v-211.2" ]],    
     ["tft1:D/C", "esp:4","blue", [ "v140", "h-680", "v-1"]],
 
-    ["btnUp:1.l","esp:0","red",[]],
+    ["btnUp:1.l","esp:0","green",[]],
     ["btnUp:2.l","esp:GND.4","black",[]],
 
     ["btnDown:1.l","esp:48","red",[]],

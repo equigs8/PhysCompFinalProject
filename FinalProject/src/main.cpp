@@ -5,7 +5,6 @@
 
 // ==============================================================================
 // 1. PIN DEFINITIONS (ADJUST THESE FOR YOUR WIRING)
-// These pins reflect the latest configuration in the user-provided code.
 // ==============================================================================
 
 // SPI Display Pins (Common configuration for ESP32)
@@ -556,14 +555,55 @@ void handleTicTacToeInput() {
 // 5.1 POKEMON BATTLER GAME
 // ==============================================================================
 
+
+// Pokemon Menu variables
+int pokemonMenuRow1StartingX = 10;
+int pokemonMenuRow1StartingY = 200;
+int pokemonMenuRow2StartingX = 10;
+int pokemonMenuRow2StartingY = 215;
+
 // Define game state variables
 bool isPlayersTurn = true;
+int previousPokemonMenuSelection = 0; // 0 = Move, 1 = Switch, 2 = Bag, 3 = Run
+int numOfPokemonMenuSelection = 4;
+int pokemonMenuSelection = 0;
 
 
 
+void drawPokemonMenuCursor(int prevSelection, int newSelection) {
+  int yStart = 0;
+  int xStart = 0;
+  int height = 20;
+  int width = tft.width() - 240; //TODO: Maybe do something like char Width * font size * number of characters in selection string.
 
 
+  if(pokemonMenuSelection == 0 || pokemonMenuSelection == 1){
+    yStart = pokemonMenuRow1StartingY;
+  }else{
+    yStart = pokemonMenuRow2StartingY;
+  }
 
+  if(pokemonMenuSelection == 0 || pokemonMenuSelection == 2){
+    xStart = pokemonMenuRow1StartingX;
+  }else
+  {
+    xStart = pokemonMenuRow1StartingX + 100;
+  }
+
+  // 1. Erase previous cursor and redraw text/icon to un-highlight (WHITE).
+  if (prevSelection >= 0 && prevSelection < numOfPokemonMenuSelection) {
+    int prevYPos = yStart + prevSelection * 40;
+    
+    // Erase the background highlight
+    tft.drawRect(xStart, prevYPos, width, height, WHITE);
+  }
+
+  // 2. Draw new cursor and redraw text/icon to highlight (BLACK).
+  if (newSelection >= 0 && newSelection < numOfPokemonMenuSelection) {
+    int newYPos = yStart + newSelection * 40;
+    tft.drawRect(xStart, newYPos, width, height, BLACK);
+  }
+}
 
 
 void handlePokemonBattlerInput() {
@@ -580,14 +620,16 @@ void drawPokemonBattlerUI() {
   // The Select Menu shows the player options. Current options are: Move, Switch, Bag, Run
   tft.setTextSize(2);
   tft.setTextColor(BLACK);
-  tft.setCursor(10, 200);
+  tft.setCursor(pokemonMenuRow1StartingX, pokemonMenuRow1StartingY);
   tft.print("Move");
-  tft.setCursor(tft.getCursorX() + 5, tft.getCursorY());
+  tft.setCursor(pokemonMenuRow1StartingX + 100, tft.getCursorY());
   tft.print("Switch");
-  tft.setCursor(10, 200);
+  tft.setCursor(pokemonMenuRow2StartingX, pokemonMenuRow2StartingY);
   tft.print("Bag");
-  tft.setCursor(10, 200);
+  tft.setCursor(pokemonMenuRow2StartingX + 100, tft.getCursorY());
   tft.print("Run");
+
+  drawPokemonMenuCursor(previousPokemonMenuSelection, pokemonMenuSelection);
 }
 
 void drawPokemonBattler() {
@@ -595,6 +637,7 @@ void drawPokemonBattler() {
   tft.fillScreen(BLACK);
 
   drawPokemonBattlerUI();
+  drawPokemonMenuCursor(previousPokemonMenuSelection, pokemonMenuSelection);
 }
 
 void resetPokemonBattler() {
