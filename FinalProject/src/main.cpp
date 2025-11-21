@@ -6,6 +6,7 @@
 #include <array>
 #include <string>
 #include <math.h>
+#include "pokemon.h"
 
 
 // ==============================================================================
@@ -682,6 +683,16 @@ const uint16_t pokemonSprite3[56 * 56] PROGMEM = {
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xca31, 0xca31, 0xca31, 0xca31, 0xca31, 0xca31, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
 };
 
+// Pokemon
+Move pikachuMoveset[4] = {Move(10, "Punch", 10), Move(20, "Kick", 10), Move(30, "Flash", 10), Move(40, "Bolt", 10)};
+Pokemon playerPokemon = Pokemon("Pikachu", 100, 10, pikachuMoveset);
+
+Move charmanderMoveset[4] = {Move(10, "Punch", 10), Move(20, "Kick", 10), Move(30, "Super Kick", 10), Move(40, "Hyper Kick", 10)};
+Pokemon enemyPokemon = Pokemon("Charmander", 100, 10, charmanderMoveset);
+
+
+//Player Bag
+std::string playerBag[4] = {"Poke Ball", "Great Ball", "Ultra Ball", "Master Ball"};
 
 
 // Pokemon Menu Layout Variables
@@ -691,6 +702,8 @@ int pokemonMenuRow2StartingX = 10;
 int pokemonMenuRow2StartingY = 220;
 
 // Define game state variables
+bool isPlayersTurn = true;
+
 int pokemonMenuSelection = 0; 
 int pokemonSubMenuSelection = 0; 
 int previousPokemonSubMenuSelection = -1;
@@ -700,13 +713,22 @@ bool feedbackActive = false;
 unsigned long feedbackStartTime = 0;
 const int FEEDBACK_DURATION = 100; // ms
 
+std::string pokemonMove1 = playerPokemon.getMove(0).getName();
+std::string pokemonMove2 = playerPokemon.getMove(1).getName();
+std::string pokemonMove3 = playerPokemon.getMove(2).getName();
+std::string pokemonMove4 = playerPokemon.getMove(3).getName();
+
 const std::map<int, std::array<std::string, 4>> pokemonMenuItems = {
   {0, {"Move", "Switch", "Bag", "Run"}},
-  {1, {"Punch", "Kick", "Super Kick", "Hyper Kick"}}, 
+  {1, {pokemonMove1, pokemonMove2, pokemonMove3, pokemonMove4}}, 
   {2, {"Pikachu", "Charmander", "Squirtle", "Bulbasaur"}}, 
   {3, {"Poke Ball", "Great Ball", "Ultra Ball", "Master Ball"}}, 
-  {4, {"Run away?", "Yes", "No", ""}} 
+  {4, {"Yes", "No", "",""}} 
 };
+
+
+// Game Over state variable
+bool gameIsOver = false;
 
 
 
@@ -863,7 +885,7 @@ void drawFilledEllipse(int cx, int cy, int rx, int ry, uint16_t color) {
 }
 
 // --- HELPER: Draw HP Bar and Text Box ---
-void drawHUD(int x, int y, const char* name, const char* level, int currentHP, int maxHP, bool isPlayer) {
+void drawHUD(int x, int y, const char* name, int level, int currentHP, int maxHP, bool isPlayer) {
   int w = 140;
   int h = 45;
   
@@ -877,7 +899,14 @@ void drawHUD(int x, int y, const char* name, const char* level, int currentHP, i
   
   // 1. Name
   tft.setCursor(x + 10, y + 5);
-  tft.setTextSize(2);
+  //set text size acording to name length
+  if(strlen(name) > 7){
+    tft.setCursor(x + 10, y + 10);
+    tft.setTextSize(1);
+  }else{
+    tft.setTextSize(2);
+  }
+  
   tft.print(name);
   
   // 2. Level symbol (simple "Lv")
@@ -915,7 +944,11 @@ void drawHUD(int x, int y, const char* name, const char* level, int currentHP, i
 }
 
 void drawHPUI(){
+  // 4. Draw Enemy HUD (Top Left)
+  drawHUD(10, 15, enemyPokemon.getName(), enemyPokemon.getLevel(), enemyPokemon.getHealth(), enemyPokemon.getMaxHealth(), false);
 
+  // 5. Draw Player HUD (Right side, above menu)
+  drawHUD(170, 135, playerPokemon.getName(), playerPokemon.getLevel(), playerPokemon.getHealth(), playerPokemon.getMaxHealth(), true); // Player
 }
 
 // --- MAIN SCENE DRAW FUNCTION ---
@@ -938,11 +971,8 @@ void drawBattleScene() {
   int playerBaseY = 180;
   drawFilledEllipse(playerBaseX, playerBaseY, 80, 30, PLATFORM_COL);
 
-  // 4. Draw Enemy HUD (Top Left)
-  drawHUD(10, 15, "Pidgey", "17", 40, 55, false);
-
-  // 5. Draw Player HUD (Right side, above menu)
-  drawHUD(170, 135, "Pikachu", "42", 83, 83, true);
+  drawHPUI();
+  
 
   // 6. Draw Pokemon SpritesS
   // Enemy
@@ -951,7 +981,7 @@ void drawBattleScene() {
   // Player
   tft.drawBitmap(playerBaseX - 30, playerBaseY - 60, pokemonSprite2, 56, 56, WHITE);
   
-  //tft.drawRGBBitmap(playerBaseX - 30, playerBaseY - 60, pokemonSprite3, 56, 56);
+  //tft.drawRGBBitmap(playerBaseX - 30, playerBaseY - 60, pokemonSprite4, 56, 56);
 }
 
 void resetPokemonBattler() {
