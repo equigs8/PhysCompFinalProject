@@ -13,16 +13,31 @@ class Pokemon{
     int _level;
     Move _moveSet[4];
 
+    const uint16_t* _sprite;
+    int _spriteWidth;
+    int _spriteHeight;
+
 
     public:
     Pokemon(){
-
+        _sprite = nullptr;
     }
-    Pokemon(const char * name, int maxHealth, int level, Move moves[]){
+    /*
+    * @brief Constructor for Pokemon
+    * @param name Name of the Pokemon
+    * @param maxHealth Maximum health of the Pokemon
+    * @param level Level of the Pokemon
+    */
+    Pokemon(const char * name, int maxHealth, int level, Move moves[], const uint16_t* sprite, int spriteWidth, int spriteHeight){
         _name = name;
         _maxHealth = maxHealth;
         _health = _maxHealth;
         _level = level;
+
+        _sprite = sprite;
+        _spriteWidth = spriteWidth;
+        _spriteHeight = spriteHeight;
+
 
         for (int i = 0; i < 4; i++) {
                 _moveSet[i] = moves[i];
@@ -31,6 +46,18 @@ class Pokemon{
 
     const char * getName(){
         return _name;
+    }
+
+    const uint16_t* getSprite(){
+        return _sprite;
+    }
+
+    int getSpriteWidth(){
+        return _spriteWidth;
+    }
+
+    int getSpriteHeight(){
+        return _spriteHeight;
     }
 
     int getHealth(){
@@ -51,6 +78,9 @@ class Pokemon{
     
     void heal(int amount){
         _health += amount;
+        if(_health > _maxHealth){
+            _health = _maxHealth;
+        }
     }
 
     Move getMove(int index){
