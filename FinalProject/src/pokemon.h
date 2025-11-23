@@ -47,6 +47,9 @@ class Pokemon{
     const char * getName(){
         return _name;
     }
+    char * getNonConstName(){
+        return const_cast<char*>(static_cast<const char*>(getName()));
+    }
 
     const uint16_t* getSprite(){
         return _sprite;
