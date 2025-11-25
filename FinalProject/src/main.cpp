@@ -891,9 +891,10 @@ void drawBattleScene() {
   // 2. Draw Enemy Platform (Top Right)
   int enemyBaseX = 230;
   int enemyBaseY = 90;
+
   drawFilledEllipse(enemyBaseX, enemyBaseY, 70, 25, PLATFORM_COL);
-  // Outline for style
-  // drawFilledEllipse(enemyBaseX, enemyBaseY, 72, 27, GRASS_GREEN); // Optional border trick
+
+  
 
   // 3. Draw Player Platform (Bottom Left)
   int playerBaseX = 90;
@@ -937,8 +938,12 @@ bool performAttack(Pokemon &attacker, Pokemon &defender, Move move) {
   drawHPUI();
   delay(1000);
 
+  
+
   if (defender.getHealth() <= 0) {
-    drawBattleMessage("It fainted!");
+    char * defenderName = defender.getNonConstName();
+    msg = String(defenderName) + " fainted!";
+    drawBattleMessage(msg.c_str());
     delay(2000);
     return true; // Battle Ends
   }
@@ -968,6 +973,7 @@ void endBattle(bool playerWon){
     tft.print("Pikachu fainted.");
   }
   
+  tft.setTextSize(1);
   tft.setCursor(30, 180);
   tft.print("Press Home to Exit");
   tft.setCursor(30, 200);
