@@ -1119,6 +1119,10 @@ void drawChessGameOver(){
 
 }
 
+void drawChessBoard(){
+  
+}
+
 void handleChessInputs(){
   if(chessPhase == MENU){
     static unsigned long lastMoveTime = 0;
@@ -1154,6 +1158,7 @@ void handleChessInputs(){
       } else if (chessMenuSelection == 1) {
         // Option 1: Play as Black
         playingAsWhite = false;
+        chessPhase = START_GAME;
       }
       delay(300); // Debounce select press
     }
@@ -1161,6 +1166,7 @@ void handleChessInputs(){
   }else if(chessPhase == START_GAME){
     // start the game and reset the move array
     chessPhase = WHITE_TURN;
+    drawChessBoard();
   }else if (chessPhase == WHITE_TURN){
     // White can send a move. Black waits for move.
   }else if (chessPhase == BLACK_TURN){
