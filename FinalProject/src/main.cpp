@@ -1023,6 +1023,159 @@ void resetPokemonBattler() {
 }
 
 
+// ==============================================================================
+// 5.2 CHESS
+// ==============================================================================
+
+// White device will act as the game manager and main source of truth
+
+enum ChessPhase{
+  MENU,
+  START_GAME,
+  WHITE_TURN,
+  BLACK_TURN,
+  GAME_OVER
+};
+ChessPhase chessPhase = MENU;
+int turnNumber = 0; // turn 0 is the first. Even turns are White and Black are odd.
+
+int chessMenuSelection = 0; //0 = Play as white, 1 = play as black;
+int previousChessMenuSelection = 1;
+
+char * chessMenu[] = {"Play as White", "Play as Black"};
+int numChessMenu = 2;
+
+bool playingAsWhite = false;
+
+void drawChessMenu(int previousSelection, int selection){
+  tft.fillScreen(BLACK);
+  tft.setTextColor(WHITE);
+  tft.setTextSize(3);
+  tft.setCursor(50,20);
+  tft.print("CHESS");
+
+  tft.setTextSize(2);
+  for (int i = 0; i < numChessMenu; i++) {
+    int yPos = 80 + i * 40;
+
+    // Draw Text
+    tft.setCursor(50, 80 + i * 40);
+    tft.setTextColor(WHITE);
+    tft.print(chessMenu[i]);
+  }
+}
+
+/**
+ * @brief Draws or moves the cursor/selection highlight on the Chess menu.
+ */
+void drawChessMenuCursor(int prevSelection, int newSelection) {
+  int xPos = 40;
+  int yStart = 80;
+  int height = 20;
+  int width = tft.width() - 80;
+
+  // 1. Erase previous cursor and redraw text/icon to un-highlight (WHITE).
+  if (prevSelection >= 0 && prevSelection < numMenuItems) {
+    int prevYPos = yStart + prevSelection * 40;
+    
+    // Erase the background highlight
+    tft.fillRect(xPos, prevYPos, width, height, BLACK);
+    
+    // Redraw Text (WHITE)
+    tft.setCursor(50, prevYPos);
+    tft.setTextColor(WHITE);
+    tft.setTextSize(2);
+    tft.print(chessMenu[prevSelection]);
+    
+    // Redraw Icon (WHITE) (Icon position: x=5, centered vertically around text line)
+    drawMenuItemIcon(prevSelection, 15, prevYPos, WHITE);
+  }
+
+  // 2. Draw new cursor highlight and redraw text/icon in BLACK.
+  int newYPos = yStart + newSelection * 40;
+  
+  // Draw new cursor (filled box)
+  tft.fillRect(xPos, newYPos, width, height, CURSOR_COLOR);
+  
+  // Redraw Text (BLACK on the colored cursor)
+  tft.setCursor(50, newYPos);
+  tft.setTextColor(BLACK); 
+  tft.setTextSize(2);
+  tft.print(chessMenu[newSelection]);
+  
+  // Redraw Icon (BLACK on the colored cursor)
+  drawMenuItemIcon(newSelection, 15, newYPos, WHITE);
+}
+
+
+void drawChessGameOver(){
+  tft.fillScreen(BLACK);
+
+}
+
+void handleChessInputs(){
+  if(chessPhase == MENU){
+    static unsigned long lastMoveTime = 0;
+    const unsigned long moveDelay = 200;
+    unsigned long currentTime = millis();
+    int previousChessMenuSelection = chessMenuSelection;
+
+    // Handle Movement (Directional Buttons)
+    if (currentTime - lastMoveTime >= moveDelay) {
+      bool moved = false;
+
+      if (digitalRead(PIN_UP) == LOW) {
+        chessMenuSelection= max(0, chessMenuSelection - 1);
+        moved = true;
+      } else if (digitalRead(PIN_DOWN) == LOW) {
+        chessMenuSelection = min(numChessMenu - 1, chessMenuSelection + 1);
+        moved = true;
+      }
+
+      if (moved) {
+        lastMoveTime = currentTime;
+        drawChessMenuCursor(previousChessMenuSelection,chessMenuSelection);
+      }
+    }
+
+    // Handle Action (A Button)
+    if (digitalRead(PIN_BUTTONA) == LOW) {
+      if (chessMenuSelection == 0) {
+        // Option 0: Play as White
+        playingAsWhite = true;
+        chessPhase = START_GAME;
+        
+      } else if (chessMenuSelection == 1) {
+        // Option 1: Play as Black
+        playingAsWhite = false;
+      }
+      delay(300); // Debounce select press
+    }
+    
+  }else if(chessPhase == START_GAME){
+    // start the game and reset the move array
+    chessPhase = WHITE_TURN;
+  }else if (chessPhase == WHITE_TURN){
+    // White can send a move. Black waits for move.
+  }else if (chessPhase == BLACK_TURN){
+    // Black can send a move. White lisens for the move.
+  }else if (chessPhase == GAME_OVER){
+    drawChessGameOver();
+  }
+}
+
+void resetChess(){
+  turnNumber = 0;
+  tft.fillScreen(BLACK);
+  chessPhase = MENU;
+  drawChessMenu(previousChessMenuSelection, chessMenuSelection);
+}
+
+
+
+
+
+
 
 // ==============================================================================
 // 6. ARDUINO SETUP & LOOP
