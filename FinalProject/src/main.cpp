@@ -41,7 +41,8 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 enum GameState {
   STATE_MENU,
   STATE_TICTACTOE,
-  STATE_POKEMON_BATTLER
+  STATE_POKEMON_BATTLER,
+  STATE_CHESS
 };
 GameState currentState = STATE_MENU;
 
@@ -118,7 +119,9 @@ int cursorY = 0;
 void resetTicTacToe();
 void ticTacToeSelected();
 void pokemonBattlerSelected();
+void chessSelected();
 void resetPokemonBattler();
+void resetChess();
 
 // ==============================================================================
 // 3. DRAWING FUNCTIONS
@@ -320,7 +323,11 @@ void handleMenuInput() {
     } else if (menuSelection == 1) {
       // Option 1: POKEMON BATTLER
       pokemonBattlerSelected();
-    }else {
+    }else if (menuSelection == 2) {
+      // Option 2: CHESS
+      chessSelected();
+    }
+    else {
       // Placeholder for other games
       displayStatus("Game unavailable", RED);
     }
@@ -336,6 +343,10 @@ void ticTacToeSelected()
 void pokemonBattlerSelected(){
   currentState = STATE_POKEMON_BATTLER;
   resetPokemonBattler();
+}
+void chessSelected(){
+  currentState = STATE_CHESS;
+  resetChess();
 }
 // ==============================================================================
 // 5. TICTACTOE GAME LOGIC
@@ -1040,9 +1051,9 @@ ChessPhase chessPhase = MENU;
 int turnNumber = 0; // turn 0 is the first. Even turns are White and Black are odd.
 
 int chessMenuSelection = 0; //0 = Play as white, 1 = play as black;
-int previousChessMenuSelection = 1;
+int previousChessMenuSelection = -1;
 
-char * chessMenu[] = {"Play as White", "Play as Black"};
+const char * chessMenu[] = {"Play as White", "Play as Black"};
 int numChessMenu = 2;
 
 bool playingAsWhite = false;
@@ -1087,8 +1098,6 @@ void drawChessMenuCursor(int prevSelection, int newSelection) {
     tft.setTextSize(2);
     tft.print(chessMenu[prevSelection]);
     
-    // Redraw Icon (WHITE) (Icon position: x=5, centered vertically around text line)
-    drawMenuItemIcon(prevSelection, 15, prevYPos, WHITE);
   }
 
   // 2. Draw new cursor highlight and redraw text/icon in BLACK.
@@ -1102,9 +1111,6 @@ void drawChessMenuCursor(int prevSelection, int newSelection) {
   tft.setTextColor(BLACK); 
   tft.setTextSize(2);
   tft.print(chessMenu[newSelection]);
-  
-  // Redraw Icon (BLACK on the colored cursor)
-  drawMenuItemIcon(newSelection, 15, newYPos, WHITE);
 }
 
 
@@ -1169,6 +1175,7 @@ void resetChess(){
   tft.fillScreen(BLACK);
   chessPhase = MENU;
   drawChessMenu(previousChessMenuSelection, chessMenuSelection);
+  drawChessMenuCursor(previousChessMenuSelection, chessMenuSelection);
 }
 
 
@@ -1218,6 +1225,9 @@ void loop() {
       break;
     case STATE_POKEMON_BATTLER:
       handlePokemonBattlerInput();
+      break;
+    case STATE_CHESS:
+      handleChessInputs();
       break;
   }
   //delay(10);
