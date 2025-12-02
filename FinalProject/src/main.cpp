@@ -59,6 +59,8 @@ const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
 #define YELLOW  0xFFE0
 #define CURSOR_COLOR 0xF800 // Light green/cyan for cursor outline
 #define MAIN_MENU_COLOR BLACK
+#define CHESS_BOARD_LIGHT_COLOR 0xDEFB 
+#define CHESS_BOARD_DARK_COLOR 0x7D1F
 
 
 // Pokemon Battle Specific Colors
@@ -131,7 +133,7 @@ void resetChess();
 void drawSpriteWithTransparency(int x, int y, const uint16_t *bitmap, int w, int h, uint16_t transparentColor) {
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
-            // Get the pixel color from the array (pgm_read_word is needed for ESP32 PROGMEM sometimes, though direct access usually works on ESP32)
+            
             uint16_t color = pgm_read_word(&bitmap[j * w + i]);
             
             // Only draw if it matches your transparency key
@@ -1058,6 +1060,31 @@ int numChessMenu = 2;
 
 bool playingAsWhite = false;
 
+// Chess board. Each element represents a square on the board. The value of the element corisponds to the type and color of the piece.
+// 0 = Empty Square
+// Pawns = 1,  Bishops = 2,  Knights= 3, Rooks = 4, Queens = 5, Kings = 6
+// Black pieces will be negative while white pieces will be positive
+std::array<std::array<int, 8>, 8> chessBoard = {{
+  {-4, -3, -2, -5, -6, -2, -3, -4},
+  {-1, -1, -1, -1, -1, -1, -1, -1},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {1, 1, 1, 1, 1, 1, 1, 1},
+  {4, 3, 2, 5, 6, 2, 3, 4},
+}};
+// Chess board cursor. Represents the current location of the cursor on the chess board. Numbered from left to right and top to bottom.
+int chessBoardCursorLocation = 0;
+int chessBoardPreviousCursorLocation = -1;
+
+// Grid configuration
+int boardHeight = tft.height(); // 240
+int squareSize = 28;
+// Center the board on the screen
+int chessSquareStartPosX = (tft.width() - (squareSize * 8)) / 2; 
+int chessSquareStartPosY = (tft.height() - (squareSize * 8)) / 2;
+
 void drawChessMenu(int previousSelection, int selection){
   tft.fillScreen(BLACK);
   tft.setTextColor(WHITE);
@@ -1119,15 +1146,92 @@ void drawChessGameOver(){
 
 }
 
-void drawChessBoard(){
+int getChessSquareLocationX(int square){
+  int squareX = square % 8;
+  return chessSquareStartPosX + squareX * squareSize;
+}
+int getChessSquareLocationY(int square){
+  int squareY = square / 8;
+  return chessSquareStartPosY + squareY * squareSize;
+}
+
+int getChessSquareColor(int square){
+  int squareValue = chessBoard[square / 8][square % 8];
+  return (squareValue > 0) ? CHESS_BOARD_LIGHT_COLOR : CHESS_BOARD_DARK_COLOR;
+}
+
+void drawChessCursor(int currentPostion, int previousPosition){
+  //draw a a cursor color box around the current square.
   
+  //get color of previous square
+  int previousColor = getChessSquareColor(previousPosition);
+  
+  int previousSquareLocationX = getChessSquareLocationX(previousPosition);
+  int previousSquareLocationY = getChessSquareLocationY(previousPosition);
+  int squareLocationX = getChessSquareLocationX(currentPostion);
+  int squareLocationY = getChessSquareLocationY(currentPostion);
+
+  if (previousPosition >= 0) {
+    //Draw a box to color in the previous position
+    tft.drawRect(previousSquareLocationX, previousSquareLocationY, squareSize, squareSize, previousColor);
+  }
+  //Draw a box for new selection
+  tft.drawRect(squareLocationX, squareLocationY, squareSize, squareSize, CURSOR_COLOR);
+}
+
+void drawChessPiece(int posX, int posY, int squareSize, int color, int pieceType) {
+  // Calculate center of the specific square
+  int centerX = posX + (squareSize / 2);
+  int centerY = posY + (squareSize / 2);
+  int radius = (squareSize / 2) - 3; // Leave a small margin so pieces don't touch edges
+
+  // Draw the piece
+  tft.fillCircle(centerX, centerY, radius, color);
+  
+  // Draw the outline
+  tft.drawCircle(centerX, centerY, radius, BLACK); 
+
+  // TODO: Add specific logic here for bitmaps
+  // For now, print a char to identify the piece
+  tft.setCursor(centerX - 3, centerY - 4);
+  tft.setTextColor(color == WHITE ? BLACK : WHITE);
+  tft.setTextSize(1);
+  tft.print(abs(pieceType));
+}
+
+void drawChessBoard() {
+  tft.fillScreen(BLACK);
+
+  chessSquareStartPosX = (tft.width() - (squareSize * 8)) / 2; 
+  chessSquareStartPosY = (tft.height() - (squareSize * 8)) / 2;
+  
+
+  for (int i = 0; i < 8; i++) {   // i = rows (Y)
+    for (int j = 0; j < 8; j++) { // j = cols (X)
+      
+      int x = chessSquareStartPosX + (j * squareSize);
+      int y = chessSquareStartPosY + (i * squareSize);
+
+      uint16_t color = ((i + j) % 2 == 0) ? CHESS_BOARD_LIGHT_COLOR : CHESS_BOARD_DARK_COLOR;
+      
+      tft.fillRect(x, y, squareSize, squareSize, color);
+
+      // Draw the piece if it exists
+      int squareValue = chessBoard[i][j];
+      if (squareValue != 0) {
+        uint16_t pieceColor = (squareValue > 0) ? WHITE : BLACK;
+        drawChessPiece(x, y, squareSize, pieceColor, squareValue);
+      }
+    }
+  }
 }
 
 void handleChessInputs(){
+  static unsigned long lastMoveTime = 0;
+  const unsigned long moveDelay = 200;
+  unsigned long currentTime = millis();
   if(chessPhase == MENU){
-    static unsigned long lastMoveTime = 0;
-    const unsigned long moveDelay = 200;
-    unsigned long currentTime = millis();
+    
     int previousChessMenuSelection = chessMenuSelection;
 
     // Handle Movement (Directional Buttons)
@@ -1167,8 +1271,32 @@ void handleChessInputs(){
     // start the game and reset the move array
     chessPhase = WHITE_TURN;
     drawChessBoard();
+    drawChessCursor(chessBoardCursorLocation, chessBoardPreviousCursorLocation);
   }else if (chessPhase == WHITE_TURN){
     // White can send a move. Black waits for move.
+    if(currentTime - lastMoveTime >= moveDelay){
+      bool moved = false;
+
+      if (digitalRead(PIN_UP) == LOW) {
+        chessBoardCursorLocation = max(0, chessBoardCursorLocation - 8);
+        moved = true;
+      } else if (digitalRead(PIN_DOWN) == LOW) {
+        chessBoardCursorLocation = min(63, chessBoardCursorLocation + 8);
+        moved = true;
+      } else if (digitalRead(PIN_RIGHT) == LOW) {
+        chessBoardCursorLocation = min(63, chessBoardCursorLocation + 1);
+        moved = true;
+      } else if (digitalRead(PIN_LEFT) == LOW) {
+        chessBoardCursorLocation = max(0, chessBoardCursorLocation - 1);
+        moved = true;
+      }
+
+      if (moved) {
+        lastMoveTime = currentTime;
+        drawChessCursor(chessBoardCursorLocation, chessBoardPreviousCursorLocation);
+        chessBoardPreviousCursorLocation = chessBoardCursorLocation;
+      }
+    }
   }else if (chessPhase == BLACK_TURN){
     // Black can send a move. White lisens for the move.
   }else if (chessPhase == GAME_OVER){
