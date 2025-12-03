@@ -48,7 +48,7 @@ GameState currentState = STATE_MENU;
 
 // Menu Variables
 int menuSelection = 0; // Index of the currently selected menu item
-const char* menuItems[] = {"Tic-Tac-Toe", "Pokemon", "Coming Soon..."};
+const char* menuItems[] = {"Tic-Tac-Toe", "Pokemon", "Chess", "Settings"};
 const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
 
 // Color Definitions
