@@ -1,4 +1,4 @@
-26332424724060693
+26341248849864734
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -60704,6 +60704,20 @@ GDT 3R-6
 3
 3
 GooseCustom
+D6R90_CNK Button
+
+D6R90F2LFS 
+0
+4
+4
+GooseCustom
+Multi-Directional Switch 5 Position
+
+
+0
+10
+10
+GooseCustom
 Piezo_XDCR_AT-1224-TWT-5V-2-R
 
 
@@ -60717,6 +60731,27 @@ PogoPin_ Mxfans
 0
 1
 1
+GooseCustom
+Thumb_TRIM_3352T-1-104LF
+
+
+0
+3
+3
+GooseCustom
+Untitled
+
+
+0
+0
+0
+GooseCustom
+Untitled_1
+
+
+0
+10
+10
 Heatsink
 Heatsink_35x26mm_1xFixation3mm_Fischer-SK486-35
 Heatsink, 35mm x 26mm, 1x Fixation 3mm, Fischer SK486-35

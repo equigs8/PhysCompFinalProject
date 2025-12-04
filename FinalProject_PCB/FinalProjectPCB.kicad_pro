@@ -602,6 +602,18 @@
           "label": "#",
           "name": "${ITEM_NUMBER}",
           "show": false
+        },
+        {
+          "group_by": false,
+          "label": "PROD_ID",
+          "name": "PROD_ID",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Mfg Part#",
+          "name": "Mfg Part#",
+          "show": false
         }
       ],
       "filter_string": "",
