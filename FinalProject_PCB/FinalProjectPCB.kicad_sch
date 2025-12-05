@@ -5863,7 +5863,7 @@
 				)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Bridge_Pitch2.54mm_Drill1.0mm"
+		(property "Footprint" "TerminalBlock:TerminalBlock_Xinya_XY308-2.54-2P_1x02_P2.54mm_Horizontal"
 			(at 63.5 106.68 0)
 			(effects
 				(font
