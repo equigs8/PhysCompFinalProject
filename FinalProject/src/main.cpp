@@ -16,7 +16,12 @@
 #include "White_Bishop.h"
 #include "White_Knight.h"
 #include "White_Pawn.h"
-
+#include "Black_King.h"
+#include "Black_Queen.h"
+#include "Black_Rook.h"
+#include "Black_Bishop.h"
+#include "Black_Knight.h"
+#include "Black_Pawn.h"
 
 // ==============================================================================
 // 1. PIN DEFINITIONS (ADJUST THESE FOR YOUR WIRING)
@@ -1330,40 +1335,69 @@ chessPiece MY_WHITE_BISHOP = createWhiteBishop();
 chessPiece MY_WHITE_KNIGHT = createWhiteKnight();
 chessPiece MY_WHITE_PAWN = createWhitePawn();
 
-void drawChessPiece(int posX, int posY, int squareSize, int color, int pieceType) {
-  // Calculate center of the specific square
-  int centerX = posX + (squareSize / 2);
-  int centerY = posY + (squareSize / 2);
-  int radius = (squareSize / 2) - 3; // Leave a small margin so pieces don't touch edges
-  if(pieceType == 0){
-    // Draw the piece
-    tft.fillCircle(centerX, centerY, radius, color);
-    
-    // Draw the outline
-    tft.drawCircle(centerX, centerY, radius, BLACK); 
+// Black:
+chessPiece MY_BLACK_KING = createBlackKing();
+chessPiece MY_BLACK_QUEEN = createBlackQueen();
+chessPiece MY_BLACK_ROOK = createBlackRook();
+chessPiece MY_BLACK_BISHOP = createBlackBishop();
+chessPiece MY_BLACK_KNIGHT = createBlackKnight();
+chessPiece MY_BLACK_PAWN = createBlackPawn();
 
-    // TODO: Add specific logic here for bitmaps
-    // For now, print a char to identify the piece
-    tft.setCursor(centerX - 3, centerY - 4);
-    tft.setTextColor(color == WHITE ? BLACK : WHITE);
-    tft.setTextSize(1);
-    tft.print(abs(pieceType));
-  }else if(pieceType == 1){
-    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_PAWN.getSprite(), 26, 26, BLACK);
-  }else if(pieceType == 2){
-    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_KNIGHT.getSprite(), 26, 26, BLACK);
-  }else if(pieceType == 3){
-    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_BISHOP.getSprite(), 26, 26, BLACK);
+void drawChessPiece(int posX, int posY, int squareSize, int color, int pieceType) {
+
+  int offSet = 2;
+  int pieceSize = 26;
+  chessPiece pieceToDraw;
+
+  if (pieceType > 0) {
+    switch (pieceType)
+    {
+    case 1:
+      pieceToDraw = MY_WHITE_PAWN;
+      break;
+    case 2:
+      pieceToDraw = MY_WHITE_BISHOP;
+      break;
+    case 3:
+      pieceToDraw = MY_WHITE_KNIGHT;
+      break;
+    case 4:
+      pieceToDraw = MY_WHITE_ROOK;
+      break;
+    case 5:
+      pieceToDraw = MY_WHITE_QUEEN;
+      break;
+    case 6:
+      pieceToDraw = MY_WHITE_KING;
+      break;
+    }
+  }else if(pieceType < 0){
+    pieceType = pieceType * -1;
+    switch (pieceType)
+    {
+    case 1:
+      pieceToDraw = MY_BLACK_PAWN;
+      break;
+    case 2:
+      pieceToDraw = MY_BLACK_BISHOP;
+      break;
+    case 3:
+      pieceToDraw = MY_BLACK_KNIGHT;
+      break;
+    case 4:
+      pieceToDraw = MY_BLACK_ROOK;
+      break;
+    case 5:
+      pieceToDraw = MY_BLACK_QUEEN;
+      break;
+    case 6:
+      pieceToDraw = MY_BLACK_KING;
+      break;
+    }
   }
-  else if(pieceType == 4){
-    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_ROOK.getSprite(), 26, 26, BLACK);
-  }else if (pieceType == 5){
-    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_QUEEN.getSprite(), 26, 26, BLACK);
-  }
-  else{
-    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_KING.getSprite(), 26, 26, BLACK);
+
+  drawSpriteWithTransparency(posX + offSet, posY + offSet, pieceToDraw.getSprite(), pieceSize, pieceSize, 0x0000);
     
-  }
 }
 
 void drawChessBoard() {
