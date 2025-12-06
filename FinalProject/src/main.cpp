@@ -9,6 +9,13 @@
 #include "pokemon.h"
 #include "pikachu.h"
 #include "charmander.h"
+#include "chessPiece.h"
+#include "White_King.h"
+#include "White_Queen.h"
+#include "White_Rook.h"
+#include "White_Bishop.h"
+#include "White_Knight.h"
+#include "White_Pawn.h"
 
 
 // ==============================================================================
@@ -1078,12 +1085,130 @@ std::array<std::array<int, 8>, 8> chessBoard = {{
 int chessBoardCursorLocation = 0;
 int chessBoardPreviousCursorLocation = -1;
 
+// Track the source square of the move. -1 = nothing selected
+int selectedSourceSquare = -1;
+
 // Grid configuration
 int boardHeight = tft.height(); // 240
-int squareSize = 28;
+int squareSize = 30;
 // Center the board on the screen
 int chessSquareStartPosX = (tft.width() - (squareSize * 8)) / 2; 
 int chessSquareStartPosY = (tft.height() - (squareSize * 8)) / 2;
+
+
+int getPieceAt(int index){
+  int row = index / 8;
+  int col = index % 8;
+  return chessBoard[row][col];
+}
+
+bool isPathClear(int startIdx, int endIdx){
+  int startRow = startIdx / 8;
+  int startCol = startIdx % 8;
+  int endRow = endIdx / 8;
+  int endCol = endIdx % 8;
+ 
+  int dRow = (endRow - startRow) == 0 ? 0 : (endRow - startRow) > 0 ? 1 : -1;
+  int dCol = (endCol - startCol) == 0 ? 0 : (endCol - startCol) > 0 ? 1 : -1;
+  
+  int currentRow = startRow + dRow;
+  int currentCol = startCol + dCol;
+  
+  while (currentRow != endRow || currentCol != endCol){
+    if (chessBoard[currentRow][currentCol] != 0){
+      return false;
+    }
+    currentRow += dRow;
+    currentCol += dCol;
+  }
+  return true;
+}
+
+bool isValidMove(int fromIdx, int toInx){
+  int piece = getPieceAt(fromIdx);
+  int target = getPieceAt(toInx);
+
+  // check if target is own piece
+  if (target != 0)
+  {
+    bool sameColor = (piece > 0 && target > 0) || (piece < 0 && target < 0);
+    if(sameColor)
+    {
+      return false;
+    }
+  }
+  
+  int startRow = fromIdx / 8;
+  int startCol = fromIdx % 8;
+  int endRow = toInx / 8;
+  int endCol = toInx % 8;
+  int dRow = endRow - startRow;
+  int dCol = endCol - startCol;
+  int absRow = abs(dRow);
+  int absCol = abs(dCol);
+
+  int type = abs(piece);
+
+  switch(type){
+    case 1: // Pawns
+    {
+      int direction = (piece > 0) ? -1 : 1; //White moves up, black moves down
+      int startRowLimit = (piece > 0) ? 6: 1;
+
+      // Move Forward 1 space
+      if (dCol == 0 && dRow == direction && target == 0){
+        return true;
+      }
+
+      // Move forward 2 (only as pawns first move)
+      if (dCol == 0 && dRow == direction * 2 && startRow == startRowLimit && target == 0){
+        // check if the square in front of the pawn is empty
+        if(chessBoard[startRow + direction][startCol] == 0){
+          return true;
+        }
+      }
+
+      // Move Diagonally 1 space to capture
+      if(absCol == 1 && dRow == direction && target != 0){
+        return true;
+      }
+      return false;
+    }
+    case 2: // Bishops
+      if (absRow == absCol)
+      {
+        return isPathClear(fromIdx, toInx);
+      }
+      return false;
+      
+    case 3: // Knights
+      if((absRow == 2 && absCol == 1) || (absRow == 1 && absCol == 2)){
+        return true;
+      }
+      return false;
+    case 4: // Rooks
+      if (dRow == 0 || dCol == 0)
+      {
+        return isPathClear(fromIdx, toInx);
+      }
+      return false;
+      
+    case 5: // Queens
+      if (dRow == 0 || dCol == 0 || absRow == absCol)
+      {
+        return isPathClear(fromIdx, toInx);
+      }
+      return false;
+    case 6: // Kings
+      if (absRow <= 1 && absCol <= 1)
+      {
+        return true;
+      }
+      return false;
+  }
+  return false;
+}
+
 
 void drawChessMenu(int previousSelection, int selection){
   tft.fillScreen(BLACK);
@@ -1156,8 +1281,10 @@ int getChessSquareLocationY(int square){
 }
 
 int getChessSquareColor(int square){
-  int squareValue = chessBoard[square / 8][square % 8];
-  return (squareValue > 0) ? CHESS_BOARD_LIGHT_COLOR : CHESS_BOARD_DARK_COLOR;
+  int row = square / 8;
+  int col = square % 8;
+
+  return ((row + col) % 2 == 0) ? CHESS_BOARD_LIGHT_COLOR : CHESS_BOARD_DARK_COLOR;
 }
 
 void drawChessCursor(int currentPostion, int previousPosition){
@@ -1173,30 +1300,70 @@ void drawChessCursor(int currentPostion, int previousPosition){
 
   if (previousPosition >= 0) {
     //Draw a box to color in the previous position
+
+    if(previousPosition != selectedSourceSquare){
+      tft.drawRect(previousSquareLocationX, previousSquareLocationY, squareSize, squareSize, previousColor);
+    }else{
+      // Redraw the selection indicator
+      tft.drawRect(previousSquareLocationX, previousSquareLocationY, squareSize, squareSize, CURSOR_COLOR);
+    }
+
     tft.drawRect(previousSquareLocationX, previousSquareLocationY, squareSize, squareSize, previousColor);
   }
   //Draw a box for new selection
   tft.drawRect(squareLocationX, squareLocationY, squareSize, squareSize, CURSOR_COLOR);
+
+  if (selectedSourceSquare != -1){
+    int selX = getChessSquareLocationX(selectedSourceSquare);
+    int selY = getChessSquareLocationY(selectedSourceSquare);
+
+    tft.drawRect(selX, selY, squareSize, squareSize, HP_GREEN);
+  }
 }
+
+// Chess Pieces
+// White:
+chessPiece MY_WHITE_KING = createWhiteKing();
+chessPiece MY_WHITE_QUEEN = createwhiteQueen();
+chessPiece MY_WHITE_ROOK = createWhiteRook();
+chessPiece MY_WHITE_BISHOP = createWhiteBishop();
+chessPiece MY_WHITE_KNIGHT = createWhiteKnight();
+chessPiece MY_WHITE_PAWN = createWhitePawn();
 
 void drawChessPiece(int posX, int posY, int squareSize, int color, int pieceType) {
   // Calculate center of the specific square
   int centerX = posX + (squareSize / 2);
   int centerY = posY + (squareSize / 2);
   int radius = (squareSize / 2) - 3; // Leave a small margin so pieces don't touch edges
+  if(pieceType == 0){
+    // Draw the piece
+    tft.fillCircle(centerX, centerY, radius, color);
+    
+    // Draw the outline
+    tft.drawCircle(centerX, centerY, radius, BLACK); 
 
-  // Draw the piece
-  tft.fillCircle(centerX, centerY, radius, color);
-  
-  // Draw the outline
-  tft.drawCircle(centerX, centerY, radius, BLACK); 
-
-  // TODO: Add specific logic here for bitmaps
-  // For now, print a char to identify the piece
-  tft.setCursor(centerX - 3, centerY - 4);
-  tft.setTextColor(color == WHITE ? BLACK : WHITE);
-  tft.setTextSize(1);
-  tft.print(abs(pieceType));
+    // TODO: Add specific logic here for bitmaps
+    // For now, print a char to identify the piece
+    tft.setCursor(centerX - 3, centerY - 4);
+    tft.setTextColor(color == WHITE ? BLACK : WHITE);
+    tft.setTextSize(1);
+    tft.print(abs(pieceType));
+  }else if(pieceType == 1){
+    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_PAWN.getSprite(), 26, 26, BLACK);
+  }else if(pieceType == 2){
+    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_KNIGHT.getSprite(), 26, 26, BLACK);
+  }else if(pieceType == 3){
+    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_BISHOP.getSprite(), 26, 26, BLACK);
+  }
+  else if(pieceType == 4){
+    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_ROOK.getSprite(), 26, 26, BLACK);
+  }else if (pieceType == 5){
+    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_QUEEN.getSprite(), 26, 26, BLACK);
+  }
+  else{
+    drawSpriteWithTransparency(posX+2, posY+2, MY_WHITE_KING.getSprite(), 26, 26, BLACK);
+    
+  }
 }
 
 void drawChessBoard() {
@@ -1230,6 +1397,111 @@ void handleChessInputs(){
   static unsigned long lastMoveTime = 0;
   const unsigned long moveDelay = 200;
   unsigned long currentTime = millis();
+
+  bool isWhiteTurn = (turnNumber % 2 == 0);
+
+  if (chessPhase == WHITE_TURN || chessPhase == BLACK_TURN) {
+    // Handle Movement (Directional Buttons)
+    if (currentTime - lastMoveTime >= moveDelay) {
+      bool moved = false;
+      if(digitalRead(PIN_UP) == LOW){
+        chessBoardCursorLocation = max(0, chessBoardCursorLocation - 8);
+        moved = true;
+      }
+      else if (digitalRead(PIN_DOWN) == LOW)
+      {
+        chessBoardCursorLocation = min(63, chessBoardCursorLocation + 8);
+        moved = true;
+      }else if (digitalRead(PIN_RIGHT) == LOW){
+        chessBoardCursorLocation = min(63, chessBoardCursorLocation + 1);
+        moved = true;
+      }else if (digitalRead(PIN_LEFT) == LOW){
+        chessBoardCursorLocation = max(0, chessBoardCursorLocation - 1);
+        moved = true;
+      }
+
+      if (moved) {
+        lastMoveTime = currentTime;
+        drawChessCursor(chessBoardCursorLocation,chessBoardPreviousCursorLocation);
+        chessBoardPreviousCursorLocation = chessBoardCursorLocation;
+      }
+    }
+
+
+    // Handle Action (A Button)
+    if (digitalRead(PIN_BUTTONA) == LOW) {
+      delay(300); // Debounce
+
+      int clickedPiece = getPieceAt(chessBoardCursorLocation);
+
+      //Nothing selected. Try to select piece
+      if(selectedSourceSquare == -1){
+        // Check if selected square is own piece
+        bool isOwnPiece = false;
+        if(isWhiteTurn && clickedPiece > 0){
+          isOwnPiece = true;
+        }else if(!isWhiteTurn && clickedPiece < 0){
+          isOwnPiece = true;
+        }
+
+        if(isOwnPiece){
+          selectedSourceSquare = chessBoardCursorLocation;
+          drawChessCursor(chessBoardCursorLocation, chessBoardCursorLocation);
+        }
+      }
+
+      // Piece alread selected. Try to move or deselect.
+      else {
+        // If clicked the same piece deselect it
+        if (chessBoardCursorLocation == selectedSourceSquare) {
+          selectedSourceSquare = -1;
+          drawChessBoard(); // TODO: this might not work and use a diffrent method for clearing seletion highlight
+          drawChessCursor(chessBoardCursorLocation, -1);
+        }
+        // if clicking a different square, try to move
+        else{
+          if (isValidMove(selectedSourceSquare,chessBoardCursorLocation))
+          {
+            int rSrc = selectedSourceSquare / 8;
+            int cSrc = selectedSourceSquare % 8;
+            int rDst = chessBoardCursorLocation / 8;
+            int cDst = chessBoardCursorLocation % 8;
+
+            chessBoard[rDst][cDst] = chessBoard[rSrc][cSrc];
+            chessBoard[rSrc][cSrc] = 0;
+
+            selectedSourceSquare = -1;
+            turnNumber++;
+            chessPhase = (isWhiteTurn) ? BLACK_TURN : WHITE_TURN;
+
+            drawChessBoard();
+            drawChessCursor(chessBoardCursorLocation, -1);
+          }
+          else{
+            // Invalid move
+
+            bool isOwnPiece = false;
+            if(!isWhiteTurn && clickedPiece > 0){
+              isOwnPiece = true;
+            }else if(isWhiteTurn && clickedPiece < 0){
+              isOwnPiece = true;
+            }
+
+            if(isOwnPiece){
+              selectedSourceSquare = chessBoardCursorLocation;
+              drawChessBoard();
+              drawChessCursor(chessBoardCursorLocation, chessBoardCursorLocation);
+            }
+          }
+          
+        }
+      }
+    }
+
+  }
+      
+
+
   if(chessPhase == MENU){
     
     int previousChessMenuSelection = chessMenuSelection;
@@ -1267,11 +1539,13 @@ void handleChessInputs(){
       delay(300); // Debounce select press
     }
     
-  }else if(chessPhase == START_GAME){
+  } else if(chessPhase == START_GAME){
     // start the game and reset the move array
     chessPhase = WHITE_TURN;
+    chessBoardCursorLocation = 0;
     drawChessBoard();
-    drawChessCursor(chessBoardCursorLocation, chessBoardPreviousCursorLocation);
+    drawChessCursor(chessBoardCursorLocation, -1);
+    chessBoardPreviousCursorLocation = chessBoardCursorLocation;
   }else if (chessPhase == WHITE_TURN){
     // White can send a move. Black waits for move.
     if(currentTime - lastMoveTime >= moveDelay){
