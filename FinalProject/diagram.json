@@ -3,112 +3,93 @@
   "author": "Ethan Quigley",
   "editor": "wokwi",
   "parts": [
-    { "type": "board-esp32-s3-devkitc-1", 
-    "id": "esp", 
-    "top": 20, 
-    "left": -20, 
-    "attrs": {} },
-    {
-      "type": "wokwi-ili9341",
-      "id": "tft1",
-      "top": 0,
-      "left": 500,
-      "rotate": 90,
-      "attrs": {}
-    },
+    { "type": "board-esp32-s3-devkitc-1", "id": "esp", "top": 20, "left": -20, "attrs": {} },
+    { "type": "wokwi-ili9341", "id": "tft1", "top": 0, "left": 500, "rotate": 90, "attrs": {} },
     {
       "type": "wokwi-pushbutton",
       "id": "btnUp",
       "top": 150,
       "left": 150,
-      "attrs": {"key": "w"}
+      "attrs": { "key": "w" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnDown",
       "top": 250,
       "left": 150,
-      "attrs": {"key": "s"}
+      "attrs": { "key": "s" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnLeft",
       "top": 200,
       "left": 100,
-      "attrs": {"key": "a"}
+      "attrs": { "key": "a" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnRight",
       "top": 200,
       "left": 200,
-      "attrs": {"key": "d"}
+      "attrs": { "key": "d" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id": "btnSelect", 
-      "top": 550,
-      "left": 150,
-      "attrs": {"key": "Enter"}
+      "id": "btnSelect",
+      "top": 409.4,
+      "left": 105.6,
+      "attrs": { "key": "Enter" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id":"btnHome",
-      "top": 500,
-      "left": 200,
-      "attrs": {"key": "Backspace"}
+      "id": "btnHome",
+      "top": 361.4,
+      "left": 172.8,
+      "attrs": { "key": "Backspace" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id":"btnButtonA",
+      "id": "btnButtonA",
       "top": 200,
       "left": 300,
-      "attrs": {"key": "g"}
+      "attrs": { "key": "g" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id":"btnButtonB",
+      "id": "btnButtonB",
       "top": 200,
       "left": 350,
-      "attrs": {"key": "h"}
+      "attrs": { "key": "h" }
     }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    ["tft1:VCC", "esp:3V3.1","red",[ "v150", "h-650", "v-297.6"]],
-    ["tft1:GND", "esp:GND.4","black",["v10","h-1"]],
-    ["tft1:RST", "esp:14","red",[]],
-    ["tft1:MOSI", "esp:11","red",[]],
-    ["tft1:SCK", "esp:12","red",["v20","h-1"]],
-    ["tft1:CLK", "esp:18","red",[]],  
-    ["tft1:MOSI", "esp:23","red",[]], 
-   
-    ["tft1:CS", "esp:5","green", [ "v28.8", "h-249.6", "v-211.2" ]],    
-    ["tft1:D/C", "esp:4","blue", [ "v140", "h-680", "v-1"]],
-
-    ["btnUp:1.l","esp:0","green",[]],
-    ["btnUp:2.l","esp:GND.4","black",[]],
-
-    ["btnDown:1.l","esp:48","red",[]],
-    ["btnDown:2.l","esp:GND.4","black",[]],
-    
-    ["btnLeft:1.l","esp:39","red",[]],
-    ["btnLeft:2.l","esp:GND.4","black",[]],
-    
-    ["btnRight:1.l","esp:20","red",[]],
-    ["btnRight:2.l","esp:GND.4","black",[]],
-    
-    ["btnSelect:1.l","esp:21","red",[]],
-    ["btnSelect:2.l","esp:GND.4","black",[]],
-    
-    ["btnHome:1.l","esp:40","red",[]],
-    ["btnHome:2.l","esp:GND.4","black",[]],
-
-    ["btnButtonA:1.l","esp:15","red",[]],
-    ["btnButtonA:2.l","esp:GND.4","black",[]],
-    
-    ["btnButtonB:1.l","esp:2","red",[]],
-    ["btnButtonB:2.l","esp:GND.4","black",[]]
-  ]
+    [ "tft1:VCC", "esp:3V3.1", "red", [ "v150", "h-650", "v-297.6" ] ],
+    [ "tft1:GND", "esp:GND.4", "black", [ "v10", "h-1" ] ],
+    [ "tft1:RST", "esp:14", "red", [] ],
+    [ "tft1:MOSI", "esp:11", "red", [] ],
+    [ "tft1:SCK", "esp:12", "red", [ "v20", "h-1" ] ],
+    [ "tft1:CLK", "esp:18", "red", [] ],
+    [ "tft1:MOSI", "esp:23", "red", [] ],
+    [ "tft1:CS", "esp:5", "green", [ "v28.8", "h-249.6", "v-211.2" ] ],
+    [ "tft1:D/C", "esp:4", "blue", [ "v140", "h-680", "v-1" ] ],
+    [ "btnUp:1.l", "esp:0", "green", [] ],
+    [ "btnUp:2.l", "esp:GND.4", "black", [] ],
+    [ "btnDown:1.l", "esp:48", "red", [] ],
+    [ "btnDown:2.l", "esp:GND.4", "black", [] ],
+    [ "btnLeft:1.l", "esp:39", "red", [] ],
+    [ "btnLeft:2.l", "esp:GND.4", "black", [] ],
+    [ "btnRight:1.l", "esp:20", "red", [] ],
+    [ "btnRight:2.l", "esp:GND.4", "black", [] ],
+    [ "btnSelect:1.l", "esp:21", "red", [] ],
+    [ "btnSelect:2.l", "esp:GND.4", "black", [] ],
+    [ "btnHome:1.l", "esp:40", "red", [] ],
+    [ "btnHome:2.l", "esp:GND.4", "black", [] ],
+    [ "btnButtonA:1.l", "esp:15", "red", [] ],
+    [ "btnButtonA:2.l", "esp:GND.4", "black", [] ],
+    [ "btnButtonB:1.l", "esp:2", "red", [] ],
+    [ "btnButtonB:2.l", "esp:GND.4", "black", [] ]
+  ],
+  "dependencies": {}
 }

@@ -111,6 +111,13 @@ const uint16_t POKEMON_ICON_BITS[] PROGMEM = {
 
 };
 
+
+// Serial Connection
+#define SERIAL_BAUD_RATE 9600
+#define SERIAL_TX_PIN 16
+#define SERIAL_RX_PIN 17
+
+
 // Tic-Tac-Toe Variables
 #define BOARD_SIZE 3
 #define EMPTY 0
@@ -1096,11 +1103,22 @@ int selectedSourceSquare = -1;
 // Grid configuration
 int boardHeight = tft.height(); // 240
 int squareSize = 30;
+
 // Center the board on the screen
 int chessSquareStartPosX = (tft.width() - (squareSize * 8)) / 2; 
 int chessSquareStartPosY = (tft.height() - (squareSize * 8)) / 2;
 
+int chessUIWidthMargin = 2;
+int chessUIHeight = boardHeight;
+int chessUIWidth = 40 - chessUIWidthMargin;
+int chessUIStartingX = 0;
+int chessUIStartingY = 0;
+
 bool displayedgameOver = false;
+
+bool isCheck = false;
+
+bool isInCheck(int color);
 
 
 int getPieceAt(int index){
@@ -1227,6 +1245,34 @@ bool isValidMove(int fromIdx, int toInx){
   }
   return false;
 }
+
+
+void drawChessUI(){
+  tft.fillRect(chessUIStartingX, chessUIStartingY, chessUIWidth, chessUIHeight, WHITE);
+  
+  int leftJustified = chessUIStartingX + 2;
+
+  tft.setTextSize(1);
+  tft.print(turnNumber);
+  tft.setCursor(leftJustified, chessUIStartingY + 2);
+  tft.print("Turn: ");
+  tft.setTextColor(BLACK);
+  if(turnNumber % 2 == 0){
+    tft.setCursor(leftJustified, chessUIStartingY + 10);
+    tft.print("White");
+  }else {
+    tft.setCursor(0, chessUIStartingY + 10);
+    tft.print("Black");
+  }
+
+  //print check if needed
+  if(isInCheck(1) || isInCheck(-1)){
+    tft.setTextSize(1);
+    tft.setCursor(leftJustified, chessUIStartingY + 18);
+    tft.print("Check!");
+  }
+}
+
 
 
 void drawChessMenu(int previousSelection, int selection){
@@ -1425,6 +1471,7 @@ void drawChessBoard() {
   chessSquareStartPosX = (tft.width() - (squareSize * 8)) / 2; 
   chessSquareStartPosY = (tft.height() - (squareSize * 8)) / 2;
   
+  drawChessUI();
 
   for (int i = 0; i < 8; i++) {   // i = rows (Y)
     for (int j = 0; j < 8; j++) { // j = cols (X)
@@ -1569,8 +1616,51 @@ int checkGameState(int color){
   }
 }
 
+void sendRemoteMove(int fromIdx, int toIds){
+  Serial2.write("M"); // M for move
+  Serial2.write((uint8_t)fromIdx);
+  Serial2.write((uint8_t)toIds); 
+}
+
 
 void handleChessInputs(){
+  if (Serial2.available() >= 3) {
+    if(Serial2.read() == 'M'){
+      int remoteFrom = Serial2.read();
+      int remoteTo = Serial2.read();
+
+      int rSrc = remoteFrom / 8;
+      int cSrc = remoteFrom % 8;
+
+      int rDst = remoteTo / 8;
+      int cDst = remoteTo % 8;
+
+      chessBoard[rDst][cDst] = chessBoard[rSrc][cSrc];
+      chessBoard[rSrc][cSrc] = 0;
+
+      if(abs(chessBoard[rDst][cDst]) == 1){ 
+        if(rDst == 0 || rDst == 7){
+          chessBoard[rDst][cDst] *= 5;
+        }
+      }
+      turnNumber++;
+
+      drawChessBoard();
+
+      int myColor = (playingAsWhite) ? 1 : -1;
+      int gameState = checkGameState(myColor);
+
+      if(gameState == 1){
+        chessPhase = GAME_OVER;
+      }else if(gameState == 2){
+        chessPhase = GAME_OVER;
+      }else if(isInCheck(myColor)){
+        //displayStatus("Check!", YELLOW);
+      }
+    }
+  }
+
+
   static unsigned long lastMoveTime = 0;
   const unsigned long moveDelay = 200;
   unsigned long currentTime = millis();
@@ -1661,6 +1751,8 @@ void handleChessInputs(){
                     }
                 }
 
+                sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation);
+
                 // End Turn
                 selectedSourceSquare = -1;
                 turnNumber++;
@@ -1685,11 +1777,11 @@ void handleChessInputs(){
                     
                     // Optional: Visual feedback if opponent is in Check
                     if (isInCheck(opponentColor)) {
-                        displayStatus("CHECK!", RED);
+                        //displayStatus("CHECK!", RED);
                     } else {
                         // Clear status bar or show turn
-                        if (opponentColor == 1) displayStatus("White's Turn", WHITE);
-                        else displayStatus("Black's Turn", WHITE);
+                        // if (opponentColor == 1) displayStatus("White's Turn", WHITE);
+                        // else displayStatus("Black's Turn", WHITE);
                     }
                 }
                 
@@ -1825,6 +1917,7 @@ void resetChess(){
 
 void setup() {
   Serial.begin(115200);
+  Serial2.begin(SERIAL_BAUD_RATE, SERIAL_8N1, SERIAL_RX_PIN, SERIAL_TX_PIN);
 
   // Initialize display
   tft.begin();
