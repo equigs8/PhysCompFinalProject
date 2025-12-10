@@ -37,17 +37,20 @@
 // The CLK (SCK) and MOSI (SDA) pins for SPI are fixed on the ESP32 (GPIO18 and GPIO23 by default).
 
 // Input Button Pins (Assuming buttons are wired as Active-LOW: Press connects pin to GND)
-#define PIN_UP     0
-#define PIN_DOWN   48
-#define PIN_LEFT   39
-#define PIN_RIGHT  20
-#define PIN_SELECT 21
+#define PIN_UP     45
+#define PIN_DOWN   2
+#define PIN_LEFT   34
+#define PIN_RIGHT  1
+#define PIN_SELECT 39
 #define PIN_HOME   40
-#define PIN_BUTTONA 15
-#define PIN_BUTTONB 2
+#define PIN_BUTTONA 41
+#define PIN_BUTTONB 42
 
 // Power LED Pin
-#define PIN_POWER_INDICATOR 13
+#define PIN_POWER_INDICATOR 46
+
+// Volume Control
+#define PIN_VOLUME 21
 
 // ==============================================================================
 // 2. DISPLAY SETUP & GLOBAL VARIABLES
@@ -92,8 +95,24 @@ const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
 
 // Icon Bitmap Data (8x8 pixels, 1-bit monochrome)
 // This icon is a simple 3x3 grid for Tic-Tac-Toe
-const uint8_t TIC_TAC_TOE_ICON_BITS[] PROGMEM = {
- 0x24, 0x24, 0xff, 0x24, 0x24, 0xff, 0x24, 0x24
+const uint16_t TIC_TAC_TOE_ICON_BITS[] PROGMEM = {
+ 
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0010 (16) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0020 (32) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0030 (48) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0040 (64) pixels
+0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106,   // 0x0050 (80) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0060 (96) pixels
+0xFFFF, 0x5B7C, 0x5B7C, 0xFFFF, 0x2106, 0xFFFF, 0xA986, 0xFFFF, 0xFFFF, 0xA986, 0xFFFF, 0x2106, 0xFFFF, 0x5B7C, 0x5B7C, 0xFFFF,   // 0x0070 (112) pixels
+0x5B7C, 0xFFFF, 0xFFFF, 0x5B7C, 0x2106, 0xFFFF, 0xFFFF, 0xA986, 0xA986, 0xFFFF, 0xFFFF, 0x2106, 0x5B7C, 0xFFFF, 0xFFFF, 0x5B7C,   // 0x0080 (128) pixels
+0x5B7C, 0xFFFF, 0xFFFF, 0x5B7C, 0x2106, 0xFFFF, 0xFFFF, 0xA986, 0xA986, 0xFFFF, 0xFFFF, 0x2106, 0x5B7C, 0xFFFF, 0xFFFF, 0x5B7C,   // 0x0090 (144) pixels
+0xFFFF, 0x5B7C, 0x5B7C, 0xFFFF, 0x2106, 0xFFFF, 0xA986, 0xFFFF, 0xFFFF, 0xA986, 0xFFFF, 0x2106, 0xFFFF, 0x5B7C, 0x5B7C, 0xFFFF,   // 0x00A0 (160) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x00B0 (176) pixels
+0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106,   // 0x00C0 (192) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x00D0 (208) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x00E0 (224) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x00F0 (240) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0100 (256) pixels
 };
 
 const uint16_t POKEMON_ICON_BITS[] PROGMEM = {
@@ -158,6 +177,8 @@ const uint16_t SETTINGS_ICON_BITS[] PROGMEM = {
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,   // 0x0100 (256) pixels
 
 };
+
+
 
 
 // Serial Connection
@@ -255,7 +276,7 @@ void displayStatus(const char* message, uint16_t color) {
  * @param color The color to draw the icon.
  */
 void drawMenuItemIcon(int itemIndex, int xPos, int yPos, uint16_t color) {
-  int iconSize = 8;
+  int iconSize = 16;
   
   // Clear the icon area before drawing the icon to prevent color artifacts
   tft.fillRect(xPos + 3, yPos + 3, iconSize, iconSize, BLACK); 
@@ -263,7 +284,7 @@ void drawMenuItemIcon(int itemIndex, int xPos, int yPos, uint16_t color) {
   if (itemIndex == 0) {
     // Icon for Tic-Tac-Toe: Draw a 16x16 Bitmap
     // x, y, bitmap array, width, height, color
-    tft.drawBitmap(xPos + 7, yPos + 7, TIC_TAC_TOE_ICON_BITS, iconSize, iconSize, RED);
+    drawSpriteWithTransparency(xPos + 7, yPos + 7, TIC_TAC_TOE_ICON_BITS, iconSize, iconSize, 0x0000);
     
   }else if(itemIndex == 1) {
     // draw Pokemon Icon
@@ -1198,7 +1219,8 @@ bool isCheck = false;
 
 bool isInCheck(int color);
 
-const char * connMenu[] = {"Wired", "Wireless"};
+const char * connMenu[] = {"Wired", "Wireless", "Single Player"};
+int numConnMenu = 3;
 int connMenuSelection = 0;
 
 int getPieceAt(int index){
@@ -1365,7 +1387,7 @@ void drawChessMenu(int previousSelection, int selection, int menuType){
 
   tft.setTextSize(2);
   if(menuType == 0){
-    for (int i = 0; i < numChessMenu; i++) {
+    for (int i = 0; i < numConnMenu; i++) {
       int yPos = 80 + i * 40;
 
       // Draw Text
@@ -1732,7 +1754,7 @@ void sendWirelessMove(int fromIdx, int toIdx){
 void sendChessMove(int fromIdx, int toIdx){
   if(connectionMode == 0){
     sendRemoteMove(fromIdx, toIdx);
-  }else{
+  }else if(connectionMode == 1){
     sendWirelessMove(fromIdx, toIdx);
   }
 }
@@ -1746,7 +1768,7 @@ bool receiveChessMove(int &outFrom, int &outTo){
         return true;
       }
     }
-  }else{
+  }else if(connectionMode == 1){
     if(wirelessMoveReceived){
       outFrom = incomingMove.fromIdx;
       outTo = incomingMove.toIdx;
@@ -1762,33 +1784,33 @@ void handleChessInputs(){
   int rxFrom, rxTo;
 
 
- if (receiveChessMove(rxFrom, rxTo)) {
-    // A move arrived! Execute it.
-    int rSrc = rxFrom / 8; int cSrc = rxFrom % 8;
-    int rDst = rxTo / 8;   int cDst = rxTo % 8;
+//  if (receiveChessMove(rxFrom, rxTo) && connectionMode != 2) {
+//     // A move arrived! Execute it.
+//     int rSrc = rxFrom / 8; int cSrc = rxFrom % 8;
+//     int rDst = rxTo / 8;   int cDst = rxTo % 8;
 
-    chessBoard[rDst][cDst] = chessBoard[rSrc][cSrc];
-    chessBoard[rSrc][cSrc] = 0;
+//     chessBoard[rDst][cDst] = chessBoard[rSrc][cSrc];
+//     chessBoard[rSrc][cSrc] = 0;
     
-    // Handle Promotion
-    if (abs(chessBoard[rDst][cDst]) == 1) {
-        if (rDst == 0 || rDst == 7) chessBoard[rDst][cDst] *= 5; 
-    }
-      turnNumber++;
+//     // Handle Promotion
+//     if (abs(chessBoard[rDst][cDst]) == 1) {
+//         if (rDst == 0 || rDst == 7) chessBoard[rDst][cDst] *= 5; 
+//     }
+//       turnNumber++;
 
-      drawChessBoard();
+//       drawChessBoard();
 
-      int myColor = (playingAsWhite) ? 1 : -1;
-      int gameState = checkGameState(myColor);
+//       int myColor = (playingAsWhite) ? 1 : -1;
+//       int gameState = checkGameState(myColor);
 
-      if(gameState == 1){
-        chessPhase = GAME_OVER;
-      }else if(gameState == 2){
-        chessPhase = GAME_OVER;
-      }else if(isInCheck(myColor)){
-        //displayStatus("Check!", YELLOW);
-      }
-  }
+//       if(gameState == 1){
+//         chessPhase = GAME_OVER;
+//       }else if(gameState == 2){
+//         chessPhase = GAME_OVER;
+//       }else if(isInCheck(myColor)){
+//         //displayStatus("Check!", YELLOW);
+//       }
+//   }
   
 
 
@@ -1881,9 +1903,9 @@ void handleChessInputs(){
                         chessBoard[rDst][cDst] = (movedPiece > 0) ? 5 : -5;
                     }
                 }
-
-                sendChessMove(selectedSourceSquare, chessBoardCursorLocation);
-
+                if(connectionMode != 2){
+                  sendChessMove(selectedSourceSquare, chessBoardCursorLocation);
+                }
                 // End Turn
                 selectedSourceSquare = -1;
                 turnNumber++;
@@ -1955,7 +1977,7 @@ void handleChessInputs(){
         connMenuSelection= max(0, connMenuSelection - 1);
         moved = true;
       } else if (digitalRead(PIN_DOWN) == LOW) {
-        connMenuSelection = min(numChessMenu - 1, connMenuSelection + 1);
+        connMenuSelection = min(numConnMenu - 1, connMenuSelection + 1);
         moved = true;
       }
 
@@ -1965,7 +1987,7 @@ void handleChessInputs(){
       }
     }
     if (digitalRead(PIN_BUTTONA) == LOW) {
-        connectionMode = connMenuSelection; // Set 0 or 1
+        connectionMode = connMenuSelection; // Set 0, 1, or 2
         chessPhase = MENU;          // Go to next screen
         tft.fillScreen(BLACK);              // Clear for next menu
         drawChessMenu(previousChessMenuSelection, chessMenuSelection, 1);
@@ -2075,26 +2097,27 @@ void resetChess(){
 
 void setup() {
   Serial.begin(115200);
-  Serial2.begin(SERIAL_BAUD_RATE, SERIAL_8N1, SERIAL_RX_PIN, SERIAL_TX_PIN);
+  //Serial2.begin(SERIAL_BAUD_RATE, SERIAL_8N1, SERIAL_RX_PIN, SERIAL_TX_PIN);
 
   // Turn power indicator pin on
   pinMode(PIN_POWER_INDICATOR, OUTPUT);
   digitalWrite(PIN_POWER_INDICATOR, HIGH);
 
-  // initialize wireless
-  WiFi.mode(WIFI_STA);
-  if(esp_now_init() == ESP_OK){
-    esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+  
+  // // initialize wireless
+  // WiFi.mode(WIFI_STA);
+  // if(esp_now_init() == ESP_OK){
+  //   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
 
-    esp_now_peer_info_t peerInfo;
-    memset(&peerInfo, 0, sizeof(peerInfo));
-    memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-    peerInfo.channel = 0;
-    peerInfo.encrypt = false;
-    esp_now_add_peer(&peerInfo);
-  }else{
-    Serial.println("Error initializing ESP-NOW");
-  }
+  //   esp_now_peer_info_t peerInfo;
+  //   memset(&peerInfo, 0, sizeof(peerInfo));
+  //   memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  //   peerInfo.channel = 0;
+  //   peerInfo.encrypt = false;
+  //   esp_now_add_peer(&peerInfo);
+  // }else{
+  //   Serial.println("Error initializing ESP-NOW");
+  // }
 
   // Initialize display
   tft.begin();

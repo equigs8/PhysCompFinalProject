@@ -60,6 +60,13 @@
       "top": 200,
       "left": 350,
       "attrs": { "key": "h" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 361.2,
+      "left": 339.8,
+      "attrs": { "color": "red" }
     }
   ],
   "connections": [
@@ -82,14 +89,16 @@
     [ "btnLeft:2.l", "esp:GND.4", "black", [] ],
     [ "btnRight:1.l", "esp:20", "red", [] ],
     [ "btnRight:2.l", "esp:GND.4", "black", [] ],
-    [ "btnSelect:1.l", "esp:21", "red", [] ],
+    [ "btnSelect:1.l", "esp:39", "red", [] ],
     [ "btnSelect:2.l", "esp:GND.4", "black", [] ],
     [ "btnHome:1.l", "esp:40", "red", [] ],
     [ "btnHome:2.l", "esp:GND.4", "black", [] ],
     [ "btnButtonA:1.l", "esp:15", "red", [] ],
     [ "btnButtonA:2.l", "esp:GND.4", "black", [] ],
     [ "btnButtonB:1.l", "esp:2", "red", [] ],
-    [ "btnButtonB:2.l", "esp:GND.4", "black", [] ]
+    [ "btnButtonB:2.l", "esp:GND.4", "black", [] ],
+    [ "led1:A", "esp:46", "green", [ "v-163.2", "h-336", "v-48" ] ],
+    [ "led1:C", "esp:GND.4", "black", [ "v-163.2", "h-336", "v-48" ] ]
   ],
   "dependencies": {}
 }
