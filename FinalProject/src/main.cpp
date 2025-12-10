@@ -6,6 +6,9 @@
 #include <array>
 #include <string>
 #include <math.h>
+#include <WIFI.h>
+#include <esp_now.h>
+//Sprites and game clases
 #include "pokemon.h"
 #include "pikachu.h"
 #include "charmander.h"
@@ -42,6 +45,9 @@
 #define PIN_HOME   40
 #define PIN_BUTTONA 15
 #define PIN_BUTTONB 2
+
+// Power LED Pin
+#define PIN_POWER_INDICATOR 13
 
 // ==============================================================================
 // 2. DISPLAY SETUP & GLOBAL VARIABLES
@@ -111,12 +117,77 @@ const uint16_t POKEMON_ICON_BITS[] PROGMEM = {
 
 };
 
+const uint16_t CHESS_ICON_BITS[] PROGMEM = {
+  
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0010 (16) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0xFFFF, 0x2106, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0020 (32) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0030 (48) pixels
+0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0040 (64) pixels
+0xFFFF, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x0050 (80) pixels
+0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0xFFFF, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0x2106, 0xFFFF, 0xFFFF,   // 0x0060 (96) pixels
+0x2106, 0xFFFF, 0x2106, 0x2106, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF,   // 0x0070 (112) pixels
+0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF,   // 0x0080 (128) pixels
+0xFFFF, 0xFFFF, 0x2106, 0x2106, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF,   // 0x0090 (144) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x00A0 (160) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x00B0 (176) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x00C0 (192) pixels
+0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF,   // 0x00D0 (208) pixels
+0xFFFF, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0xFFFF,   // 0x00E0 (224) pixels
+0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x2106, 0xFFFF, 0xFFFF,   // 0x00F0 (240) pixels
+0xFFFF, 0xFFFF, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0x2106, 0xFFFF, 0xFFFF,   // 0x0100 (256) pixels
+
+};
+
+const uint16_t SETTINGS_ICON_BITS[] PROGMEM = {
+  
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,   // 0x0010 (16) pixels
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x2106, 0x2106, 0x2106, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,   // 0x0020 (32) pixels
+0x0000, 0x0000, 0x2106, 0x2106, 0x0000, 0x2106, 0x83F0, 0x83F0, 0x83F0, 0x2106, 0x0000, 0x2106, 0x2106, 0x0000, 0x0000, 0x0000,   // 0x0030 (48) pixels
+0x0000, 0x2106, 0x83F0, 0x83F0, 0x2106, 0x2106, 0x83F0, 0x83F0, 0x83F0, 0x2106, 0x2106, 0x83F0, 0x83F0, 0x2106, 0x0000, 0x0000,   // 0x0040 (64) pixels
+0x0000, 0x2106, 0x83F0, 0x83F0, 0x83F0, 0x83F0, 0x83F0, 0x83F0, 0x83F0, 0x83F0, 0x83F0, 0x83F0, 0x83F0, 0x2106, 0x0000, 0x0000,   // 0x0050 (80) pixels
+0x0000, 0x0000, 0x2106, 0x83F0, 0x83F0, 0x83F0, 0x6B4D, 0x6B4D, 0x6B4D, 0x83F0, 0x83F0, 0x83F0, 0x2106, 0x0000, 0x0000, 0x0000,   // 0x0060 (96) pixels
+0x0000, 0x2106, 0x2106, 0x83F0, 0x83F0, 0x6B4D, 0x2106, 0x0000, 0x2106, 0x6B4D, 0x83F0, 0x83F0, 0x2106, 0x2106, 0x0000, 0x0000,   // 0x0070 (112) pixels
+0x2106, 0x83F0, 0x83F0, 0x83F0, 0x5AAA, 0x2106, 0x0000, 0x0000, 0x0000, 0x2106, 0x5AAA, 0x83F0, 0x83F0, 0x6B4D, 0x2106, 0x0000,   // 0x0080 (128) pixels
+0x2106, 0x83F0, 0x83F0, 0x83F0, 0x5AAA, 0x2106, 0x0000, 0x0000, 0x0000, 0x2106, 0x5AAA, 0x83F0, 0x83F0, 0x6B4D, 0x2106, 0x0000,   // 0x0090 (144) pixels
+0x0000, 0x2106, 0x2106, 0x83F0, 0x83F0, 0x6B4D, 0x2106, 0x0000, 0x2106, 0x6B4D, 0x83F0, 0x83F0, 0x2106, 0x2106, 0x0000, 0x0000,   // 0x00A0 (160) pixels
+0x0000, 0x0000, 0x2106, 0x83F0, 0x83F0, 0x83F0, 0x6B4D, 0x6B4D, 0x6B4D, 0x83F0, 0x83F0, 0x83F0, 0x2106, 0x0000, 0x0000, 0x0000,   // 0x00B0 (176) pixels
+0x0000, 0x2106, 0x83F0, 0x83F0, 0x83F0, 0x6B4D, 0x83F0, 0x83F0, 0x83F0, 0x6B4D, 0x83F0, 0x6B4D, 0x6B4D, 0x2106, 0x0000, 0x0000,   // 0x00C0 (192) pixels
+0x0000, 0x2106, 0x83F0, 0x83F0, 0x2106, 0x2106, 0x83F0, 0x83F0, 0x83F0, 0x2106, 0x2106, 0x6B4D, 0x6B4D, 0x2106, 0x0000, 0x0000,   // 0x00D0 (208) pixels
+0x0000, 0x0000, 0x2106, 0x2106, 0x0000, 0x2106, 0x6B4D, 0x83F0, 0x6B4D, 0x2106, 0x0000, 0x2106, 0x2106, 0x0000, 0x0000, 0x0000,   // 0x00E0 (224) pixels
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x2106, 0x2106, 0x2106, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,   // 0x00F0 (240) pixels
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,   // 0x0100 (256) pixels
+
+};
+
 
 // Serial Connection
 #define SERIAL_BAUD_RATE 9600
 #define SERIAL_TX_PIN 16
 #define SERIAL_RX_PIN 17
 
+int connectionMode = 0; // 0: Serial, 1: ESP-NOW
+
+uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+typedef struct struct_message {
+  char header; // 'M' for move
+  int fromIdx;
+  int toIdx;
+} struct_message;
+
+struct_message myData; // Outgoing data
+struct_message incomingMove; // Incoming data
+bool wirelessMoveReceived = false;
+
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  if(len == sizeof(incomingMove)) {
+    memcpy(&incomingMove, incomingData, sizeof(incomingMove));
+    if (incomingMove.header == 'M')
+    {
+      wirelessMoveReceived = true;
+    }
+  }
+}
 
 // Tic-Tac-Toe Variables
 #define BOARD_SIZE 3
@@ -197,8 +268,14 @@ void drawMenuItemIcon(int itemIndex, int xPos, int yPos, uint16_t color) {
   }else if(itemIndex == 1) {
     // draw Pokemon Icon
     drawSpriteWithTransparency(xPos, yPos, POKEMON_ICON_BITS, 16, 16, 0x0000);
+  }else if (itemIndex == 2) {
+    // draw Chess Icon
+    drawSpriteWithTransparency(xPos, yPos, CHESS_ICON_BITS, 16, 16, 0x0000);
+  }else if (itemIndex == 3) {
+    // draw Settings Icon
+    drawSpriteWithTransparency(xPos, yPos, SETTINGS_ICON_BITS, 16, 16, 0x0000);
   }
-   else if (itemIndex == 2) {
+   else {
     // Icon for "Coming Soon...": Placeholder box with '?'
     tft.drawRect(xPos + 3, yPos + 3, iconSize + 2, iconSize + 2, color);
     tft.setCursor(xPos + 5, yPos + 5);
@@ -1062,6 +1139,7 @@ void resetPokemonBattler() {
 // White device will act as the game manager and main source of truth
 
 enum ChessPhase{
+  CONNECTION_SELECT,
   MENU,
   START_GAME,
   WHITE_TURN,
@@ -1120,6 +1198,8 @@ bool isCheck = false;
 
 bool isInCheck(int color);
 
+const char * connMenu[] = {"Wired", "Wireless"};
+int connMenuSelection = 0;
 
 int getPieceAt(int index){
   int row = index / 8;
@@ -1275,7 +1355,8 @@ void drawChessUI(){
 
 
 
-void drawChessMenu(int previousSelection, int selection){
+void drawChessMenu(int previousSelection, int selection, int menuType){
+  //Menu type is 0 for connection menu and 1 for color menu
   tft.fillScreen(BLACK);
   tft.setTextColor(WHITE);
   tft.setTextSize(3);
@@ -1283,20 +1364,31 @@ void drawChessMenu(int previousSelection, int selection){
   tft.print("CHESS");
 
   tft.setTextSize(2);
-  for (int i = 0; i < numChessMenu; i++) {
-    int yPos = 80 + i * 40;
+  if(menuType == 0){
+    for (int i = 0; i < numChessMenu; i++) {
+      int yPos = 80 + i * 40;
 
-    // Draw Text
-    tft.setCursor(50, 80 + i * 40);
-    tft.setTextColor(WHITE);
-    tft.print(chessMenu[i]);
+      // Draw Text
+      tft.setCursor(50, 80 + i * 40);
+      tft.setTextColor(WHITE);
+      tft.print(connMenu[i]);
+    }
+  }else{
+    for (int i = 0; i < numChessMenu; i++) {
+      int yPos = 80 + i * 40;
+
+      // Draw Text
+      tft.setCursor(50, 80 + i * 40);
+      tft.setTextColor(WHITE);
+      tft.print(chessMenu[i]);
+    }
   }
 }
 
 /**
  * @brief Draws or moves the cursor/selection highlight on the Chess menu.
  */
-void drawChessMenuCursor(int prevSelection, int newSelection) {
+void drawChessMenuCursor(int prevSelection, int newSelection, int menuType) {
   int xPos = 40;
   int yStart = 80;
   int height = 20;
@@ -1313,7 +1405,12 @@ void drawChessMenuCursor(int prevSelection, int newSelection) {
     tft.setCursor(50, prevYPos);
     tft.setTextColor(WHITE);
     tft.setTextSize(2);
-    tft.print(chessMenu[prevSelection]);
+    if(menuType == 0){
+      tft.print(connMenu[prevSelection]);
+    }else{
+      tft.print(chessMenu[prevSelection]);
+    }
+    
     
   }
 
@@ -1327,7 +1424,11 @@ void drawChessMenuCursor(int prevSelection, int newSelection) {
   tft.setCursor(50, newYPos);
   tft.setTextColor(BLACK); 
   tft.setTextSize(2);
-  tft.print(chessMenu[newSelection]);
+  if(menuType == 0){
+    tft.print(connMenu[newSelection]);
+  }else{
+    tft.print(chessMenu[newSelection]);
+  }
 }
 
 
@@ -1621,28 +1722,58 @@ void sendRemoteMove(int fromIdx, int toIds){
   Serial2.write((uint8_t)fromIdx);
   Serial2.write((uint8_t)toIds); 
 }
+void sendWirelessMove(int fromIdx, int toIdx){
+  myData.header = 'M'; // M for move
+  myData.fromIdx = fromIdx;
+  myData.toIdx = toIdx;
+  esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
+}
+
+void sendChessMove(int fromIdx, int toIdx){
+  if(connectionMode == 0){
+    sendRemoteMove(fromIdx, toIdx);
+  }else{
+    sendWirelessMove(fromIdx, toIdx);
+  }
+}
+
+bool receiveChessMove(int &outFrom, int &outTo){
+  if(connectionMode == 0){
+    if (Serial2.available() >= 3) {
+      if(Serial2.read() == 'M'){
+        outFrom = Serial2.read();
+        outTo = Serial2.read();
+        return true;
+      }
+    }
+  }else{
+    if(wirelessMoveReceived){
+      outFrom = incomingMove.fromIdx;
+      outTo = incomingMove.toIdx;
+      wirelessMoveReceived = false;
+      return true;
+    }
+  }
+  return false;
+}
 
 
 void handleChessInputs(){
-  if (Serial2.available() >= 3) {
-    if(Serial2.read() == 'M'){
-      int remoteFrom = Serial2.read();
-      int remoteTo = Serial2.read();
+  int rxFrom, rxTo;
 
-      int rSrc = remoteFrom / 8;
-      int cSrc = remoteFrom % 8;
 
-      int rDst = remoteTo / 8;
-      int cDst = remoteTo % 8;
+ if (receiveChessMove(rxFrom, rxTo)) {
+    // A move arrived! Execute it.
+    int rSrc = rxFrom / 8; int cSrc = rxFrom % 8;
+    int rDst = rxTo / 8;   int cDst = rxTo % 8;
 
-      chessBoard[rDst][cDst] = chessBoard[rSrc][cSrc];
-      chessBoard[rSrc][cSrc] = 0;
-
-      if(abs(chessBoard[rDst][cDst]) == 1){ 
-        if(rDst == 0 || rDst == 7){
-          chessBoard[rDst][cDst] *= 5;
-        }
-      }
+    chessBoard[rDst][cDst] = chessBoard[rSrc][cSrc];
+    chessBoard[rSrc][cSrc] = 0;
+    
+    // Handle Promotion
+    if (abs(chessBoard[rDst][cDst]) == 1) {
+        if (rDst == 0 || rDst == 7) chessBoard[rDst][cDst] *= 5; 
+    }
       turnNumber++;
 
       drawChessBoard();
@@ -1657,8 +1788,8 @@ void handleChessInputs(){
       }else if(isInCheck(myColor)){
         //displayStatus("Check!", YELLOW);
       }
-    }
   }
+  
 
 
   static unsigned long lastMoveTime = 0;
@@ -1751,7 +1882,7 @@ void handleChessInputs(){
                     }
                 }
 
-                sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation);
+                sendChessMove(selectedSourceSquare, chessBoardCursorLocation);
 
                 // End Turn
                 selectedSourceSquare = -1;
@@ -1813,7 +1944,34 @@ void handleChessInputs(){
 
   }
       
+  if(chessPhase == CONNECTION_SELECT){
+    int previousChessMenuSelection = connMenuSelection;
 
+    // Handle Movement (Directional Buttons)
+    if (currentTime - lastMoveTime >= moveDelay) {
+      bool moved = false;
+
+      if (digitalRead(PIN_UP) == LOW) {
+        connMenuSelection= max(0, connMenuSelection - 1);
+        moved = true;
+      } else if (digitalRead(PIN_DOWN) == LOW) {
+        connMenuSelection = min(numChessMenu - 1, connMenuSelection + 1);
+        moved = true;
+      }
+
+      if (moved) {
+        lastMoveTime = currentTime;
+        drawChessMenuCursor(previousChessMenuSelection,connMenuSelection,0);
+      }
+    }
+    if (digitalRead(PIN_BUTTONA) == LOW) {
+        connectionMode = connMenuSelection; // Set 0 or 1
+        chessPhase = MENU;          // Go to next screen
+        tft.fillScreen(BLACK);              // Clear for next menu
+        drawChessMenu(previousChessMenuSelection, chessMenuSelection, 1);
+        delay(300);
+    }
+  }
 
   if(chessPhase == MENU){
     
@@ -1833,7 +1991,7 @@ void handleChessInputs(){
 
       if (moved) {
         lastMoveTime = currentTime;
-        drawChessMenuCursor(previousChessMenuSelection,chessMenuSelection);
+        drawChessMenuCursor(previousChessMenuSelection,chessMenuSelection,1);
       }
     }
 
@@ -1900,9 +2058,9 @@ void resetChess(){
   gameOverScreenDrawn = false;
   turnNumber = 0;
   tft.fillScreen(BLACK);
-  chessPhase = MENU;
-  drawChessMenu(previousChessMenuSelection, chessMenuSelection);
-  drawChessMenuCursor(previousChessMenuSelection, chessMenuSelection);
+  chessPhase = CONNECTION_SELECT;
+  drawChessMenu(previousChessMenuSelection, chessMenuSelection, 0);
+  drawChessMenuCursor(previousChessMenuSelection, chessMenuSelection,0);
 }
 
 
@@ -1918,6 +2076,25 @@ void resetChess(){
 void setup() {
   Serial.begin(115200);
   Serial2.begin(SERIAL_BAUD_RATE, SERIAL_8N1, SERIAL_RX_PIN, SERIAL_TX_PIN);
+
+  // Turn power indicator pin on
+  pinMode(PIN_POWER_INDICATOR, OUTPUT);
+  digitalWrite(PIN_POWER_INDICATOR, HIGH);
+
+  // initialize wireless
+  WiFi.mode(WIFI_STA);
+  if(esp_now_init() == ESP_OK){
+    esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+
+    esp_now_peer_info_t peerInfo;
+    memset(&peerInfo, 0, sizeof(peerInfo));
+    memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+    peerInfo.channel = 0;
+    peerInfo.encrypt = false;
+    esp_now_add_peer(&peerInfo);
+  }else{
+    Serial.println("Error initializing ESP-NOW");
+  }
 
   // Initialize display
   tft.begin();
