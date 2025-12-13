@@ -39,7 +39,7 @@
 // Input Button Pins (Assuming buttons are wired as Active-LOW: Press connects pin to GND)
 #define PIN_UP     45
 #define PIN_DOWN   2
-#define PIN_LEFT   34
+#define PIN_LEFT   48
 #define PIN_RIGHT  1
 #define PIN_SELECT 39
 #define PIN_HOME   40
@@ -65,7 +65,7 @@ enum GameState {
   STATE_POKEMON_BATTLER,
   STATE_CHESS
 };
-GameState currentState = STATE_MENU;
+GameState currentState = STATE_CHESS;
 
 // Menu Variables
 int menuSelection = 0; // Index of the currently selected menu item
@@ -1740,9 +1740,9 @@ int checkGameState(int color){
 }
 
 void sendRemoteMove(int fromIdx, int toIds){
-  Serial2.write("M"); // M for move
-  Serial2.write((uint8_t)fromIdx);
-  Serial2.write((uint8_t)toIds); 
+  Serial.write("M"); // M for move
+  Serial.write((uint8_t)fromIdx);
+  Serial.write((uint8_t)toIds); 
 }
 void sendWirelessMove(int fromIdx, int toIdx){
   myData.header = 'M'; // M for move
@@ -1761,10 +1761,10 @@ void sendChessMove(int fromIdx, int toIdx){
 
 bool receiveChessMove(int &outFrom, int &outTo){
   if(connectionMode == 0){
-    if (Serial2.available() >= 3) {
-      if(Serial2.read() == 'M'){
-        outFrom = Serial2.read();
-        outTo = Serial2.read();
+    if (Serial.available() >= 3) {
+      if(Serial.read() == 'M'){
+        outFrom = Serial.read();
+        outTo = Serial.read();
         return true;
       }
     }
@@ -1820,7 +1820,15 @@ void handleChessInputs(){
 
   bool isWhiteTurn = (turnNumber % 2 == 0);
 
-  if (chessPhase == WHITE_TURN || chessPhase == BLACK_TURN) {
+  if(chessPhase == WHITE_TURN || chessPhase == BLACK_TURN){
+    if(isWhiteTurn){
+      chessPhase = WHITE_TURN;
+    }else{
+      chessPhase = BLACK_TURN;
+    }
+  }
+
+  if ((chessPhase == WHITE_TURN && playingAsWhite) || (chessPhase == BLACK_TURN && !playingAsWhite)) {
     // Handle Movement (Directional Buttons)
     if (currentTime - lastMoveTime >= moveDelay) {
       bool moved = false;
@@ -1906,6 +1914,8 @@ void handleChessInputs(){
                 if(connectionMode != 2){
                   sendChessMove(selectedSourceSquare, chessBoardCursorLocation);
                 }
+                sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation);
+                Serial.println("Move sent.");
                 // End Turn
                 selectedSourceSquare = -1;
                 turnNumber++;
@@ -1965,7 +1975,32 @@ void handleChessInputs(){
     }
 
   }
-      
+  else if ((chessPhase == WHITE_TURN || chessPhase == BLACK_TURN) && receiveChessMove(rxFrom, rxTo)){
+    int rSrc = rxFrom / 8; int cSrc = rxFrom % 8;
+    int rDst = rxTo / 8;   int cDst = rxTo % 8;
+
+    chessBoard[rDst][cDst] = chessBoard[rSrc][cSrc];
+    chessBoard[rSrc][cSrc] = 0;
+    
+    // Handle Promotion
+    if (abs(chessBoard[rDst][cDst]) == 1) {
+        if (rDst == 0 || rDst == 7) chessBoard[rDst][cDst] *= 5; 
+    }
+      turnNumber++;
+
+      drawChessBoard();
+
+      int myColor = (playingAsWhite) ? 1 : -1;
+      int gameState = checkGameState(myColor);
+
+      if(gameState == 1){
+        chessPhase = GAME_OVER;
+      }else if(gameState == 2){
+        chessPhase = GAME_OVER;
+      }else if(isInCheck(myColor)){
+        //displayStatus("Check!", YELLOW);
+      }
+  }   
   if(chessPhase == CONNECTION_SELECT){
     int previousChessMenuSelection = connMenuSelection;
 
@@ -2096,9 +2131,9 @@ void resetChess(){
 // ==============================================================================
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(SERIAL_BAUD_RATE);
   //Serial2.begin(SERIAL_BAUD_RATE, SERIAL_8N1, SERIAL_RX_PIN, SERIAL_TX_PIN);
-
+  //Serial.println("Starting up...");
   // Turn power indicator pin on
   pinMode(PIN_POWER_INDICATOR, OUTPUT);
   digitalWrite(PIN_POWER_INDICATOR, HIGH);
@@ -2135,8 +2170,9 @@ void setup() {
   pinMode(PIN_BUTTONB, INPUT_PULLUP);
 
   // Start the device in the main menu
-  drawMenu();
-  drawMenuCursor(-1, 0); // Draw cursor on the first item
+  // drawMenu();
+  // drawMenuCursor(-1, 0); // Draw cursor on the first item
+  chessSelected();
 }
 
 void loop() {
