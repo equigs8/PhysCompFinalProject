@@ -63,7 +63,8 @@ enum GameState {
   STATE_MENU,
   STATE_TICTACTOE,
   STATE_POKEMON_BATTLER,
-  STATE_CHESS
+  STATE_CHESS,
+  STATE_SETTINGS
 };
 GameState currentState = STATE_CHESS;
 
@@ -235,6 +236,8 @@ void pokemonBattlerSelected();
 void chessSelected();
 void resetPokemonBattler();
 void resetChess();
+void resetSettings();
+void settingsSelected();
 
 // ==============================================================================
 // 3. DRAWING FUNCTIONS
@@ -284,17 +287,17 @@ void drawMenuItemIcon(int itemIndex, int xPos, int yPos, uint16_t color) {
   if (itemIndex == 0) {
     // Icon for Tic-Tac-Toe: Draw a 16x16 Bitmap
     // x, y, bitmap array, width, height, color
-    drawSpriteWithTransparency(xPos + 7, yPos + 7, TIC_TAC_TOE_ICON_BITS, iconSize, iconSize, 0x0000);
+    drawSpriteWithTransparency(xPos, yPos, TIC_TAC_TOE_ICON_BITS, iconSize, iconSize, 0x0000);
     
   }else if(itemIndex == 1) {
     // draw Pokemon Icon
-    drawSpriteWithTransparency(xPos, yPos, POKEMON_ICON_BITS, 16, 16, 0x0000);
+    drawSpriteWithTransparency(xPos, yPos, POKEMON_ICON_BITS, iconSize, iconSize, 0x0000);
   }else if (itemIndex == 2) {
     // draw Chess Icon
-    drawSpriteWithTransparency(xPos, yPos, CHESS_ICON_BITS, 16, 16, 0x0000);
+    drawSpriteWithTransparency(xPos, yPos, CHESS_ICON_BITS, iconSize, iconSize, 0x0000);
   }else if (itemIndex == 3) {
     // draw Settings Icon
-    drawSpriteWithTransparency(xPos, yPos, SETTINGS_ICON_BITS, 16, 16, 0x0000);
+    drawSpriteWithTransparency(xPos, yPos, SETTINGS_ICON_BITS, iconSize, iconSize, 0x0000);
   }
    else {
     // Icon for "Coming Soon...": Placeholder box with '?'
@@ -466,6 +469,10 @@ void pokemonBattlerSelected(){
 void chessSelected(){
   currentState = STATE_CHESS;
   resetChess();
+}
+void settingsSelected(){
+  currentState = STATE_SETTINGS;
+  resetSettings();
 }
 // ==============================================================================
 // 5. TICTACTOE GAME LOGIC
