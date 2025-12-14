@@ -67,7 +67,15 @@
       "top": 361.2,
       "left": 339.8,
       "attrs": { "color": "red" }
-    }
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz1",
+      "top": -112.8,
+      "left": 241.8,
+      "attrs": { "volume": "0.1" }
+    },
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": -135.7, "left": 76.6, "attrs": {} }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
@@ -98,7 +106,12 @@
     [ "btnButtonB:1.l", "esp:42", "red", [] ],
     [ "btnButtonB:2.l", "esp:GND.4", "black", [] ],
     [ "led1:A", "esp:46", "green", [ "v-163.2", "h-336", "v-48" ] ],
-    [ "led1:C", "esp:GND.4", "black", [ "v-163.2", "h-336", "v-48" ] ]
+    [ "led1:C", "esp:GND.4", "black", [ "v-163.2", "h-336", "v-48" ] ],
+    [ "bz1:1", "esp:GND.4", "black", [ "v0" ] ],
+    [ "bz1:2", "esp:7", "green", [ "v0" ] ],
+    [ "pot1:GND", "esp:GND.3", "black", [ "v0" ] ],
+    [ "pot1:SIG", "esp:8", "green", [ "v0" ] ],
+    [ "pot1:VCC", "esp:3V3.1", "red", [ "v48", "h-144.8" ] ]
   ],
   "dependencies": {}
 }

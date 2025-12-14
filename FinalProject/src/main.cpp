@@ -60,8 +60,8 @@
 #define PIN_POWER_INDICATOR 46
 
 // Volume Control
-#define PIN_VOLUME 21
-//#define PIN_PIEZO 22
+#define PIN_VOLUME 8
+#define PIN_PIEZO 7
 
 // ==============================================================================
 // 2. DISPLAY SETUP & GLOBAL VARIABLES
@@ -77,7 +77,7 @@ enum GameState {
   STATE_CHESS,
   STATE_SETTINGS
 };
-GameState currentState = STATE_CHESS;
+GameState currentState = STATE_MENU;
 
 // Menu Variables
 int menuSelection = 0; // Index of the currently selected menu item
@@ -167,7 +167,15 @@ void settingsSelected();
 // 3. DRAWING FUNCTIONS
 // ==============================================================================
 
-
+/**
+ * @brief Draws a sprite to the TFT screen, ignoring pixels of a specific color to create transparency.
+ * * @param x Horizontal starting position.
+ * @param y Vertical starting position.
+ * @param bitmap Pointer to the 16-bit color bitmap array.
+ * @param w Width of the sprite.
+ * @param h Height of the sprite.
+ * @param transparentColor The color value to be treated as transparent (not drawn).
+ */
 void drawSpriteWithTransparency(int x, int y, const uint16_t *bitmap, int w, int h, uint16_t transparentColor) {
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
@@ -302,6 +310,41 @@ void drawMenuCursor(int prevSelection, int newSelection) {
 }
 
 // ==============================================================================
+// 2. AUDIO HANDLER
+// ==============================================================================
+
+
+#define AUDIO_RESOLUTION 8
+int currentVolume = 128;
+
+void initAudio() {
+  ledcAttach(PIN_PIEZO, 2000, AUDIO_RESOLUTION);
+  ledcWrite(PIN_PIEZO, 0);
+}
+
+void updateVolume(){
+  int potValue = analogRead(PIN_VOLUME);
+  currentVolume = map(potValue, 0, 4095, 0, 128);
+  if(currentVolume < 5){
+    currentVolume = 0;
+  }
+}
+
+void playTone(int freq, int duration) {
+  updateVolume();
+
+  if(currentVolume > 0 && freq > 0){
+    ledcWriteTone(PIN_PIEZO, freq);
+    
+    ledcWrite(PIN_PIEZO, currentVolume);
+
+    delay(duration);
+    ledcWrite(PIN_PIEZO, 0);
+  }
+}
+
+
+// ==============================================================================
 // 3.1 GENERAL INPUT HANDLER
 // ==============================================================================
 /**
@@ -316,6 +359,7 @@ void handleGeneralInput() {
   // Handle Home Button
 
   if(digitalRead(PIN_HOME) == LOW) {
+    playTone(1000, 50);
     currentState = STATE_MENU;
     drawMenu();
     drawMenuCursor(-1, menuSelection); // Draw cursor at current selection
@@ -2113,13 +2157,13 @@ void setup() {
   pinMode(PIN_BUTTONB, INPUT_PULLUP);
 
   // Volume potentiometer
-  pinMode(PIN_VOLUME, OUTPUT);
-  //pinMode(PIN_PIEZO, OUTPUT);
-
+  pinMode(PIN_VOLUME, INPUT_PULLUP);
+  pinMode(PIN_PIEZO, OUTPUT);
+  initAudio();
   // Start the device in the main menu
-  // drawMenu();
-  // drawMenuCursor(-1, 0); // Draw cursor on the first item
-  chessSelected();
+  drawMenu();
+  drawMenuCursor(-1, 0); // Draw cursor on the first item
+  //chessSelected();
 }
 
 void loop() {
