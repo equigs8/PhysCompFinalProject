@@ -1,3 +1,12 @@
+/**
+ * @file main.cpp
+ * @author Ethan Quigley (https://github.com/equigs8)
+ * @author August (https://github.com/goosey999)
+ * @brief Main file for the Handheld Game Console
+*/
+
+
+
 #include <Arduino.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
@@ -94,15 +103,6 @@ const int numMenuItems = sizeof(menuItems) / sizeof(menuItems[0]);
 #define HUD_BG      0xEF7D // Light Gray for text boxes
 #define HP_GREEN    0x2624 // Bright Green
 #define HP_RED      0xF800
-
-
-
-// const uint16_t TIC_TAC_TOE_ICON_BITS [];
-// const uint16_t POKEMON_ICON_BITS [];
-// const uint16_t CHESS_ICON_BITS [];
-// const uint16_t SETTINGS_ICON_BITS [];
-
-
 
 
 
