@@ -349,7 +349,7 @@ void drawMenuCursor(int prevSelection, int newSelection) {
     int prevYPos = yStart + prevSelection * 40;
     
     // Erase the background highlight
-    tft.fillRect(xPos, prevYPos, width, height, BLACK);
+    tft.fillRect(xPos, prevYPos -2, width, height, BLACK);
     
     // Redraw Text (WHITE)
     tft.setCursor(50, prevYPos);
@@ -358,14 +358,14 @@ void drawMenuCursor(int prevSelection, int newSelection) {
     tft.print(menuItems[prevSelection]);
     
     // Redraw Icon (WHITE) (Icon position: x=5, centered vertically around text line)
-    drawMenuItemIcon(prevSelection, 15, prevYPos, WHITE);
+    //drawMenuItemIcon(prevSelection, 15, prevYPos, WHITE);
   }
 
   // 2. Draw new cursor highlight and redraw text/icon in BLACK.
   int newYPos = yStart + newSelection * 40;
   
   // Draw new cursor (filled box)
-  tft.fillRect(xPos, newYPos, width, height, CURSOR_COLOR);
+  tft.fillRect(xPos, newYPos - 2, width, height, CURSOR_COLOR);
   
   // Redraw Text (BLACK on the colored cursor)
   tft.setCursor(50, newYPos);
@@ -374,7 +374,7 @@ void drawMenuCursor(int prevSelection, int newSelection) {
   tft.print(menuItems[newSelection]);
   
   // Redraw Icon (BLACK on the colored cursor)
-  drawMenuItemIcon(newSelection, 15, newYPos, WHITE);
+  //drawMenuItemIcon(newSelection, 15, newYPos, WHITE);
 }
 
 // ==============================================================================
@@ -1220,6 +1220,9 @@ int chessUIWidth = 40 - chessUIWidthMargin;
 int chessUIStartingX = 0;
 int chessUIStartingY = 0;
 
+int chessCursorStartLocationWhite = 0;
+int chessCursorStartLocationBlack = 63;
+
 bool displayedgameOver = false;
 
 bool isCheck = false;
@@ -1922,10 +1925,18 @@ void handleChessInputs(){
                   sendChessMove(selectedSourceSquare, chessBoardCursorLocation);
                 }
                 sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation);
-                Serial.println("Move sent.");
+                //Serial.println("Move sent.");
                 // End Turn
-                selectedSourceSquare = -1;
+                
                 turnNumber++;
+                if(turnNumber % 2 == 0){
+                  isWhiteTurn = true;
+                  selectedSourceSquare = chessCursorStartLocationWhite;
+                }else{
+                  isWhiteTurn = false;
+                  selectedSourceSquare = chessCursorStartLocationBlack;
+                }
+                
                 drawChessBoard(); // Redraw immediately to show the move
 
                 // --- CHECK GAME OVER STATUS ---
@@ -2033,6 +2044,7 @@ void handleChessInputs(){
         chessPhase = MENU;          // Go to next screen
         tft.fillScreen(BLACK);              // Clear for next menu
         drawChessMenu(previousChessMenuSelection, chessMenuSelection, 1);
+        drawChessMenuCursor(previousChessMenuSelection, 0, 1);
         delay(300);
     }
   }
