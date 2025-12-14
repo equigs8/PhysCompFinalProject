@@ -6,7 +6,7 @@
 #include <array>
 #include <string>
 #include <math.h>
-#include <WIFI.h>
+//#include <WIFI.h>
 #include <esp_now.h>
 //Sprites and game clases
 #include "pokemon.h"
