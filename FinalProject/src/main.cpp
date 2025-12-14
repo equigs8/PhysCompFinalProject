@@ -51,6 +51,7 @@
 
 // Volume Control
 #define PIN_VOLUME 21
+//#define PIN_PIEZO 22
 
 // ==============================================================================
 // 2. DISPLAY SETUP & GLOBAL VARIABLES
@@ -2187,6 +2188,10 @@ void setup() {
   pinMode(PIN_HOME, INPUT_PULLUP);
   pinMode(PIN_BUTTONA, INPUT_PULLUP);
   pinMode(PIN_BUTTONB, INPUT_PULLUP);
+
+  // Volume potentiometer
+  pinMode(PIN_VOLUME, OUTPUT);
+  //pinMode(PIN_PIEZO, OUTPUT);
 
   // Start the device in the main menu
   // drawMenu();
