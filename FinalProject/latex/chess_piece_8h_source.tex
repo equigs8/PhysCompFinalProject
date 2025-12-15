@@ -1,0 +1,40 @@
+\doxysection{chess\+Piece.\+h}
+\hypertarget{chess_piece_8h_source}{}\label{chess_piece_8h_source}\index{FinalProject/src/chessPiece.h@{FinalProject/src/chessPiece.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ CHESSPIECE\_H}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ CHESSPIECE\_H}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <Arduino.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}Square.h"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}PieceType.h"{}}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//Class\ for\ chess\ pieces}}
+\DoxyCodeLine{00008\ \textcolor{keyword}{class\ }chessPiece\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00010\ \ \ \ \ \mbox{\hyperlink{class_square}{Square}}\ \_location;}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{keywordtype}{int}\ \_color;}
+\DoxyCodeLine{00012\ \ \ \ \ PieceType\ \_pieceType;}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keyword}{const}\ uint16\_t*\ \_sprite;}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00016\ \ \ \ \ chessPiece()\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \_sprite\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00018\ \ \ \ \ \}}
+\DoxyCodeLine{00019\ \ \ \ \ chessPiece(\mbox{\hyperlink{class_square}{Square}}\ location,\ \textcolor{keywordtype}{int}\ color,\ \textcolor{keyword}{const}\ uint16\_t*\ sprite)\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \_location\ =\ location;}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \_color\ =\ color;}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\_pieceType\ =\ pieceType;}}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \_sprite\ =\ sprite;}
+\DoxyCodeLine{00024\ \ \ \ \ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{const}\ uint16\_t*\ getSprite()\{}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_sprite;}
+\DoxyCodeLine{00029\ \ \ \ \ \}}
+\DoxyCodeLine{00030\ \};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

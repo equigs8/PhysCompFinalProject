@@ -324,8 +324,10 @@ void initAudio() {
 
 void updateVolume(){
   int potValue = analogRead(PIN_VOLUME);
-  currentVolume = map(potValue, 0, 4095, 0, 128);
-  if(currentVolume < 5){
+  int mappedValue = map(potValue, 0, 4095, 0, 128);
+
+  currentVolume = (mappedValue * mappedValue) / 128;
+  if(currentVolume < 2){
     currentVolume = 0;
   }
 }
@@ -347,6 +349,15 @@ void playTone(int freq, int duration) {
 // ==============================================================================
 // 3.1 GENERAL INPUT HANDLER
 // ==============================================================================
+
+void goHome(){
+  playTone(1000, 50);
+  currentState = STATE_MENU;
+  drawMenu();
+  drawMenuCursor(-1, menuSelection); // Draw cursor at current selection
+  delay(300); // Debounce
+}
+
 /**
  * @brief Handles input for all game states. Will be used for volume, home, and rest buttons.
  */
@@ -359,16 +370,13 @@ void handleGeneralInput() {
   // Handle Home Button
 
   if(digitalRead(PIN_HOME) == LOW) {
-    playTone(1000, 50);
-    currentState = STATE_MENU;
-    drawMenu();
-    drawMenuCursor(-1, menuSelection); // Draw cursor at current selection
-    delay(300); // Debounce
+    goHome();
   }
   // Handle Reset. Pushing both Home and Select will reset the divice
-  //TODO: Add reset action.
-  // if(digitalRead(PIN_HOME) == LOW && digitalRead(PIN_SELECT) == LOW) {
-  // }
+  
+  if(digitalRead(PIN_HOME) == LOW && digitalRead(PIN_SELECT) == LOW) {
+    ESP.restart();
+  }
 
 }
 
@@ -416,6 +424,10 @@ void handleMenuInput() {
     }else if (menuSelection == 2) {
       // Option 2: CHESS
       chessSelected();
+    }
+    else if (menuSelection == 3) {
+      // Option 3: Settings
+      settingsSelected();
     }
     else {
       // Placeholder for other games
@@ -1717,11 +1729,18 @@ int checkGameState(int color){
   }
 }
 
-void sendRemoteMove(int fromIdx, int toIds){
+void sendRemoteMove(int fromIdx, int toIds, bool useAlt = false){
+  if (useAlt){
+    Serial.print("M");
+    Serial.print(fromIdx);
+    Serial.print(toIds);
+    return;
+  }
   Serial.write("M"); // M for move
   Serial.write((uint8_t)fromIdx);
   Serial.write((uint8_t)toIds); 
 }
+
 void sendWirelessMove(int fromIdx, int toIdx){
   myData.header = 'M'; // M for move
   myData.fromIdx = fromIdx;
@@ -1789,6 +1808,10 @@ void handleChessInputs(){
 //         //displayStatus("Check!", YELLOW);
 //       }
 //   }
+
+  if(Serial.available() > 0){
+    displayStatus("Serial Available!", YELLOW);
+  }
   
 
 
@@ -1892,8 +1915,8 @@ void handleChessInputs(){
                 if(connectionMode != 2){
                   sendChessMove(selectedSourceSquare, chessBoardCursorLocation);
                 }
-                sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation);
-                //Serial.println("Move sent.");
+                sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation, true);
+                Serial.println("Move sent.");
                 // End Turn
                 
                 turnNumber++;
@@ -2109,8 +2132,83 @@ void resetChess(){
 
 
 
+// ==============================================================================
+// 5. SETTINGS MENU
+// ==============================================================================
+int previousSettingsMenuSelection = 0;
+int settingsMenuSelection = 0;
+int numSettingsMenu = 2;
+const char* settingsMenu[2] = {"Volume", "Coming Soon..."};
 
 
+void drawSettingsMenuCursor(int previousSelection, int currentSelection){
+  tft.fillRect(0, previousSelection * 40, tft.width(), 40, BLACK);
+  tft.setCursor(0, currentSelection * 40);
+  tft.setTextColor(YELLOW);
+  tft.setTextSize(2);
+  tft.println(settingsMenu[currentSelection]);
+  tft.setTextColor(WHITE);
+  previousSettingsMenuSelection = currentSelection;
+}
+
+void drawSettingsMenu(int previousSelection, int currentSelection){
+  tft.fillScreen(BLACK);
+  tft.setCursor(0, 0);
+  tft.setTextColor(WHITE);
+  tft.setTextSize(2);
+
+  for (int i = 0; i < numSettingsMenu; i++) {
+    if (i == currentSelection) {
+      tft.setTextColor(YELLOW);
+    } else {
+      tft.setTextColor(WHITE);
+    }
+    tft.println(settingsMenu[i]);
+  }
+  tft.setTextColor(WHITE);
+  previousSettingsMenuSelection = currentSelection;
+}
+
+
+
+
+
+void handleSettingsInput(){
+  static unsigned long lastMoveTime = 0;
+  const unsigned long moveDelay = 200;
+  unsigned long currentTime = millis();
+  int prevSelection = menuSelection;
+
+  if(currentTime - lastMoveTime >= moveDelay){
+    bool moved = false;
+  
+    if (digitalRead(PIN_UP) == LOW) {
+      settingsMenuSelection = max(0, settingsMenuSelection - 1);
+      moved = true;
+    } else if (digitalRead(PIN_DOWN) == LOW) {
+      settingsMenuSelection = min(numSettingsMenu - 1, settingsMenuSelection + 1);
+      moved = true;
+    }
+    else if (digitalRead(PIN_BUTTONB) == LOW) {
+      // Go home
+      goHome();
+      return;
+    }
+
+    if (moved) {
+      lastMoveTime = currentTime;
+      drawSettingsMenuCursor(previousSettingsMenuSelection, settingsMenuSelection);
+    }
+  }
+}
+
+
+
+void resetSettings(){
+  tft.fillScreen(BLACK);
+  drawSettingsMenu(previousSettingsMenuSelection, settingsMenuSelection);
+  drawSettingsMenuCursor(previousSettingsMenuSelection, settingsMenuSelection);
+}
 
 
 // ==============================================================================
@@ -2157,7 +2255,7 @@ void setup() {
   pinMode(PIN_BUTTONB, INPUT_PULLUP);
 
   // Volume potentiometer
-  pinMode(PIN_VOLUME, INPUT_PULLUP);
+  pinMode(PIN_VOLUME, INPUT);
   pinMode(PIN_PIEZO, OUTPUT);
   initAudio();
   // Start the device in the main menu
@@ -2183,6 +2281,9 @@ void loop() {
       break;
     case STATE_CHESS:
       handleChessInputs();
+      break;
+    case STATE_SETTINGS:
+      handleSettingsInput();
       break;
   }
   //delay(10);
