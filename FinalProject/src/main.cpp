@@ -1348,12 +1348,13 @@ void drawChessUI(){
   tft.print(turnNumber);
   tft.setCursor(leftJustified, chessUIStartingY + 2);
   tft.print("Turn: ");
+  //tft.print(turnNumber);
   tft.setTextColor(BLACK);
   if(turnNumber % 2 == 0){
     tft.setCursor(leftJustified, chessUIStartingY + 10);
     tft.print("White");
   }else {
-    tft.setCursor(0, chessUIStartingY + 10);
+    tft.setCursor(leftJustified, chessUIStartingY + 10);
     tft.print("Black");
   }
 
@@ -1916,7 +1917,7 @@ void handleChessInputs(){
                   sendChessMove(selectedSourceSquare, chessBoardCursorLocation);
                 }
                 sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation, true);
-                Serial.println("Move sent.");
+                //Serial.println("Move sent.");
                 // End Turn
                 
                 turnNumber++;
