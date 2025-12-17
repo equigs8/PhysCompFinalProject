@@ -60,10 +60,10 @@
 #define PIN_DOWN   2
 #define PIN_LEFT   48
 #define PIN_RIGHT  1
-#define PIN_SELECT 39
-#define PIN_HOME   40
-#define PIN_BUTTONA 41
-#define PIN_BUTTONB 42
+#define PIN_SELECT 16
+#define PIN_HOME   15
+#define PIN_BUTTONA 18
+#define PIN_BUTTONB 17
 
 // #define PIN_UP     100
 // #define PIN_DOWN   101
@@ -386,21 +386,62 @@ void handleGeneralInput() {
   unsigned long currentTime = millis();
   
   // Handle Home Button
+  if(currentTime - lastMoveTime >= moveDelay){
+    bool moved = false;
+    if(digitalRead(PIN_HOME) == LOW) {
+      Serial.println("Home Button Pressed");
+      moved = true;
+      goHome();
+    }
+    // Handle Reset. Pushing both Home and Select will reset the divice
+    
+    if(digitalRead(PIN_HOME) == LOW && digitalRead(PIN_SELECT) == LOW) {
+      //ESP.restart();
+    }
 
-  if(digitalRead(PIN_HOME) == LOW) {
-    Serial.println("Home Button Pressed");
-    goHome();
+    if(digitalRead(PIN_BUTTONB) == LOW) {
+      Serial.println("Button B Pressed");
+      moved = true;
+    }
+    if(digitalRead(PIN_BUTTONA) == LOW) {
+      Serial.println("Button A Pressed");
+      moved = true;
+    }
+    if (digitalRead(PIN_UP) == LOW)
+    {
+      Serial.println("Button Up Pressed");
+      moved = true;
+    }
+    if(digitalRead(PIN_DOWN) == LOW) {
+      Serial.println("Button Down Pressed");
+      moved = true;
+    }
+    if(digitalRead(PIN_LEFT) == LOW) {
+      Serial.println("Button Left Pressed");
+      moved = true;
+    }
+    if(digitalRead(PIN_RIGHT) == LOW) {
+      Serial.println("Button Right Pressed");
+      moved = true;
+    }
+    if (digitalRead(PIN_SELECT) == LOW)
+    {
+      Serial.println("Select Pressed");
+      moved = true;
+    }
+    if(digitalRead(PIN_HOME) == LOW) {
+      Serial.println("Home Button Pressed");
+      moved = true;
+    }
+    
+
+     if (moved) {
+      lastMoveTime = currentTime;
+    }
   }
-  // Handle Reset. Pushing both Home and Select will reset the divice
+
   
-  if(digitalRead(PIN_HOME) == LOW && digitalRead(PIN_SELECT) == LOW) {
-    //ESP.restart();
-  }
-
-  if(digitalRead(PIN_BUTTONA) == LOW) {
-    Serial.println("Button A Pressed");
-  }
-
+  
 }
 
 
@@ -2327,7 +2368,7 @@ void loop() {
 
   switch (currentState) {
     case STATE_MENU:
-      //handleMenuInput();
+      handleMenuInput();
       break;
     case STATE_TICTACTOE:
       handleTicTacToeInput();
