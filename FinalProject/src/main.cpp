@@ -65,12 +65,21 @@
 #define PIN_BUTTONA 41
 #define PIN_BUTTONB 42
 
+// #define PIN_UP     100
+// #define PIN_DOWN   101
+// #define PIN_LEFT   102
+// #define PIN_RIGHT  103
+// #define PIN_SELECT 104
+// #define PIN_HOME   105
+// #define PIN_BUTTONA 18
+// #define PIN_BUTTONB 107
+
 // Power LED Pin
-#define PIN_POWER_INDICATOR 46
+//#define PIN_POWER_INDICATOR 46
 
 // Volume Control
-#define PIN_VOLUME 8
-#define PIN_PIEZO 7
+//#define PIN_VOLUME 8
+//#define PIN_PIEZO 7
 
 // ==============================================================================
 // 2. DISPLAY SETUP & GLOBAL VARIABLES
@@ -327,31 +336,31 @@ void drawMenuCursor(int prevSelection, int newSelection) {
 int currentVolume = 128;
 
 void initAudio() {
-  ledcAttach(PIN_PIEZO, 2000, AUDIO_RESOLUTION);
-  ledcWrite(PIN_PIEZO, 0);
+  //ledcAttach(PIN_PIEZO, 2000, AUDIO_RESOLUTION);
+  //ledcWrite(PIN_PIEZO, 0);
 }
 
 void updateVolume(){
-  int potValue = analogRead(PIN_VOLUME);
-  int mappedValue = map(potValue, 0, 4095, 0, 128);
+  // int potValue = analogRead(PIN_VOLUME);
+  // int mappedValue = map(potValue, 0, 4095, 0, 128);
 
-  currentVolume = (mappedValue * mappedValue) / 128;
-  if(currentVolume < 2){
-    currentVolume = 0;
-  }
+  // currentVolume = (mappedValue * mappedValue) / 128;
+  // if(currentVolume < 2){
+  //   currentVolume = 0;
+  // }
 }
 
 void playTone(int freq, int duration) {
-  updateVolume();
+  // updateVolume();
 
-  if(currentVolume > 0 && freq > 0){
-    ledcWriteTone(PIN_PIEZO, freq);
+  // if(currentVolume > 0 && freq > 0){
+  //   ledcWriteTone(PIN_PIEZO, freq);
     
-    ledcWrite(PIN_PIEZO, currentVolume);
+  //   ledcWrite(PIN_PIEZO, currentVolume);
 
-    delay(duration);
-    ledcWrite(PIN_PIEZO, 0);
-  }
+  //   delay(duration);
+  //   ledcWrite(PIN_PIEZO, 0);
+  // }
 }
 
 
@@ -360,7 +369,7 @@ void playTone(int freq, int duration) {
 // ==============================================================================
 
 void goHome(){
-  playTone(1000, 50);
+  //playTone(1000, 50);
   currentState = STATE_MENU;
   drawMenu();
   drawMenuCursor(-1, menuSelection); // Draw cursor at current selection
@@ -379,12 +388,17 @@ void handleGeneralInput() {
   // Handle Home Button
 
   if(digitalRead(PIN_HOME) == LOW) {
+    Serial.println("Home Button Pressed");
     goHome();
   }
   // Handle Reset. Pushing both Home and Select will reset the divice
   
   if(digitalRead(PIN_HOME) == LOW && digitalRead(PIN_SELECT) == LOW) {
-    ESP.restart();
+    //ESP.restart();
+  }
+
+  if(digitalRead(PIN_BUTTONA) == LOW) {
+    Serial.println("Button A Pressed");
   }
 
 }
@@ -1954,7 +1968,7 @@ void handleChessInputs(){
                 if(connectionMode != 2){
                   sendChessMove(selectedSourceSquare, chessBoardCursorLocation);
                 }
-                sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation, true);
+                //sendRemoteMove(selectedSourceSquare, chessBoardCursorLocation, true);
                 //Serial.println("Move sent.");
                 // End Turn
                 
@@ -2230,7 +2244,7 @@ void handleSettingsInput(){
     }
     else if (digitalRead(PIN_BUTTONB) == LOW) {
       // Go home
-      goHome();
+      //goHome();
       return;
     }
 
@@ -2255,12 +2269,12 @@ void resetSettings(){
 // ==============================================================================
 
 void setup() {
-  Serial.begin(SERIAL_BAUD_RATE);
+  
   //Serial2.begin(SERIAL_BAUD_RATE, SERIAL_8N1, SERIAL_RX_PIN, SERIAL_TX_PIN);
   //Serial.println("Starting up...");
   // Turn power indicator pin on
-  pinMode(PIN_POWER_INDICATOR, OUTPUT);
-  digitalWrite(PIN_POWER_INDICATOR, HIGH);
+  // pinMode(PIN_POWER_INDICATOR, OUTPUT);
+  // digitalWrite(PIN_POWER_INDICATOR, HIGH);
 
   
   // // initialize wireless
@@ -2280,8 +2294,10 @@ void setup() {
 
   // Initialize display
   tft.begin();
+  delay(100);
+  Serial.begin(SERIAL_BAUD_RATE);
   // Most ILI9341 screens are 240x320. Rotation(1) makes it 320x240 (landscape)
-  tft.setRotation(1);
+  tft.setRotation(3);
 
   // Initialize buttons with internal pull-up resistors
   pinMode(PIN_UP, INPUT_PULLUP);
@@ -2294,23 +2310,24 @@ void setup() {
   pinMode(PIN_BUTTONB, INPUT_PULLUP);
 
   // Volume potentiometer
-  pinMode(PIN_VOLUME, INPUT);
-  pinMode(PIN_PIEZO, OUTPUT);
-  initAudio();
+  // pinMode(PIN_VOLUME, INPUT);
+  // pinMode(PIN_PIEZO, OUTPUT);
+  //initAudio();
   // Start the device in the main menu
   drawMenu();
   drawMenuCursor(-1, 0); // Draw cursor on the first item
   //chessSelected();
+  Serial.println("Starting up...");
 }
 
 void loop() {
   // Main state machine to switch between Menu and Game modes
-
+  
   handleGeneralInput();
 
   switch (currentState) {
     case STATE_MENU:
-      handleMenuInput();
+      //handleMenuInput();
       break;
     case STATE_TICTACTOE:
       handleTicTacToeInput();
