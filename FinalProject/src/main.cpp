@@ -19,8 +19,17 @@
 #include <esp_now.h>
 //Sprites and game clases
 #include "pokemon.h"
-#include "pikachu.h"
-#include "charmander.h"
+// Monsters
+#include "leafle.h"
+#include "finpup.h"
+#include "katanid.h"
+#include "kitflare.h"
+#include "mantiscyth.h"
+#include "hammerfat.h"
+#include "anchorjaw.h"
+#include "omenmask.h"
+#include "spiritail.h"
+//Chess
 #include "chessPiece.h"
 #include "White_King.h"
 #include "White_Queen.h"
@@ -729,11 +738,9 @@ void handleTicTacToeInput() {
 
 
 
-// Pokemon
-Pokemon playerPokemon = createPikachu(1);
+Pokemon playerPokemon;
+Pokemon enemyPokemon;
 
-
-Pokemon enemyPokemon = createCharmander(1);
 
 
 //Player Bag
@@ -785,7 +792,23 @@ const std::map<int, std::array<std::string, 4>> pokemonMenuItems = {
 // Game Over state variable
 bool gameIsOver = false;
 
-
+// Helper function to generate a random Pokemon
+Pokemon createRandomPokemon(int level) {
+  int randomNum = random(0, 11); // 0 to 10 (11 total options)
+  
+  switch(randomNum) {
+    case 0: return createLeafle(level);
+    case 1: return createMantiscythe(level); // Ensure spelling matches your header
+    case 2: return createKatanid(level);
+    case 3: return createFinpup(level);
+    case 4: return createHammerfat(level);
+    case 5: return createAnchorjaw(level);
+    case 6: return createKitflare(level);
+    case 7: return createSpiritail(level);
+    case 8: return createOmenmask(level);
+    default: return createLeafle(level);
+  }
+}
 
 // Helper function to get X, Y, Width, Height based on cursor index (0-3)
 void getCursorRect(int index, int &x, int &y, int &w, int &h) {
@@ -818,10 +841,21 @@ void drawPokemonMenuCursor(int prevSelection, int newSelection) {
 void drawPokemonBattlerUI() {
   tft.fillRect(0, 190, tft.width(), tft.height() - 190, WHITE);
   
-  std::string opt0 = pokemonMenuItems.at(pokemonMenuSelection).at(0);
-  std::string opt1 = pokemonMenuItems.at(pokemonMenuSelection).at(1);
-  std::string opt2 = pokemonMenuItems.at(pokemonMenuSelection).at(2);
-  std::string opt3 = pokemonMenuItems.at(pokemonMenuSelection).at(3);
+  std::string opt0, opt1, opt2, opt3;
+
+  // If we are selecting a move (Menu Index 1), get moves from the current Pokemon
+  if (pokemonMenuSelection == 1) {
+      opt0 = playerPokemon.getMove(0).getName();
+      opt1 = playerPokemon.getMove(1).getName();
+      opt2 = playerPokemon.getMove(2).getName();
+      opt3 = playerPokemon.getMove(3).getName();
+  } else {
+      // Otherwise use the static menu text
+      opt0 = pokemonMenuItems.at(pokemonMenuSelection).at(0);
+      opt1 = pokemonMenuItems.at(pokemonMenuSelection).at(1);
+      opt2 = pokemonMenuItems.at(pokemonMenuSelection).at(2);
+      opt3 = pokemonMenuItems.at(pokemonMenuSelection).at(3);
+  }
 
   tft.setTextSize(2);
   tft.setTextColor(BLACK);
@@ -1046,7 +1080,11 @@ bool performAttack(Pokemon &attacker, Pokemon &defender, Move move) {
 
   int damage = move.getDamage();
 
-  defender.takeDamage(damage);
+  if (damage < 0) {
+    attacker.heal(abs(damage));
+  }else{
+    defender.takeDamage(damage);
+  }
 
   if(defender.getHealth() < 0){
     defender.heal(abs(defender.getHealth()));
@@ -1131,8 +1169,8 @@ void resetPokemonBattler() {
   battlePhase = PHASE_PLAYER_CHOICE; // Reset phase
   
   // Heals for a new game (optional, or you can keep persistence)
-  playerPokemon.heal(1000); 
-  enemyPokemon.heal(1000);
+  playerPokemon = createRandomPokemon(1);
+  enemyPokemon = createRandomPokemon(1);
 
   tft.fillScreen(BLACK);
   drawBattleScene();

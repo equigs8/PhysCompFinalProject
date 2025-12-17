@@ -5,7 +5,7 @@
 // A base class for pokemon moves
 class Move {
     private:
-        int _damage;
+        int _damage; // if negative it heals the pokemon that uses it
         const char *_name;
         int _pp; // Number of times the move can be used
 
@@ -33,6 +33,7 @@ class Move {
     int getPP() {
         return _pp;
     }
+    
 };
 
 
