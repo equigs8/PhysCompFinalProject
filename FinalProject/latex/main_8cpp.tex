@@ -1,0 +1,758 @@
+\doxysection{Final\+Project/src/main.cpp File Reference}
+\hypertarget{main_8cpp}{}\label{main_8cpp}\index{FinalProject/src/main.cpp@{FinalProject/src/main.cpp}}
+
+
+Main file for the Handheld Game Console.  
+
+
+{\ttfamily \#include $<$Arduino.\+h$>$}\newline
+{\ttfamily \#include $<$SPI.\+h$>$}\newline
+{\ttfamily \#include $<$Adafruit\+\_\+\+GFX.\+h$>$}\newline
+{\ttfamily \#include $<$Adafruit\+\_\+\+ILI9341.\+h$>$}\newline
+{\ttfamily \#include $<$map$>$}\newline
+{\ttfamily \#include $<$array$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+now.\+h$>$}\newline
+{\ttfamily \#include "{}pokemon.\+h"{}}\newline
+{\ttfamily \#include "{}pikachu.\+h"{}}\newline
+{\ttfamily \#include "{}charmander.\+h"{}}\newline
+{\ttfamily \#include "{}chess\+Piece.\+h"{}}\newline
+{\ttfamily \#include "{}White\+\_\+\+King.\+h"{}}\newline
+{\ttfamily \#include "{}White\+\_\+\+Queen.\+h"{}}\newline
+{\ttfamily \#include "{}White\+\_\+\+Rook.\+h"{}}\newline
+{\ttfamily \#include "{}White\+\_\+\+Bishop.\+h"{}}\newline
+{\ttfamily \#include "{}White\+\_\+\+Knight.\+h"{}}\newline
+{\ttfamily \#include "{}White\+\_\+\+Pawn.\+h"{}}\newline
+{\ttfamily \#include "{}Black\+\_\+\+King.\+h"{}}\newline
+{\ttfamily \#include "{}Black\+\_\+\+Queen.\+h"{}}\newline
+{\ttfamily \#include "{}Black\+\_\+\+Rook.\+h"{}}\newline
+{\ttfamily \#include "{}Black\+\_\+\+Bishop.\+h"{}}\newline
+{\ttfamily \#include "{}Black\+\_\+\+Knight.\+h"{}}\newline
+{\ttfamily \#include "{}Black\+\_\+\+Pawn.\+h"{}}\newline
+{\ttfamily \#include "{}Icons.\+h"{}}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structstruct__message}{struct\+\_\+message}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{main_8cpp_a5f4d46ae101b77df78010c506601c87c}\label{main_8cpp_a5f4d46ae101b77df78010c506601c87c} 
+\#define {\bfseries TFT\+\_\+\+CS}~5
+\item 
+\Hypertarget{main_8cpp_a51529307207622c113ff0d584536be13}\label{main_8cpp_a51529307207622c113ff0d584536be13} 
+\#define {\bfseries TFT\+\_\+\+DC}~4
+\item 
+\Hypertarget{main_8cpp_ab40e9918d9141415a47e2a979292309c}\label{main_8cpp_ab40e9918d9141415a47e2a979292309c} 
+\#define {\bfseries TFT\+\_\+\+RST}~-\/1
+\item 
+\Hypertarget{main_8cpp_a34395182cb0892d5576a3ce9b7a1b5a0}\label{main_8cpp_a34395182cb0892d5576a3ce9b7a1b5a0} 
+\#define {\bfseries PIN\+\_\+\+UP}~45
+\item 
+\Hypertarget{main_8cpp_a3675dd5ebe05aaf51fe12d6c8c5c5b47}\label{main_8cpp_a3675dd5ebe05aaf51fe12d6c8c5c5b47} 
+\#define {\bfseries PIN\+\_\+\+DOWN}~2
+\item 
+\Hypertarget{main_8cpp_a7875447ba7bf74702e9ca9d1b6d83d79}\label{main_8cpp_a7875447ba7bf74702e9ca9d1b6d83d79} 
+\#define {\bfseries PIN\+\_\+\+LEFT}~48
+\item 
+\Hypertarget{main_8cpp_a5bd46b4352047bb8484c9eb9ae0dcf0e}\label{main_8cpp_a5bd46b4352047bb8484c9eb9ae0dcf0e} 
+\#define {\bfseries PIN\+\_\+\+RIGHT}~1
+\item 
+\Hypertarget{main_8cpp_a50754978ee55b17614a4d81b5413626f}\label{main_8cpp_a50754978ee55b17614a4d81b5413626f} 
+\#define {\bfseries PIN\+\_\+\+SELECT}~39
+\item 
+\Hypertarget{main_8cpp_a6dd878a2665543dc770950ac5279741a}\label{main_8cpp_a6dd878a2665543dc770950ac5279741a} 
+\#define {\bfseries PIN\+\_\+\+HOME}~40
+\item 
+\Hypertarget{main_8cpp_ae74b435bbdd1fbf3ba35f611fb6460ad}\label{main_8cpp_ae74b435bbdd1fbf3ba35f611fb6460ad} 
+\#define {\bfseries PIN\+\_\+\+BUTTONA}~41
+\item 
+\Hypertarget{main_8cpp_aaa91bcf6aafeb1367cdeb55c6e6fb34c}\label{main_8cpp_aaa91bcf6aafeb1367cdeb55c6e6fb34c} 
+\#define {\bfseries PIN\+\_\+\+BUTTONB}~42
+\item 
+\Hypertarget{main_8cpp_a76d56be0a9db59160d4ea2d880ce9751}\label{main_8cpp_a76d56be0a9db59160d4ea2d880ce9751} 
+\#define {\bfseries PIN\+\_\+\+POWER\+\_\+\+INDICATOR}~46
+\item 
+\Hypertarget{main_8cpp_ac97aef16ba98c61e4f592afc4bf35ca6}\label{main_8cpp_ac97aef16ba98c61e4f592afc4bf35ca6} 
+\#define {\bfseries PIN\+\_\+\+VOLUME}~8
+\item 
+\Hypertarget{main_8cpp_ad67197684098f7e8191189a49b5198cd}\label{main_8cpp_ad67197684098f7e8191189a49b5198cd} 
+\#define {\bfseries PIN\+\_\+\+PIEZO}~7
+\item 
+\Hypertarget{main_8cpp_a7b3b25cba33b07c303f3060fe41887f6}\label{main_8cpp_a7b3b25cba33b07c303f3060fe41887f6} 
+\#define {\bfseries BLACK}~0x0000
+\item 
+\Hypertarget{main_8cpp_a87b537f5fa5c109d3c05c13d6b18f382}\label{main_8cpp_a87b537f5fa5c109d3c05c13d6b18f382} 
+\#define {\bfseries WHITE}~0x\+FFFF
+\item 
+\Hypertarget{main_8cpp_a8d23feea868a983c8c2b661e1e16972f}\label{main_8cpp_a8d23feea868a983c8c2b661e1e16972f} 
+\#define {\bfseries RED}~0x\+F800
+\item 
+\Hypertarget{main_8cpp_a79d10e672abb49ad63eeaa8aaef57c38}\label{main_8cpp_a79d10e672abb49ad63eeaa8aaef57c38} 
+\#define {\bfseries BLUE}~0x001F
+\item 
+\Hypertarget{main_8cpp_abf681265909adf3d3e8116c93c0ba179}\label{main_8cpp_abf681265909adf3d3e8116c93c0ba179} 
+\#define {\bfseries YELLOW}~0x\+FFE0
+\item 
+\Hypertarget{main_8cpp_a87edc9df33a4231055b4e5a544ac4233}\label{main_8cpp_a87edc9df33a4231055b4e5a544ac4233} 
+\#define {\bfseries CURSOR\+\_\+\+COLOR}~0x\+F800
+\item 
+\Hypertarget{main_8cpp_a7029bc8f67a2936e4b12265e189f074c}\label{main_8cpp_a7029bc8f67a2936e4b12265e189f074c} 
+\#define {\bfseries MAIN\+\_\+\+MENU\+\_\+\+COLOR}~BLACK
+\item 
+\Hypertarget{main_8cpp_a33d053e53773bba7432c7c2b82cc775e}\label{main_8cpp_a33d053e53773bba7432c7c2b82cc775e} 
+\#define {\bfseries CHESS\+\_\+\+BOARD\+\_\+\+LIGHT\+\_\+\+COLOR}~0x\+DEFB
+\item 
+\Hypertarget{main_8cpp_a47a67d5ace901472842b1c368bad9998}\label{main_8cpp_a47a67d5ace901472842b1c368bad9998} 
+\#define {\bfseries CHESS\+\_\+\+BOARD\+\_\+\+DARK\+\_\+\+COLOR}~0x7\+D1F
+\item 
+\Hypertarget{main_8cpp_a0fec447e4a91ea353278a081496bba14}\label{main_8cpp_a0fec447e4a91ea353278a081496bba14} 
+\#define {\bfseries SKY\+\_\+\+BLUE}~0x7\+D1F
+\item 
+\Hypertarget{main_8cpp_ae12907a1cf91391fcbe264914b9bb75d}\label{main_8cpp_ae12907a1cf91391fcbe264914b9bb75d} 
+\#define {\bfseries GRASS\+\_\+\+GREEN}~0x5\+E09
+\item 
+\Hypertarget{main_8cpp_adad0dee6309fa8c3c71cd7813c49bdb6}\label{main_8cpp_adad0dee6309fa8c3c71cd7813c49bdb6} 
+\#define {\bfseries PLATFORM\+\_\+\+COL}~0x\+DEFB
+\item 
+\Hypertarget{main_8cpp_adda06450c093d7020aa27ebcea05e4d8}\label{main_8cpp_adda06450c093d7020aa27ebcea05e4d8} 
+\#define {\bfseries HUD\+\_\+\+BG}~0x\+EF7D
+\item 
+\Hypertarget{main_8cpp_ace7a507b6eacc2ff5758bea8e6ac87ab}\label{main_8cpp_ace7a507b6eacc2ff5758bea8e6ac87ab} 
+\#define {\bfseries HP\+\_\+\+GREEN}~0x2624
+\item 
+\Hypertarget{main_8cpp_a3f781cd7e31f042b8b3f98ee9633f23c}\label{main_8cpp_a3f781cd7e31f042b8b3f98ee9633f23c} 
+\#define {\bfseries HP\+\_\+\+RED}~0x\+F800
+\item 
+\Hypertarget{main_8cpp_ad89976cc0b5340110179f6ce40df3028}\label{main_8cpp_ad89976cc0b5340110179f6ce40df3028} 
+\#define {\bfseries SERIAL\+\_\+\+BAUD\+\_\+\+RATE}~9600
+\item 
+\Hypertarget{main_8cpp_a5b63f989c01a9f7b11336d514d37cbce}\label{main_8cpp_a5b63f989c01a9f7b11336d514d37cbce} 
+\#define {\bfseries SERIAL\+\_\+\+TX\+\_\+\+PIN}~16
+\item 
+\Hypertarget{main_8cpp_a3a6914464503da0a1c45a3a4eb118d5c}\label{main_8cpp_a3a6914464503da0a1c45a3a4eb118d5c} 
+\#define {\bfseries SERIAL\+\_\+\+RX\+\_\+\+PIN}~17
+\item 
+\Hypertarget{main_8cpp_a1db39eb31d1315ce982608fe25587b6d}\label{main_8cpp_a1db39eb31d1315ce982608fe25587b6d} 
+\#define {\bfseries BOARD\+\_\+\+SIZE}~3
+\item 
+\Hypertarget{main_8cpp_a2b7cf2a3641be7b89138615764d60ba3}\label{main_8cpp_a2b7cf2a3641be7b89138615764d60ba3} 
+\#define {\bfseries EMPTY}~0
+\item 
+\Hypertarget{main_8cpp_a11d58baaffc49494ab91da16621b6a5c}\label{main_8cpp_a11d58baaffc49494ab91da16621b6a5c} 
+\#define {\bfseries PLAYER\+\_\+X}~1
+\item 
+\Hypertarget{main_8cpp_ad31e7b99c63c80f4d9e479bd49456e67}\label{main_8cpp_ad31e7b99c63c80f4d9e479bd49456e67} 
+\#define {\bfseries PLAYER\+\_\+O}~2
+\item 
+\Hypertarget{main_8cpp_a7af54c6a660942e6fa558b72b716e7d5}\label{main_8cpp_a7af54c6a660942e6fa558b72b716e7d5} 
+\#define {\bfseries AUDIO\+\_\+\+RESOLUTION}~8
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{main_8cpp_add81b616c060a3c276b7dee4fcd54e9f}\label{main_8cpp_add81b616c060a3c276b7dee4fcd54e9f} 
+typedef struct struct\+\_\+message {\bfseries struct\+\_\+message}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{main_8cpp_a7899b65f1ea0f655e4bbf8d2a5714285}\label{main_8cpp_a7899b65f1ea0f655e4bbf8d2a5714285} 
+enum {\bfseries Game\+State} \{ \newline
+{\bfseries STATE\+\_\+\+MENU}
+, {\bfseries STATE\+\_\+\+TICTACTOE}
+, {\bfseries STATE\+\_\+\+POKEMON\+\_\+\+BATTLER}
+, {\bfseries STATE\+\_\+\+CHESS}
+, \newline
+{\bfseries STATE\+\_\+\+SETTINGS}
+ \}
+\item 
+\Hypertarget{main_8cpp_a8245dc34f10c76de9aea9e66d58c3568}\label{main_8cpp_a8245dc34f10c76de9aea9e66d58c3568} 
+enum {\bfseries Battle\+Phase} \{ \newline
+{\bfseries PHASE\+\_\+\+PLAYER\+\_\+\+CHOICE}
+, {\bfseries PHASE\+\_\+\+EXECUTING\+\_\+\+TURN}
+, {\bfseries PHASE\+\_\+\+ENEMY\+\_\+\+CHOICE}
+, {\bfseries PHASE\+\_\+\+ENEMY\+\_\+\+EXECUTING\+\_\+\+TURN}
+, \newline
+{\bfseries PHASE\+\_\+\+GAME\+\_\+\+OVER}
+ \}
+\item 
+\Hypertarget{main_8cpp_ae5d8d891fef6ca8b4be03622699c1ac4}\label{main_8cpp_ae5d8d891fef6ca8b4be03622699c1ac4} 
+enum {\bfseries Chess\+Phase} \{ \newline
+{\bfseries CONNECTION\+\_\+\+SELECT}
+, {\bfseries MENU}
+, {\bfseries START\+\_\+\+GAME}
+, {\bfseries WHITE\+\_\+\+TURN}
+, \newline
+{\bfseries BLACK\+\_\+\+TURN}
+, {\bfseries GAME\+\_\+\+OVER}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{main_8cpp_ad6e972502e97eda80da46e228a521d30}\label{main_8cpp_ad6e972502e97eda80da46e228a521d30} 
+void {\bfseries On\+Data\+Recv} (const uint8\+\_\+t \texorpdfstring{$\ast$}{*}mac, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}incoming\+Data, int len)
+\item 
+\Hypertarget{main_8cpp_a5f41d6c8960b4fd1ec049f294e00e9dd}\label{main_8cpp_a5f41d6c8960b4fd1ec049f294e00e9dd} 
+void {\bfseries reset\+Tic\+Tac\+Toe} ()
+\begin{DoxyCompactList}\small\item\em Resets the board, state, and redraws the display for a new game. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_a063ace220e1da7c5f09031ce5b168d50}\label{main_8cpp_a063ace220e1da7c5f09031ce5b168d50} 
+void {\bfseries tic\+Tac\+Toe\+Selected} ()
+\item 
+\Hypertarget{main_8cpp_afa8e299e86d4ce8e13b60ae6cbf37deb}\label{main_8cpp_afa8e299e86d4ce8e13b60ae6cbf37deb} 
+void {\bfseries pokemon\+Battler\+Selected} ()
+\item 
+\Hypertarget{main_8cpp_a36bd7251d312f3e7c4cfb20df2504a25}\label{main_8cpp_a36bd7251d312f3e7c4cfb20df2504a25} 
+void {\bfseries chess\+Selected} ()
+\item 
+\Hypertarget{main_8cpp_a13b2f0f0e59d5f0fdb76569dae80e53a}\label{main_8cpp_a13b2f0f0e59d5f0fdb76569dae80e53a} 
+void {\bfseries reset\+Pokemon\+Battler} ()
+\item 
+\Hypertarget{main_8cpp_ab7fe375a8dd3b32fb55fb06d63e403f2}\label{main_8cpp_ab7fe375a8dd3b32fb55fb06d63e403f2} 
+void {\bfseries reset\+Chess} ()
+\item 
+\Hypertarget{main_8cpp_ac633daaf23d0cb452aaddd6c2a1c60d4}\label{main_8cpp_ac633daaf23d0cb452aaddd6c2a1c60d4} 
+void {\bfseries reset\+Settings} ()
+\item 
+\Hypertarget{main_8cpp_a99584d178bba9386bcca4a00a92cfb28}\label{main_8cpp_a99584d178bba9386bcca4a00a92cfb28} 
+void {\bfseries settings\+Selected} ()
+\item 
+void \mbox{\hyperlink{main_8cpp_ab9ec2c0c23102af8da5f3865fc6fbdb9}{draw\+Sprite\+With\+Transparency}} (int x, int y, const uint16\+\_\+t \texorpdfstring{$\ast$}{*}bitmap, int w, int h, uint16\+\_\+t transparent\+Color)
+\begin{DoxyCompactList}\small\item\em Draws a sprite to the TFT screen, ignoring pixels of a specific color to create transparency. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_ad487ecb052e10a48d38c6c1b585df7cd}\label{main_8cpp_ad487ecb052e10a48d38c6c1b585df7cd} 
+void {\bfseries display\+Status} (const char \texorpdfstring{$\ast$}{*}message, uint16\+\_\+t color)
+\begin{DoxyCompactList}\small\item\em Displays game status messages at the bottom of the screen. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_ae03b3c4b863d3c627cd4e2c4c65949d0}{draw\+Menu\+Item\+Icon}} (int item\+Index, int x\+Pos, int y\+Pos, uint16\+\_\+t color)
+\begin{DoxyCompactList}\small\item\em Draws a simple icon next to a menu item using bitmaps or simple shapes. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_aa13653318c21b0e6b86838e6091bfc9a}\label{main_8cpp_aa13653318c21b0e6b86838e6091bfc9a} 
+void {\bfseries draw\+Menu} ()
+\begin{DoxyCompactList}\small\item\em Draws the initial main menu screen. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_ad516617315faae1ba0de74ff4486fd3f}\label{main_8cpp_ad516617315faae1ba0de74ff4486fd3f} 
+void {\bfseries draw\+Menu\+Cursor} (int prev\+Selection, int new\+Selection)
+\begin{DoxyCompactList}\small\item\em Draws or moves the cursor/selection highlight on the menu. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_ab74d84d6d4c90b2b18669590af038a07}\label{main_8cpp_ab74d84d6d4c90b2b18669590af038a07} 
+void {\bfseries init\+Audio} ()
+\item 
+\Hypertarget{main_8cpp_ae4381e101690b21b86d5193826cdc5ec}\label{main_8cpp_ae4381e101690b21b86d5193826cdc5ec} 
+void {\bfseries update\+Volume} ()
+\item 
+\Hypertarget{main_8cpp_ac8a3adb87b8004039c4001e2bdc649a9}\label{main_8cpp_ac8a3adb87b8004039c4001e2bdc649a9} 
+void {\bfseries play\+Tone} (int freq, int duration)
+\item 
+\Hypertarget{main_8cpp_a57913cdd4dc0c41195ff70c342ba0281}\label{main_8cpp_a57913cdd4dc0c41195ff70c342ba0281} 
+void {\bfseries handle\+General\+Input} ()
+\begin{DoxyCompactList}\small\item\em Handles input for all game states. Will be used for volume, home, and rest buttons. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_ab80a98b47aed3cc6b2998d57045adbb8}\label{main_8cpp_ab80a98b47aed3cc6b2998d57045adbb8} 
+void {\bfseries handle\+Menu\+Input} ()
+\begin{DoxyCompactList}\small\item\em Handles input when the device is in the main menu state. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_a435ba4a0d4fc47fbf7b4e13acaa312e4}\label{main_8cpp_a435ba4a0d4fc47fbf7b4e13acaa312e4} 
+void {\bfseries draw\+Board} ()
+\begin{DoxyCompactList}\small\item\em Draws the initial board and title. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_a587c41ae03460bb266142568eab8cff4}\label{main_8cpp_a587c41ae03460bb266142568eab8cff4} 
+void {\bfseries draw\+Marker} (int col, int row, int player)
+\begin{DoxyCompactList}\small\item\em Draws X or O marker in a cell. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_af94f09b82122d3205ea242ddecc08b0e}\label{main_8cpp_af94f09b82122d3205ea242ddecc08b0e} 
+void {\bfseries draw\+Cursor} (int prevX, int prevY, int newX, int newY)
+\begin{DoxyCompactList}\small\item\em Draws or erases the cursor outline around the current cell. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{main_8cpp_a3a99897c18047811b55e5a1fc2213f08}{check\+Win}} (int player)
+\begin{DoxyCompactList}\small\item\em Checks if the given player has won. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{main_8cpp_a8847742cc98912ccb654ee60407cca50}{check\+Draw}} ()
+\begin{DoxyCompactList}\small\item\em Checks if the game has ended in a draw. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_a309c141b20608a20aeb02f70fbf905f1}{tic\+Tac\+Toe\+Game\+Over}} (int winner)
+\begin{DoxyCompactList}\small\item\em Handles the game over state for Tic-\/\+Tac-\/\+Toe. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_ad4c9f58f3d7c353eb802a1233a3ec3b3}\label{main_8cpp_ad4c9f58f3d7c353eb802a1233a3ec3b3} 
+void {\bfseries handle\+Tic\+Tac\+Toe\+Input} ()
+\begin{DoxyCompactList}\small\item\em Reads physical button inputs and updates the Tic-\/\+Tac-\/\+Toe game state. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_a2bf90a1b2118d12f316fc1707d0b8da9}\label{main_8cpp_a2bf90a1b2118d12f316fc1707d0b8da9} 
+void {\bfseries execute\+Turn} (\mbox{\hyperlink{class_move}{Move}} player\+Move)
+\item 
+\Hypertarget{main_8cpp_afeab01ce2dd5fc63e10fee951aac3f29}\label{main_8cpp_afeab01ce2dd5fc63e10fee951aac3f29} 
+void {\bfseries get\+Cursor\+Rect} (int index, int \&x, int \&y, int \&w, int \&h)
+\item 
+\Hypertarget{main_8cpp_a39cec6ad4eaf6ae1b40d37f7f555bfd9}\label{main_8cpp_a39cec6ad4eaf6ae1b40d37f7f555bfd9} 
+void {\bfseries draw\+Pokemon\+Menu\+Cursor} (int prev\+Selection, int new\+Selection)
+\item 
+\Hypertarget{main_8cpp_adcaf50fd5ec2a748406b887d7f6fbf54}\label{main_8cpp_adcaf50fd5ec2a748406b887d7f6fbf54} 
+void {\bfseries draw\+Pokemon\+Battler\+UI} ()
+\item 
+\Hypertarget{main_8cpp_a7a2304b42fc654de84ef39924dc73414}\label{main_8cpp_a7a2304b42fc654de84ef39924dc73414} 
+void {\bfseries handle\+Pokemon\+Battler\+Input} ()
+\item 
+\Hypertarget{main_8cpp_aff2a61560763e9caf7ba347a643cccf6}\label{main_8cpp_aff2a61560763e9caf7ba347a643cccf6} 
+void {\bfseries draw\+Filled\+Ellipse} (int cx, int cy, int rx, int ry, uint16\+\_\+t color)
+\item 
+\Hypertarget{main_8cpp_ac24d1e9d6f7246726c22c513aabcd97e}\label{main_8cpp_ac24d1e9d6f7246726c22c513aabcd97e} 
+void {\bfseries draw\+HUD} (int x, int y, const char \texorpdfstring{$\ast$}{*}name, int level, int current\+HP, int max\+HP, bool is\+Player)
+\item 
+\Hypertarget{main_8cpp_a6cc523ff721ebd80f130897ee7502775}\label{main_8cpp_a6cc523ff721ebd80f130897ee7502775} 
+void {\bfseries draw\+HPUI} ()
+\item 
+\Hypertarget{main_8cpp_a8c15f6b1b6f40dc0b7e1bb877ee9fd30}\label{main_8cpp_a8c15f6b1b6f40dc0b7e1bb877ee9fd30} 
+void {\bfseries draw\+Battle\+Scene} ()
+\item 
+\Hypertarget{main_8cpp_a057ef634129842f63af21b8c2e461ca6}\label{main_8cpp_a057ef634129842f63af21b8c2e461ca6} 
+void {\bfseries draw\+Battle\+Message} (const char \texorpdfstring{$\ast$}{*}message)
+\item 
+\Hypertarget{main_8cpp_a352fed7f7865f5e838b0f0f014df7076}\label{main_8cpp_a352fed7f7865f5e838b0f0f014df7076} 
+bool {\bfseries perform\+Attack} (\mbox{\hyperlink{class_pokemon}{Pokemon}} \&attacker, \mbox{\hyperlink{class_pokemon}{Pokemon}} \&defender, \mbox{\hyperlink{class_move}{Move}} move)
+\item 
+\Hypertarget{main_8cpp_a62d80e3e0bf273d37801672da9edb6bd}\label{main_8cpp_a62d80e3e0bf273d37801672da9edb6bd} 
+void {\bfseries end\+Battle} (bool player\+Won)
+\item 
+\Hypertarget{main_8cpp_a9d1c6ea2f6a1e22e818fb3853518e2fc}\label{main_8cpp_a9d1c6ea2f6a1e22e818fb3853518e2fc} 
+bool {\bfseries is\+In\+Check} (int color)
+\item 
+\Hypertarget{main_8cpp_aa9f0d9a85ba1c8c144721c0640e4849b}\label{main_8cpp_aa9f0d9a85ba1c8c144721c0640e4849b} 
+int {\bfseries get\+Piece\+At} (int index)
+\item 
+\Hypertarget{main_8cpp_adc4a72f984e206a051e5b90a5e1a0a7d}\label{main_8cpp_adc4a72f984e206a051e5b90a5e1a0a7d} 
+bool {\bfseries is\+Path\+Clear} (int start\+Idx, int end\+Idx)
+\item 
+\Hypertarget{main_8cpp_a7e30391205fa6b287f13a60fbd6a9054}\label{main_8cpp_a7e30391205fa6b287f13a60fbd6a9054} 
+bool {\bfseries is\+Valid\+Move} (int from\+Idx, int to\+Inx)
+\item 
+\Hypertarget{main_8cpp_a9aa78ddb64c831bdd8ede7387e456726}\label{main_8cpp_a9aa78ddb64c831bdd8ede7387e456726} 
+void {\bfseries draw\+Chess\+UI} ()
+\item 
+\Hypertarget{main_8cpp_ae9cae0559c63dfeed39b8044405dcf9d}\label{main_8cpp_ae9cae0559c63dfeed39b8044405dcf9d} 
+void {\bfseries draw\+Chess\+Menu} (int previous\+Selection, int selection, int menu\+Type)
+\item 
+\Hypertarget{main_8cpp_ac66732a4016a591e2f6d41c2216e15eb}\label{main_8cpp_ac66732a4016a591e2f6d41c2216e15eb} 
+void {\bfseries draw\+Chess\+Menu\+Cursor} (int prev\+Selection, int new\+Selection, int menu\+Type)
+\begin{DoxyCompactList}\small\item\em Draws or moves the cursor/selection highlight on the Chess menu. \end{DoxyCompactList}\item 
+\Hypertarget{main_8cpp_aedd795840fdbf97270c0eca8fb542ee4}\label{main_8cpp_aedd795840fdbf97270c0eca8fb542ee4} 
+void {\bfseries draw\+Chess\+Game\+Over} ()
+\item 
+\Hypertarget{main_8cpp_aa31a93803973640f34685415f18ab65e}\label{main_8cpp_aa31a93803973640f34685415f18ab65e} 
+int {\bfseries get\+Chess\+Square\+LocationX} (int square)
+\item 
+\Hypertarget{main_8cpp_aa08584b6c6ce1f53f08c70d08b567231}\label{main_8cpp_aa08584b6c6ce1f53f08c70d08b567231} 
+int {\bfseries get\+Chess\+Square\+LocationY} (int square)
+\item 
+\Hypertarget{main_8cpp_a403428b7b063aa95f0b1544f718a6c80}\label{main_8cpp_a403428b7b063aa95f0b1544f718a6c80} 
+int {\bfseries get\+Chess\+Square\+Color} (int square)
+\item 
+\Hypertarget{main_8cpp_aa0c86c031ed6b4de0237b48d996b32d2}\label{main_8cpp_aa0c86c031ed6b4de0237b48d996b32d2} 
+void {\bfseries draw\+Chess\+Cursor} (int current\+Postion, int previous\+Position)
+\item 
+\Hypertarget{main_8cpp_ae077b33a1a43091aa9778055cee04287}\label{main_8cpp_ae077b33a1a43091aa9778055cee04287} 
+void {\bfseries draw\+Chess\+Piece} (int posX, int posY, int square\+Size, int color, int piece\+Type)
+\item 
+\Hypertarget{main_8cpp_a1fc1e61d46cbba06b4f77df2803c83e9}\label{main_8cpp_a1fc1e61d46cbba06b4f77df2803c83e9} 
+void {\bfseries draw\+Chess\+Board} ()
+\item 
+\Hypertarget{main_8cpp_ac85bd4bd04a0c68a32ea8613c8e44a2a}\label{main_8cpp_ac85bd4bd04a0c68a32ea8613c8e44a2a} 
+int {\bfseries find\+King\+Location} (int color)
+\item 
+\Hypertarget{main_8cpp_af6e650a15772a08849d3127d6ad534fc}\label{main_8cpp_af6e650a15772a08849d3127d6ad534fc} 
+bool {\bfseries is\+Square\+Attacked} (int target\+Idx, int defender\+Color)
+\item 
+\Hypertarget{main_8cpp_ac576bb7acb2d3af981fccf3bdae8b2cd}\label{main_8cpp_ac576bb7acb2d3af981fccf3bdae8b2cd} 
+bool {\bfseries is\+Move\+Safe} (int from\+Idx, int to\+Idx)
+\item 
+\Hypertarget{main_8cpp_a93c44ddef2fee764b248a4958d8070dc}\label{main_8cpp_a93c44ddef2fee764b248a4958d8070dc} 
+int {\bfseries check\+Game\+State} (int color)
+\item 
+\Hypertarget{main_8cpp_ad5e5d7f904cb6a18584048c55abd6c23}\label{main_8cpp_ad5e5d7f904cb6a18584048c55abd6c23} 
+void {\bfseries send\+Remote\+Move} (int from\+Idx, int to\+Ids)
+\item 
+\Hypertarget{main_8cpp_a99c415706fd25d1c8447c6bb9c0a71f8}\label{main_8cpp_a99c415706fd25d1c8447c6bb9c0a71f8} 
+void {\bfseries send\+Wireless\+Move} (int from\+Idx, int to\+Idx)
+\item 
+\Hypertarget{main_8cpp_ab40e35cd013b8e9bc2a812774e7145c0}\label{main_8cpp_ab40e35cd013b8e9bc2a812774e7145c0} 
+void {\bfseries send\+Chess\+Move} (int from\+Idx, int to\+Idx)
+\item 
+\Hypertarget{main_8cpp_a8fb3486c0468b3a7882a1ca1a571555d}\label{main_8cpp_a8fb3486c0468b3a7882a1ca1a571555d} 
+bool {\bfseries receive\+Chess\+Move} (int \&out\+From, int \&out\+To)
+\item 
+\Hypertarget{main_8cpp_ab321e7f676fdfdb9bf23bd8135ffc6a1}\label{main_8cpp_ab321e7f676fdfdb9bf23bd8135ffc6a1} 
+void {\bfseries handle\+Chess\+Inputs} ()
+\item 
+\Hypertarget{main_8cpp_a4fc01d736fe50cf5b977f755b675f11d}\label{main_8cpp_a4fc01d736fe50cf5b977f755b675f11d} 
+void {\bfseries setup} ()
+\item 
+\Hypertarget{main_8cpp_afe461d27b9c48d5921c00d521181f12f}\label{main_8cpp_afe461d27b9c48d5921c00d521181f12f} 
+void {\bfseries loop} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{main_8cpp_a41c3eb6bc5901609f9f976b594e5089f}\label{main_8cpp_a41c3eb6bc5901609f9f976b594e5089f} 
+Adafruit\+\_\+\+ILI9341 {\bfseries tft} = Adafruit\+\_\+\+ILI9341(TFT\+\_\+\+CS, TFT\+\_\+\+DC, TFT\+\_\+\+RST)
+\item 
+\Hypertarget{main_8cpp_a697ab61fc2ba6106f4964e769c48826c}\label{main_8cpp_a697ab61fc2ba6106f4964e769c48826c} 
+Game\+State {\bfseries current\+State} = STATE\+\_\+\+MENU
+\item 
+\Hypertarget{main_8cpp_a6d8185c16e3a761e43e436a337a46d91}\label{main_8cpp_a6d8185c16e3a761e43e436a337a46d91} 
+int {\bfseries menu\+Selection} = 0
+\item 
+\Hypertarget{main_8cpp_a477ea6363106d20b974ef84a74df01d3}\label{main_8cpp_a477ea6363106d20b974ef84a74df01d3} 
+const char \texorpdfstring{$\ast$}{*} {\bfseries menu\+Items} \mbox{[}$\,$\mbox{]} = \{"{}Tic-\/Tac-\/Toe"{}, "{}Pokemon"{}, "{}Chess"{}, "{}Settings"{}\}
+\item 
+\Hypertarget{main_8cpp_aa5e521b170c046e2ee1808c68363b599}\label{main_8cpp_aa5e521b170c046e2ee1808c68363b599} 
+const int {\bfseries num\+Menu\+Items} = sizeof(menu\+Items) / sizeof(menu\+Items\mbox{[}0\mbox{]})
+\item 
+\Hypertarget{main_8cpp_adfbf96adc3f43587cd9cf718e4bd7dcd}\label{main_8cpp_adfbf96adc3f43587cd9cf718e4bd7dcd} 
+int {\bfseries connection\+Mode} = 0
+\item 
+\Hypertarget{main_8cpp_a3725ad8cc4ac1b5881384ccd184fa249}\label{main_8cpp_a3725ad8cc4ac1b5881384ccd184fa249} 
+uint8\+\_\+t {\bfseries broadcast\+Address} \mbox{[}$\,$\mbox{]} = \{0x\+FF, 0x\+FF, 0x\+FF, 0x\+FF, 0x\+FF, 0x\+FF\}
+\item 
+\Hypertarget{main_8cpp_aa9699336028d3fe5cc63b01988426fac}\label{main_8cpp_aa9699336028d3fe5cc63b01988426fac} 
+\mbox{\hyperlink{structstruct__message}{struct\+\_\+message}} {\bfseries my\+Data}
+\item 
+\Hypertarget{main_8cpp_acdf45166658ef8896ecf6c03a14334f2}\label{main_8cpp_acdf45166658ef8896ecf6c03a14334f2} 
+\mbox{\hyperlink{structstruct__message}{struct\+\_\+message}} {\bfseries incoming\+Move}
+\item 
+\Hypertarget{main_8cpp_abb4936889a0eab917cadaebdcb85df44}\label{main_8cpp_abb4936889a0eab917cadaebdcb85df44} 
+bool {\bfseries wireless\+Move\+Received} = false
+\item 
+\Hypertarget{main_8cpp_af3deb41098187a53ec1518351d5eb7df}\label{main_8cpp_af3deb41098187a53ec1518351d5eb7df} 
+int {\bfseries board} \mbox{[}BOARD\+\_\+\+SIZE\mbox{]}\mbox{[}BOARD\+\_\+\+SIZE\mbox{]}
+\item 
+\Hypertarget{main_8cpp_a650165e8f05540195216ab81804a448b}\label{main_8cpp_a650165e8f05540195216ab81804a448b} 
+int {\bfseries current\+Player} = PLAYER\+\_\+X
+\item 
+\Hypertarget{main_8cpp_a88da438414c465717dc0071bfbd9679a}\label{main_8cpp_a88da438414c465717dc0071bfbd9679a} 
+int {\bfseries game\+Status} = 0
+\item 
+\Hypertarget{main_8cpp_aa5418146807507005456a49bae4be2ed}\label{main_8cpp_aa5418146807507005456a49bae4be2ed} 
+bool {\bfseries game\+Over\+Screen\+Drawn} = false
+\item 
+\Hypertarget{main_8cpp_abfced571118e3f0ae96710e354c0e490}\label{main_8cpp_abfced571118e3f0ae96710e354c0e490} 
+int {\bfseries cursorX} = 0
+\item 
+\Hypertarget{main_8cpp_a9c273afb9e3397c98aae176a6a81eacd}\label{main_8cpp_a9c273afb9e3397c98aae176a6a81eacd} 
+int {\bfseries cursorY} = 0
+\item 
+\Hypertarget{main_8cpp_aeb47d83f5490d882ddb33149fc9fad05}\label{main_8cpp_aeb47d83f5490d882ddb33149fc9fad05} 
+int {\bfseries current\+Volume} = 128
+\item 
+\Hypertarget{main_8cpp_aadc174a4964f304331c8510d4b62a910}\label{main_8cpp_aadc174a4964f304331c8510d4b62a910} 
+\mbox{\hyperlink{class_pokemon}{Pokemon}} {\bfseries player\+Pokemon} = create\+Pikachu(1)
+\item 
+\Hypertarget{main_8cpp_ad2a02ccc86bddad8180f2fd76876adee}\label{main_8cpp_ad2a02ccc86bddad8180f2fd76876adee} 
+\mbox{\hyperlink{class_pokemon}{Pokemon}} {\bfseries enemy\+Pokemon} = create\+Charmander(1)
+\item 
+\Hypertarget{main_8cpp_a0b05a6590cf8e4aae20a4aca0cfa54a2}\label{main_8cpp_a0b05a6590cf8e4aae20a4aca0cfa54a2} 
+std\+::string {\bfseries player\+Bag} \mbox{[}4\mbox{]} = \{"{}Poke Ball"{}, "{}Great Ball"{}, "{}Ultra Ball"{}, "{}Master Ball"{}\}
+\item 
+\Hypertarget{main_8cpp_aad9e931ea560a3980f5244b4d76ef63d}\label{main_8cpp_aad9e931ea560a3980f5244b4d76ef63d} 
+int {\bfseries pokemon\+Menu\+Row1\+StartingX} = 10
+\item 
+\Hypertarget{main_8cpp_a00b2b1cb6986d1258d3b83540f5a831e}\label{main_8cpp_a00b2b1cb6986d1258d3b83540f5a831e} 
+int {\bfseries pokemon\+Menu\+Row1\+StartingY} = 200
+\item 
+\Hypertarget{main_8cpp_aa434bf2508fdca7cd274813b5ba7962d}\label{main_8cpp_aa434bf2508fdca7cd274813b5ba7962d} 
+int {\bfseries pokemon\+Menu\+Row2\+StartingX} = 10
+\item 
+\Hypertarget{main_8cpp_ae59defb0f30b1ee67b542d7f80fb64e9}\label{main_8cpp_ae59defb0f30b1ee67b542d7f80fb64e9} 
+int {\bfseries pokemon\+Menu\+Row2\+StartingY} = 220
+\item 
+\Hypertarget{main_8cpp_a7e0761e5a8d549494e1a41e507433535}\label{main_8cpp_a7e0761e5a8d549494e1a41e507433535} 
+bool {\bfseries is\+Players\+Turn} = true
+\item 
+\Hypertarget{main_8cpp_a81d5fa7755eac09449d49db0838bf7f1}\label{main_8cpp_a81d5fa7755eac09449d49db0838bf7f1} 
+Battle\+Phase {\bfseries battle\+Phase} = PHASE\+\_\+\+PLAYER\+\_\+\+CHOICE
+\item 
+\Hypertarget{main_8cpp_aab5dca6276f1db2bbb11492ce71f68c6}\label{main_8cpp_aab5dca6276f1db2bbb11492ce71f68c6} 
+int {\bfseries pokemon\+Menu\+Selection} = 0
+\item 
+\Hypertarget{main_8cpp_ad5522a60940daba08587349061df9f1e}\label{main_8cpp_ad5522a60940daba08587349061df9f1e} 
+int {\bfseries pokemon\+Sub\+Menu\+Selection} = 0
+\item 
+\Hypertarget{main_8cpp_a41e67e9ab100a7aa1d7b251979998504}\label{main_8cpp_a41e67e9ab100a7aa1d7b251979998504} 
+int {\bfseries previous\+Pokemon\+Sub\+Menu\+Selection} = -\/1
+\item 
+\Hypertarget{main_8cpp_af71b6ef44613575f7d5946b3015306a5}\label{main_8cpp_af71b6ef44613575f7d5946b3015306a5} 
+bool {\bfseries feedback\+Active} = false
+\item 
+\Hypertarget{main_8cpp_a496f85f290c9dd00a39e7d75f2835603}\label{main_8cpp_a496f85f290c9dd00a39e7d75f2835603} 
+unsigned long {\bfseries feedback\+Start\+Time} = 0
+\item 
+\Hypertarget{main_8cpp_af3230d8a3bad30069ab01d575a7de144}\label{main_8cpp_af3230d8a3bad30069ab01d575a7de144} 
+const int {\bfseries FEEDBACK\+\_\+\+DURATION} = 100
+\item 
+\Hypertarget{main_8cpp_ada6d4f5247cfbb3e80e955bda8916ded}\label{main_8cpp_ada6d4f5247cfbb3e80e955bda8916ded} 
+std\+::string {\bfseries pokemon\+Move1} = player\+Pokemon.\+get\+Move(0).get\+Name()
+\item 
+\Hypertarget{main_8cpp_acc18505e341965afd1b58c41ef7303e2}\label{main_8cpp_acc18505e341965afd1b58c41ef7303e2} 
+std\+::string {\bfseries pokemon\+Move2} = player\+Pokemon.\+get\+Move(1).get\+Name()
+\item 
+\Hypertarget{main_8cpp_ae6d4c8edc5c01069b3b960399f00ff8b}\label{main_8cpp_ae6d4c8edc5c01069b3b960399f00ff8b} 
+std\+::string {\bfseries pokemon\+Move3} = player\+Pokemon.\+get\+Move(2).get\+Name()
+\item 
+\Hypertarget{main_8cpp_abeca9e6779696a7c88760707ed1e6681}\label{main_8cpp_abeca9e6779696a7c88760707ed1e6681} 
+std\+::string {\bfseries pokemon\+Move4} = player\+Pokemon.\+get\+Move(3).get\+Name()
+\item 
+const std\+::map$<$ int, std\+::array$<$ std\+::string, 4 $>$ $>$ \mbox{\hyperlink{main_8cpp_a9165aa09f88fb7d6ce0281b9b471627c}{pokemon\+Menu\+Items}}
+\item 
+\Hypertarget{main_8cpp_ada1e2407c8153063a7038e41b62f3641}\label{main_8cpp_ada1e2407c8153063a7038e41b62f3641} 
+bool {\bfseries game\+Is\+Over} = false
+\item 
+\Hypertarget{main_8cpp_a90b05d912818f109d7dad86cb7efb91b}\label{main_8cpp_a90b05d912818f109d7dad86cb7efb91b} 
+Chess\+Phase {\bfseries chess\+Phase} = MENU
+\item 
+\Hypertarget{main_8cpp_a28e3610dd74eade798cd029f738d69fc}\label{main_8cpp_a28e3610dd74eade798cd029f738d69fc} 
+int {\bfseries turn\+Number} = 0
+\item 
+\Hypertarget{main_8cpp_a754b00ab135ea15b49c6ccaa3a00b087}\label{main_8cpp_a754b00ab135ea15b49c6ccaa3a00b087} 
+int {\bfseries chess\+Menu\+Selection} = 0
+\item 
+\Hypertarget{main_8cpp_a9197efe469d93e58af2193fdba53e9b3}\label{main_8cpp_a9197efe469d93e58af2193fdba53e9b3} 
+int {\bfseries previous\+Chess\+Menu\+Selection} = -\/1
+\item 
+\Hypertarget{main_8cpp_ab30857b4767fb5d12dddbf1d0315ec2f}\label{main_8cpp_ab30857b4767fb5d12dddbf1d0315ec2f} 
+const char \texorpdfstring{$\ast$}{*} {\bfseries chess\+Menu} \mbox{[}$\,$\mbox{]} = \{"{}Play as White"{}, "{}Play as Black"{}\}
+\item 
+\Hypertarget{main_8cpp_abeed5cd7af4da11fa47dd249f79c8bd1}\label{main_8cpp_abeed5cd7af4da11fa47dd249f79c8bd1} 
+int {\bfseries num\+Chess\+Menu} = 2
+\item 
+\Hypertarget{main_8cpp_a220feff5ef50f9e3e77ebe06612e4701}\label{main_8cpp_a220feff5ef50f9e3e77ebe06612e4701} 
+bool {\bfseries playing\+As\+White} = false
+\item 
+std\+::array$<$ std\+::array$<$ int, 8 $>$, 8 $>$ \mbox{\hyperlink{main_8cpp_a041fc3b016811e55526ba6f0c83b7305}{chess\+Board}}
+\item 
+\Hypertarget{main_8cpp_afcfc6a0edac32e0260316a4b22ad7880}\label{main_8cpp_afcfc6a0edac32e0260316a4b22ad7880} 
+int {\bfseries chess\+Board\+Cursor\+Location} = 0
+\item 
+\Hypertarget{main_8cpp_ae0098da730207e19d0faae9b30d437d4}\label{main_8cpp_ae0098da730207e19d0faae9b30d437d4} 
+int {\bfseries chess\+Board\+Previous\+Cursor\+Location} = -\/1
+\item 
+\Hypertarget{main_8cpp_a513935be98e89cb72e5eed7c6ebbfdff}\label{main_8cpp_a513935be98e89cb72e5eed7c6ebbfdff} 
+int {\bfseries selected\+Source\+Square} = -\/1
+\item 
+\Hypertarget{main_8cpp_ad0aed5c28768a42100fd1f13d593af12}\label{main_8cpp_ad0aed5c28768a42100fd1f13d593af12} 
+int {\bfseries board\+Height} = tft.\+height()
+\item 
+\Hypertarget{main_8cpp_a7557204b47f3f858af83088715b8cd8d}\label{main_8cpp_a7557204b47f3f858af83088715b8cd8d} 
+int {\bfseries square\+Size} = 30
+\item 
+\Hypertarget{main_8cpp_ae4e2552dd0e6ac76c3745ddd0b93ffbc}\label{main_8cpp_ae4e2552dd0e6ac76c3745ddd0b93ffbc} 
+int {\bfseries chess\+Square\+Start\+PosX} = (tft.\+width() -\/ (square\+Size \texorpdfstring{$\ast$}{*} 8)) / 2
+\item 
+\Hypertarget{main_8cpp_ac3e158bf069bf3dd95b88d3c2bf66e36}\label{main_8cpp_ac3e158bf069bf3dd95b88d3c2bf66e36} 
+int {\bfseries chess\+Square\+Start\+PosY} = (tft.\+height() -\/ (square\+Size \texorpdfstring{$\ast$}{*} 8)) / 2
+\item 
+\Hypertarget{main_8cpp_a8c1b629192b5abadc68b9335331290d2}\label{main_8cpp_a8c1b629192b5abadc68b9335331290d2} 
+int {\bfseries chess\+UIWidth\+Margin} = 2
+\item 
+\Hypertarget{main_8cpp_a04513c9f23a1b5e0e3f78348d9940b16}\label{main_8cpp_a04513c9f23a1b5e0e3f78348d9940b16} 
+int {\bfseries chess\+UIHeight} = board\+Height
+\item 
+\Hypertarget{main_8cpp_a0c782dfcfa77c2cb51dc659e1b80f6f6}\label{main_8cpp_a0c782dfcfa77c2cb51dc659e1b80f6f6} 
+int {\bfseries chess\+UIWidth} = 40 -\/ chess\+UIWidth\+Margin
+\item 
+\Hypertarget{main_8cpp_a629c5ca089b0377bfb1816bf2dbb7468}\label{main_8cpp_a629c5ca089b0377bfb1816bf2dbb7468} 
+int {\bfseries chess\+UIStartingX} = 0
+\item 
+\Hypertarget{main_8cpp_a52cd93a9d945e9405d232ac9c723f4f9}\label{main_8cpp_a52cd93a9d945e9405d232ac9c723f4f9} 
+int {\bfseries chess\+UIStartingY} = 0
+\item 
+\Hypertarget{main_8cpp_a033b7055de27d378d2d7157278247a24}\label{main_8cpp_a033b7055de27d378d2d7157278247a24} 
+int {\bfseries chess\+Cursor\+Start\+Location\+White} = 0
+\item 
+\Hypertarget{main_8cpp_a2a6df6c182adfc838eabe9403e08c746}\label{main_8cpp_a2a6df6c182adfc838eabe9403e08c746} 
+int {\bfseries chess\+Cursor\+Start\+Location\+Black} = 63
+\item 
+\Hypertarget{main_8cpp_a6434e203072684c62c9d6b65a8230748}\label{main_8cpp_a6434e203072684c62c9d6b65a8230748} 
+bool {\bfseries displayedgame\+Over} = false
+\item 
+\Hypertarget{main_8cpp_a052d000146e90bc61854f70bc936146a}\label{main_8cpp_a052d000146e90bc61854f70bc936146a} 
+bool {\bfseries is\+Check} = false
+\item 
+\Hypertarget{main_8cpp_a3ed3999772cf27fbe0e76ad57c1ced39}\label{main_8cpp_a3ed3999772cf27fbe0e76ad57c1ced39} 
+const char \texorpdfstring{$\ast$}{*} {\bfseries conn\+Menu} \mbox{[}$\,$\mbox{]} = \{"{}Wired"{}, "{}Wireless"{}, "{}Single Player"{}\}
+\item 
+\Hypertarget{main_8cpp_aa0c1f90bbca582fa91833da11a96a50a}\label{main_8cpp_aa0c1f90bbca582fa91833da11a96a50a} 
+int {\bfseries num\+Conn\+Menu} = 3
+\item 
+\Hypertarget{main_8cpp_ac7a73eaf11bda18e0dee3116becec065}\label{main_8cpp_ac7a73eaf11bda18e0dee3116becec065} 
+int {\bfseries conn\+Menu\+Selection} = 0
+\item 
+\Hypertarget{main_8cpp_a7d0c0bcda47d84ec9ced4e63b4cd1013}\label{main_8cpp_a7d0c0bcda47d84ec9ced4e63b4cd1013} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+WHITE\+\_\+\+KING} = create\+White\+King()
+\item 
+\Hypertarget{main_8cpp_aa51cda8b58a794620ea8c467e48bd086}\label{main_8cpp_aa51cda8b58a794620ea8c467e48bd086} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+WHITE\+\_\+\+QUEEN} = createwhite\+Queen()
+\item 
+\Hypertarget{main_8cpp_a45e7c9e06833117f15d5a38f9b2a529d}\label{main_8cpp_a45e7c9e06833117f15d5a38f9b2a529d} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+WHITE\+\_\+\+ROOK} = create\+White\+Rook()
+\item 
+\Hypertarget{main_8cpp_a08232791b46afb3453ab9e22f4e04379}\label{main_8cpp_a08232791b46afb3453ab9e22f4e04379} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+WHITE\+\_\+\+BISHOP} = create\+White\+Bishop()
+\item 
+\Hypertarget{main_8cpp_a494cc91670812a431284d892af193481}\label{main_8cpp_a494cc91670812a431284d892af193481} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+WHITE\+\_\+\+KNIGHT} = create\+White\+Knight()
+\item 
+\Hypertarget{main_8cpp_a911b6933e83ab14a0ee207ec1749b8b6}\label{main_8cpp_a911b6933e83ab14a0ee207ec1749b8b6} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+WHITE\+\_\+\+PAWN} = create\+White\+Pawn()
+\item 
+\Hypertarget{main_8cpp_ae6836ec76924f5248aed957f33a3f863}\label{main_8cpp_ae6836ec76924f5248aed957f33a3f863} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+BLACK\+\_\+\+KING} = create\+Black\+King()
+\item 
+\Hypertarget{main_8cpp_adb3cd2be21e690416b5e1c1a4e9e185b}\label{main_8cpp_adb3cd2be21e690416b5e1c1a4e9e185b} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+BLACK\+\_\+\+QUEEN} = create\+Black\+Queen()
+\item 
+\Hypertarget{main_8cpp_abf96c93f6ce85a7f5442f5589cb2351f}\label{main_8cpp_abf96c93f6ce85a7f5442f5589cb2351f} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+BLACK\+\_\+\+ROOK} = create\+Black\+Rook()
+\item 
+\Hypertarget{main_8cpp_aa6a459cef863388ae464271236f466b2}\label{main_8cpp_aa6a459cef863388ae464271236f466b2} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+BLACK\+\_\+\+BISHOP} = create\+Black\+Bishop()
+\item 
+\Hypertarget{main_8cpp_adfda9fcea34079af8c5848e1a2133825}\label{main_8cpp_adfda9fcea34079af8c5848e1a2133825} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+BLACK\+\_\+\+KNIGHT} = create\+Black\+Knight()
+\item 
+\Hypertarget{main_8cpp_a24ae92ce79eef16c8cad2e378f4282da}\label{main_8cpp_a24ae92ce79eef16c8cad2e378f4282da} 
+\mbox{\hyperlink{classchess_piece}{chess\+Piece}} {\bfseries MY\+\_\+\+BLACK\+\_\+\+PAWN} = create\+Black\+Pawn()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Main file for the Handheld Game Console. 
+
+\begin{DoxyAuthor}{Author}
+Ethan Quigley (\href{https://github.com/equigs8}{\texttt{https\+://github.\+com/equigs8}}) 
+
+August (\href{https://github.com/goosey999}{\texttt{https\+://github.\+com/goosey999}}) 
+\end{DoxyAuthor}
+
+
+\label{doc-func-members}
+\Hypertarget{main_8cpp_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{main_8cpp_a8847742cc98912ccb654ee60407cca50}\index{main.cpp@{main.cpp}!checkDraw@{checkDraw}}
+\index{checkDraw@{checkDraw}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{checkDraw()}{checkDraw()}}
+{\footnotesize\ttfamily \label{main_8cpp_a8847742cc98912ccb654ee60407cca50} 
+bool check\+Draw (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Checks if the game has ended in a draw. 
+
+\begin{DoxyReturn}{Returns}
+True if all spots are filled, false otherwise. 
+\end{DoxyReturn}
+\Hypertarget{main_8cpp_a3a99897c18047811b55e5a1fc2213f08}\index{main.cpp@{main.cpp}!checkWin@{checkWin}}
+\index{checkWin@{checkWin}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{checkWin()}{checkWin()}}
+{\footnotesize\ttfamily \label{main_8cpp_a3a99897c18047811b55e5a1fc2213f08} 
+bool check\+Win (\begin{DoxyParamCaption}\item[{int}]{player}{}\end{DoxyParamCaption})}
+
+
+
+Checks if the given player has won. 
+
+\begin{DoxyReturn}{Returns}
+True if the player has won, false otherwise. 
+\end{DoxyReturn}
+\Hypertarget{main_8cpp_ae03b3c4b863d3c627cd4e2c4c65949d0}\index{main.cpp@{main.cpp}!drawMenuItemIcon@{drawMenuItemIcon}}
+\index{drawMenuItemIcon@{drawMenuItemIcon}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{drawMenuItemIcon()}{drawMenuItemIcon()}}
+{\footnotesize\ttfamily \label{main_8cpp_ae03b3c4b863d3c627cd4e2c4c65949d0} 
+void draw\+Menu\+Item\+Icon (\begin{DoxyParamCaption}\item[{int}]{item\+Index}{, }\item[{int}]{x\+Pos}{, }\item[{int}]{y\+Pos}{, }\item[{uint16\+\_\+t}]{color}{}\end{DoxyParamCaption})}
+
+
+
+Draws a simple icon next to a menu item using bitmaps or simple shapes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em item\+Index} & The index of the menu item (0 for Tic-\/\+Tac-\/\+Toe). \\
+\hline
+{\em x\+Pos} & The horizontal position to start drawing the icon. \\
+\hline
+{\em y\+Pos} & The vertical position (top edge) to start drawing the icon. \\
+\hline
+{\em color} & The color to draw the icon. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{main_8cpp_ab9ec2c0c23102af8da5f3865fc6fbdb9}\index{main.cpp@{main.cpp}!drawSpriteWithTransparency@{drawSpriteWithTransparency}}
+\index{drawSpriteWithTransparency@{drawSpriteWithTransparency}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{drawSpriteWithTransparency()}{drawSpriteWithTransparency()}}
+{\footnotesize\ttfamily \label{main_8cpp_ab9ec2c0c23102af8da5f3865fc6fbdb9} 
+void draw\+Sprite\+With\+Transparency (\begin{DoxyParamCaption}\item[{int}]{x}{, }\item[{int}]{y}{, }\item[{const uint16\+\_\+t \texorpdfstring{$\ast$}{*}}]{bitmap}{, }\item[{int}]{w}{, }\item[{int}]{h}{, }\item[{uint16\+\_\+t}]{transparent\+Color}{}\end{DoxyParamCaption})}
+
+
+
+Draws a sprite to the TFT screen, ignoring pixels of a specific color to create transparency. 
+
+
+\begin{DoxyItemize}
+\item 
+\begin{DoxyParams}{Parameters}
+{\em x} & Horizontal starting position. \\
+\hline
+{\em y} & Vertical starting position. \\
+\hline
+{\em bitmap} & Pointer to the 16-\/bit color bitmap array. \\
+\hline
+{\em w} & Width of the sprite. \\
+\hline
+{\em h} & Height of the sprite. \\
+\hline
+{\em transparent\+Color} & The color value to be treated as transparent (not drawn). \\
+\hline
+\end{DoxyParams}
+
+\end{DoxyItemize}\Hypertarget{main_8cpp_a309c141b20608a20aeb02f70fbf905f1}\index{main.cpp@{main.cpp}!ticTacToeGameOver@{ticTacToeGameOver}}
+\index{ticTacToeGameOver@{ticTacToeGameOver}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{ticTacToeGameOver()}{ticTacToeGameOver()}}
+{\footnotesize\ttfamily \label{main_8cpp_a309c141b20608a20aeb02f70fbf905f1} 
+void tic\+Tac\+Toe\+Game\+Over (\begin{DoxyParamCaption}\item[{int}]{winner}{}\end{DoxyParamCaption})}
+
+
+
+Handles the game over state for Tic-\/\+Tac-\/\+Toe. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em winner} & The player who won (1 for X, 2 for O, 3 for draw). \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-var-members}
+\Hypertarget{main_8cpp_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{main_8cpp_a041fc3b016811e55526ba6f0c83b7305}\index{main.cpp@{main.cpp}!chessBoard@{chessBoard}}
+\index{chessBoard@{chessBoard}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{chessBoard}{chessBoard}}
+{\footnotesize\ttfamily \label{main_8cpp_a041fc3b016811e55526ba6f0c83b7305} 
+std\+::array$<$std\+::array$<$int, 8$>$, 8$>$ chess\+Board}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{\{}
+\DoxyCodeLine{\ \ \{-\/4,\ -\/3,\ -\/2,\ -\/5,\ -\/6,\ -\/2,\ -\/3,\ -\/4\},}
+\DoxyCodeLine{\ \ \{-\/1,\ -\/1,\ -\/1,\ -\/1,\ -\/1,\ -\/1,\ -\/1,\ -\/1\},}
+\DoxyCodeLine{\ \ \{0,\ 0,\ 0,\ 0,\ 0,\ 0,\ 0,\ 0\},}
+\DoxyCodeLine{\ \ \{0,\ 0,\ 0,\ 0,\ 0,\ 0,\ 0,\ 0\},}
+\DoxyCodeLine{\ \ \{0,\ 0,\ 0,\ 0,\ 0,\ 0,\ 0,\ 0\},}
+\DoxyCodeLine{\ \ \{0,\ 0,\ 0,\ 0,\ 0,\ 0,\ 0,\ 0\},}
+\DoxyCodeLine{\ \ \{1,\ 1,\ 1,\ 1,\ 1,\ 1,\ 1,\ 1\},}
+\DoxyCodeLine{\ \ \{4,\ 3,\ 2,\ 5,\ 6,\ 2,\ 3,\ 4\},}
+\DoxyCodeLine{\}\}}
+
+\end{DoxyCode}
+\Hypertarget{main_8cpp_a9165aa09f88fb7d6ce0281b9b471627c}\index{main.cpp@{main.cpp}!pokemonMenuItems@{pokemonMenuItems}}
+\index{pokemonMenuItems@{pokemonMenuItems}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{pokemonMenuItems}{pokemonMenuItems}}
+{\footnotesize\ttfamily \label{main_8cpp_a9165aa09f88fb7d6ce0281b9b471627c} 
+const std\+::map$<$int, std\+::array$<$std\+::string, 4$>$ $>$ pokemon\+Menu\+Items}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \{0,\ \{\textcolor{stringliteral}{"{}Move"{}},\ \textcolor{stringliteral}{"{}Switch"{}},\ \textcolor{stringliteral}{"{}Bag"{}},\ \textcolor{stringliteral}{"{}Run"{}}\}\},}
+\DoxyCodeLine{\ \ \{1,\ \{pokemonMove1,\ pokemonMove2,\ pokemonMove3,\ pokemonMove4\}\},\ }
+\DoxyCodeLine{\ \ \{2,\ \{\textcolor{stringliteral}{"{}Pikachu"{}},\ \textcolor{stringliteral}{"{}Charmander"{}},\ \textcolor{stringliteral}{"{}Squirtle"{}},\ \textcolor{stringliteral}{"{}Bulbasaur"{}}\}\},\ }
+\DoxyCodeLine{\ \ \{3,\ \{\textcolor{stringliteral}{"{}Poke\ Ball"{}},\ \textcolor{stringliteral}{"{}Great\ Ball"{}},\ \textcolor{stringliteral}{"{}Ultra\ Ball"{}},\ \textcolor{stringliteral}{"{}Master\ Ball"{}}\}\},\ }
+\DoxyCodeLine{\ \ \{4,\ \{\textcolor{stringliteral}{"{}Yes"{}},\ \textcolor{stringliteral}{"{}No"{}},\ \textcolor{stringliteral}{"{}"{}},\textcolor{stringliteral}{"{}"{}}\}\}\ }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}

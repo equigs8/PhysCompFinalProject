@@ -3,121 +3,115 @@
   "author": "Ethan Quigley",
   "editor": "wokwi",
   "parts": [
-    { "type": "board-esp32-s3-devkitc-1", 
-    "id": "esp", 
-    "top": 20, 
-    "left": -20, 
-    "attrs": {} },
-    {
-      "type": "wokwi-ili9341",
-      "id": "tft1",
-      "top": 0,
-      "left": 500,
-      "rotate": 90,
-      "attrs": {}
-    },
+    { "type": "board-esp32-s3-devkitc-1", "id": "esp", "top": 20, "left": -20, "attrs": {} },
+    { "type": "wokwi-ili9341", "id": "tft1", "top": 0, "left": 500, "rotate": 90, "attrs": {} },
     {
       "type": "wokwi-pushbutton",
       "id": "btnUp",
       "top": 150,
       "left": 150,
-      "attrs": {}
+      "attrs": { "key": "w" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnDown",
       "top": 250,
       "left": 150,
-      "attrs": {
-        
-        
-      }
+      "attrs": { "key": "s" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnLeft",
       "top": 200,
       "left": 100,
-      "attrs": {
-        
-        
-      }
+      "attrs": { "key": "a" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btnRight",
       "top": 200,
       "left": 200,
-      "attrs": {
-      
-        
-      }
+      "attrs": { "key": "d" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id": "btnSelect", 
-      "top": 550,
-      "left": 150,
-      "attrs": {}
+      "id": "btnSelect",
+      "top": 409.4,
+      "left": 105.6,
+      "attrs": { "key": "Enter" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id":"btnHome",
-      "top": 500,
-      "left": 200,
-      "attrs": {}
+      "id": "btnHome",
+      "top": 361.4,
+      "left": 172.8,
+      "attrs": { "key": "Backspace" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id":"btnButtonA",
+      "id": "btnButtonA",
       "top": 200,
       "left": 300,
-      "attrs": {}
+      "attrs": { "key": "g" }
     },
     {
       "type": "wokwi-pushbutton",
-      "id":"btnButtonB",
+      "id": "btnButtonB",
       "top": 200,
       "left": 350,
-      "attrs": {}
-    }
+      "attrs": { "key": "h" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 361.2,
+      "left": 339.8,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz1",
+      "top": -112.8,
+      "left": 241.8,
+      "attrs": { "volume": "0.1" }
+    },
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": -135.7, "left": 76.6, "attrs": {} }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    ["tft1:VCC", "esp:3V3.1","red",[ "v150", "h-650", "v-297.6"]],
-    ["tft1:GND", "esp:GND.4","black",["v10","h-1"]],
-    ["tft1:RST", "esp:14","red",[]],
-    ["tft1:MOSI", "esp:11","red",[]],
-    ["tft1:SCK", "esp:12","red",["v20","h-1"]],
-    ["tft1:CLK", "esp:18","red",[]],  
-    ["tft1:MOSI", "esp:23","red",[]], 
-   
-    ["tft1:CS", "esp:5","green", [ "v28.8", "h-249.6", "v-211.2" ]],    
-    ["tft1:D/C", "esp:4","blue", [ "v140", "h-680", "v-1"]],
-
-    ["btnUp:1.l","esp:37","red",[]],
-    ["btnUp:2.l","esp:GND.4","black",[]],
-
-    ["btnDown:1.l","esp:48","red",[]],
-    ["btnDown:2.l","esp:GND.4","black",[]],
-    
-    ["btnLeft:1.l","esp:39","red",[]],
-    ["btnLeft:2.l","esp:GND.4","black",[]],
-    
-    ["btnRight:1.l","esp:20","red",[]],
-    ["btnRight:2.l","esp:GND.4","black",[]],
-    
-    ["btnSelect:1.l","esp:21","red",[]],
-    ["btnSelect:2.l","esp:GND.4","black",[]],
-    
-    ["btnHome:1.l","esp:7","red",[]],
-    ["btnHome:2.l","esp:GND.4","black",[]],
-
-    ["btnButtonA:1.l","esp:15","red",[]],
-    ["btnButtonA:2.l","esp:GND.4","black",[]],
-    
-    ["btnButtonB:1.l","esp:13","red",[]],
-    ["btnButtonB:2.l","esp:GND.4","black",[]]
-  ]
+    [ "tft1:VCC", "esp:3V3.1", "red", [ "v150", "h-650", "v-297.6" ] ],
+    [ "tft1:GND", "esp:GND.4", "black", [ "v10", "h-1" ] ],
+    [ "tft1:RST", "esp:14", "red", [] ],
+    [ "tft1:MOSI", "esp:11", "red", [] ],
+    [ "tft1:SCK", "esp:12", "red", [ "v20", "h-1" ] ],
+    [ "tft1:CLK", "esp:18", "red", [] ],
+    [ "tft1:MOSI", "esp:23", "red", [] ],
+    [ "tft1:CS", "esp:5", "green", [ "v28.8", "h-249.6", "v-211.2" ] ],
+    [ "tft1:D/C", "esp:4", "blue", [ "v140", "h-680", "v-1" ] ],
+    [ "btnUp:1.l", "esp:45", "green", [] ],
+    [ "btnUp:2.l", "esp:GND.4", "black", [] ],
+    [ "btnDown:1.l", "esp:2", "red", [] ],
+    [ "btnDown:2.l", "esp:GND.4", "black", [] ],
+    [ "btnLeft:1.l", "esp:48", "red", [] ],
+    [ "btnLeft:2.l", "esp:GND.4", "black", [] ],
+    [ "btnRight:1.l", "esp:1", "red", [] ],
+    [ "btnRight:2.l", "esp:GND.4", "black", [] ],
+    [ "btnSelect:1.l", "esp:39", "red", [] ],
+    [ "btnSelect:2.l", "esp:GND.4", "black", [] ],
+    [ "btnHome:1.l", "esp:40", "red", [] ],
+    [ "btnHome:2.l", "esp:GND.4", "black", [] ],
+    [ "btnButtonA:1.l", "esp:41", "red", [] ],
+    [ "btnButtonA:2.l", "esp:GND.4", "black", [] ],
+    [ "btnButtonB:1.l", "esp:42", "red", [] ],
+    [ "btnButtonB:2.l", "esp:GND.4", "black", [] ],
+    [ "led1:A", "esp:46", "green", [ "v-163.2", "h-336", "v-48" ] ],
+    [ "led1:C", "esp:GND.4", "black", [ "v-163.2", "h-336", "v-48" ] ],
+    [ "bz1:1", "esp:GND.4", "black", [ "v0" ] ],
+    [ "bz1:2", "esp:7", "green", [ "v0" ] ],
+    [ "pot1:GND", "esp:GND.3", "black", [ "v0" ] ],
+    [ "pot1:SIG", "esp:8", "green", [ "v0" ] ],
+    [ "pot1:VCC", "esp:3V3.1", "red", [ "v48", "h-144.8" ] ]
+  ],
+  "dependencies": {}
 }
