@@ -1923,7 +1923,9 @@ void handleChessInputs(){
     }
   }
 
-  if ((chessPhase == WHITE_TURN && playingAsWhite) || (chessPhase == BLACK_TURN && !playingAsWhite)) {
+  //if ((chessPhase == WHITE_TURN && playingAsWhite) || (chessPhase == BLACK_TURN && !playingAsWhite)) {
+  if (chessPhase == WHITE_TURN || chessPhase == BLACK_TURN) { //place holder while we fix serial issue
+    
     // Handle Movement (Directional Buttons)
     if (currentTime - lastMoveTime >= moveDelay) {
       bool moved = false;
