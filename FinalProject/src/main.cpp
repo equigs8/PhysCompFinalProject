@@ -61,8 +61,8 @@
 #define PIN_LEFT   48
 #define PIN_RIGHT  1
 #define PIN_SELECT 16
-#define PIN_HOME   15
-#define PIN_BUTTONA 18
+#define PIN_HOME   40
+#define PIN_BUTTONA 41
 #define PIN_BUTTONB 17
 
 // #define PIN_UP     100
@@ -795,7 +795,8 @@ void handleTicTacToeInput() {
 
 Pokemon playerPokemon;
 Pokemon enemyPokemon;
-
+int playerPokemonIndex = 0;
+int enemyPokemonIndex = 0;
 
 
 //Player Bag
@@ -848,8 +849,9 @@ const std::map<int, std::array<std::string, 4>> pokemonMenuItems = {
 bool gameIsOver = false;
 
 // Helper function to generate a random Pokemon
-Pokemon createRandomPokemon(int level) {
-  int randomNum = random(0, 11); // 0 to 10 (11 total options)
+Pokemon createRandomPokemon(int level, int randomNum) {
+  
+
   
   switch(randomNum) {
     case 0: return createLeafle(level);
@@ -1217,15 +1219,29 @@ void executeTurn(Move playerMove) {
   drawPokemonBattlerUI(); // Redraw the menu options
 }
 
+int checkRandomNumberMathces(int randomNum){
+  if(randomNum == playerPokemonIndex){
+    return checkRandomNumberMathces(random(0, 8));
+  }
+  return randomNum;
+}
+
 void resetPokemonBattler() {
   // Reset Logic
   pokemonMenuSelection = 0; 
   pokemonSubMenuSelection = 0; 
   battlePhase = PHASE_PLAYER_CHOICE; // Reset phase
-  
+
+  int randomNum = random(0, 8); // 0 to 10 (11 total options)
   // Heals for a new game (optional, or you can keep persistence)
-  playerPokemon = createRandomPokemon(1);
-  enemyPokemon = createRandomPokemon(1);
+  playerPokemon = createRandomPokemon(1,randomNum);
+  playerPokemonIndex = randomNum;
+
+  enemyPokemon = createRandomPokemon(1, checkRandomNumberMathces(randomNum));
+
+  // playerPokemon = createRandomPokemon(1, 0);
+  // playerPokemonIndex = 0;
+  // enemyPokemon = createRandomPokemon(1, 1);
 
   tft.fillScreen(BLACK);
   drawBattleScene();
@@ -2340,7 +2356,8 @@ void setup() {
   delay(100);
   Serial.begin(SERIAL_BAUD_RATE);
   // Most ILI9341 screens are 240x320. Rotation(1) makes it 320x240 (landscape)
-  tft.setRotation(3);
+  //tft.setRotation(3); // Set Rotation of Real Display
+  tft.setRotation(1); // Set Rotation of Simulated Display
 
   // Initialize buttons with internal pull-up resistors
   pinMode(PIN_UP, INPUT_PULLUP);
