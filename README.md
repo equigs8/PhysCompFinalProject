@@ -2,6 +2,8 @@
 
 The final project for MTEC 2280_D10 Physical Computing.
 
+See the [Wiki](https://github.com/equigs8/PhysCompFinalProject/wiki) for more information
+
 The goal of the project is to create a gaming handheld with an esp32 board.
 # Documentation
 ## General
