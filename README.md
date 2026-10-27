@@ -43,3 +43,5 @@ The goal of the project is to create a gaming handheld with an esp32 board.
 - Power led
 - PCB/protoboard
 - Case
+
+  [Full assembly.stl](Full assembly.stl)
