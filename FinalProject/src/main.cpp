@@ -2330,7 +2330,7 @@ void resetSettings(){
 void setup() {
   
   //Serial2.begin(SERIAL_BAUD_RATE, SERIAL_8N1, SERIAL_RX_PIN, SERIAL_TX_PIN);
-  //Serial.println("Starting up...");
+  
   // Turn power indicator pin on
   // pinMode(PIN_POWER_INDICATOR, OUTPUT);
   // digitalWrite(PIN_POWER_INDICATOR, HIGH);
@@ -2352,13 +2352,15 @@ void setup() {
   // }
 
   // Initialize display
-  tft.begin();
+  Serial.begin(SERIAL_BAUD_RATE);
+  delay(500); // Wait for serial to initialize
+  SPI.begin(12,-1,11,TFT_CS);
+  tft.begin(16000000);
   delay(100);
   Serial.begin(SERIAL_BAUD_RATE);
   // Most ILI9341 screens are 240x320. Rotation(1) makes it 320x240 (landscape)
   //tft.setRotation(3); // Set Rotation of Real Display
   tft.setRotation(1); // Set Rotation of Simulated Display
-
   // Initialize buttons with internal pull-up resistors
   pinMode(PIN_UP, INPUT_PULLUP);
   pinMode(PIN_DOWN, INPUT_PULLUP);
@@ -2374,6 +2376,7 @@ void setup() {
   // pinMode(PIN_PIEZO, OUTPUT);
   //initAudio();
   // Start the device in the main menu
+  tft.fillScreen(MAIN_MENU_COLOR);
   drawMenu();
   drawMenuCursor(-1, 0); // Draw cursor on the first item
   //chessSelected();
