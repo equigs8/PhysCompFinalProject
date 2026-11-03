@@ -93,9 +93,10 @@ enum GameState {
   STATE_TICTACTOE,
   STATE_POKEMON_BATTLER,
   STATE_CHESS,
-  STATE_SETTINGS
+  STATE_SETTINGS,
+  STATE_NEW_MENU
 };
-GameState currentState = STATE_MENU;
+GameState currentState = STATE_NEW_MENU;
 
 // Menu Variables
 int menuSelection = 0; // Index of the currently selected menu item
@@ -180,6 +181,8 @@ void resetPokemonBattler();
 void resetChess();
 void resetSettings();
 void settingsSelected();
+void drawNewMenu();
+void drawNewMenuCursor(int prevSelection, int newSelection);
 
 // ==============================================================================
 // 3. DRAWING FUNCTIONS
@@ -194,7 +197,7 @@ void settingsSelected();
  * @param h Height of the sprite.
  * @param transparentColor The color value to be treated as transparent (not drawn).
  */
-void drawSpriteWithTransparency(int x, int y, const uint16_t *bitmap, int w, int h, uint16_t transparentColor) {
+void drawSpriteWithTransparency(int x, int y, const uint16_t *bitmap, int w, int h, uint16_t transparentColor, int scale = 1) {
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             
@@ -202,7 +205,11 @@ void drawSpriteWithTransparency(int x, int y, const uint16_t *bitmap, int w, int
             
             // Only draw if it matches your transparency key
             if (color != transparentColor) {
-                tft.drawPixel(x + i, y + j, color);
+                if (scale <= 1) {
+                    tft.drawPixel(x + i, y + j, color);
+                } else {
+                    tft.fillRect(x + i * scale, y + j * scale, scale, scale, color);
+                }
             }
         }
     }
@@ -370,9 +377,8 @@ void playTone(int freq, int duration) {
 
 void goHome(){
   //playTone(1000, 50);
-  currentState = STATE_MENU;
-  drawMenu();
-  drawMenuCursor(-1, menuSelection); // Draw cursor at current selection
+  currentState = STATE_NEW_MENU;
+  drawNewMenu();
   delay(300); // Debounce
 }
 
@@ -939,9 +945,8 @@ void handlePokemonBattlerInput() {
   // 1. HANDLE GAME OVER
   if (battlePhase == PHASE_GAME_OVER) {
     if (digitalRead(PIN_BUTTONB) == LOW) {
-       currentState = STATE_MENU;
-       drawMenu();
-       drawMenuCursor(-1, 0);
+       currentState = STATE_NEW_MENU;
+       drawNewMenu();
        delay(500);
     }else if (digitalRead(PIN_SELECT) == LOW) {
        resetPokemonBattler();
@@ -2314,6 +2319,138 @@ void handleSettingsInput(){
   }
 }
 
+int newMenuSelection = 0; // 0-5: 3x2 app grid, 6: Settings gear in top bar
+int newMenuLastCol = 0;   // Remembers column when moving between top row and settings gear
+const int newMenuAppX[6] = {36, 128, 220, 36, 128, 220};
+const int newMenuAppY[6] = {53, 53, 53, 154, 154, 154};
+
+void drawNewMenuBoxOutline(int index, uint16_t color) {
+  if (index >= 0 && index < 6) {
+    int x = newMenuAppX[index];
+    int y = newMenuAppY[index];
+    tft.drawRect(x - 2, y - 2, 68, 68, color);
+    tft.drawRect(x - 1, y - 1, 66, 66, color);
+  } else if (index == 6) {
+    // Settings gear at (3, 2) size 16x16 inside top bar
+    tft.drawRect(1, 0, 20, 20, color);
+    tft.drawRect(2, 1, 18, 18, color);
+  }
+}
+
+void drawNewMenuCursor(int prevSelection, int newSelection) {
+  // 1. Erase previous cursor outline
+  if (prevSelection >= 0 && prevSelection < 6) {
+    drawNewMenuBoxOutline(prevSelection, 0xFFFF);
+  } else if (prevSelection == 6) {
+    drawNewMenuBoxOutline(6, 0xBDF7);
+  }
+
+  // 2. Draw new cursor outline
+  drawNewMenuBoxOutline(newSelection, CURSOR_COLOR);
+}
+
+void drawNewMenu(){
+  static const unsigned char PROGMEM image_menu_settings_gear_bits[] = {0x03,0xc0,0x12,0x48,0x2c,0x34,0x40,0x02,0x23,0xc4,0x24,0x24,0xc8,0x13,0x88,0x11,0x88,0x11,0xc8,0x13,0x24,0x24,0x23,0xc4,0x40,0x02,0x2c,0x34,0x12,0x48,0x03,0xc0};
+  tft.fillScreen(0x0);
+  // Background
+  tft.fillRect(0, 20, 320, 220, 0xFFFF);
+  // App 1 - Tic-Tac-Toe
+  tft.fillRect(36, 53, 64, 64, 0xBDF7);
+  drawSpriteWithTransparency(36, 53, TIC_TAC_TOE_ICON_BITS, 16, 16, 0xFFFF, 4);
+  // App 2 - Pokemon
+  tft.fillRect(128, 53, 64, 64, 0xBDF7);
+  drawSpriteWithTransparency(128, 53, POKEMON_ICON_BITS, 16, 16, 0x0000, 4);
+  // App 3 - Chess
+  tft.fillRect(220, 53, 64, 64, 0xBDF7);
+  drawSpriteWithTransparency(220, 53, CHESS_ICON_BITS, 16, 16, 0xFFFF, 4);
+  // App 4
+  tft.fillRect(36, 154, 64, 64, 0xBDF7);
+  // App 5
+  tft.fillRect(128, 154, 64, 64, 0xBDF7);
+  // App 6
+  tft.fillRect(220, 154, 64, 64, 0xBDF7);
+  // Top Bar
+  tft.fillRect(0, 0, 320, 20, 0xBDF7);
+  // menu_settings_gear
+  tft.drawBitmap(3, 2, image_menu_settings_gear_bits, 16, 16, 0x0);
+  // string 9
+  tft.setTextColor(0x0);
+  tft.setTextSize(1);
+  //tft.drawString("12:45", 285, 6);
+  tft.setCursor(285, 6);
+  tft.print("12:45");
+
+  drawNewMenuCursor(-1, newMenuSelection);
+}
+
+
+void handleNewMenuInput(){
+  static unsigned long lastMoveTime = 0;
+  const unsigned long moveDelay = 200;
+  unsigned long currentTime = millis();
+  int prevSelection = newMenuSelection;
+
+  // Handle Movement (Directional Buttons)
+  if (currentTime - lastMoveTime >= moveDelay) {
+    bool moved = false;
+
+    if (newMenuSelection == 6) {
+      // Currently on Settings gear in top bar
+      if (digitalRead(PIN_DOWN) == LOW) {
+        newMenuSelection = newMenuLastCol;
+        moved = true;
+      }
+    } else {
+      int row = newMenuSelection / 3;
+      int col = newMenuSelection % 3;
+
+      if (digitalRead(PIN_UP) == LOW) {
+        if (row == 1) {
+          newMenuSelection -= 3;
+        } else {
+          newMenuLastCol = col;
+          newMenuSelection = 6;
+        }
+        moved = true;
+      } else if (digitalRead(PIN_DOWN) == LOW) {
+        if (row == 0) {
+          newMenuSelection += 3;
+          moved = true;
+        }
+      } else if (digitalRead(PIN_LEFT) == LOW) {
+        if (col > 0) {
+          newMenuSelection -= 1;
+          moved = true;
+        }
+      } else if (digitalRead(PIN_RIGHT) == LOW) {
+        if (col < 2) {
+          newMenuSelection += 1;
+          moved = true;
+        }
+      }
+    }
+
+    if (moved) {
+      lastMoveTime = currentTime;
+      drawNewMenuCursor(prevSelection, newMenuSelection);
+    }
+  }
+
+  // Handle Action (A Button)
+  if (digitalRead(PIN_BUTTONA) == LOW) {
+    if (newMenuSelection == 0) {
+      ticTacToeSelected();
+    } else if (newMenuSelection == 1) {
+      pokemonBattlerSelected();
+    } else if (newMenuSelection == 2) {
+      chessSelected();
+    } else if (newMenuSelection == 6) {
+      settingsSelected();
+    }
+    delay(300); // Debounce select press
+  }
+}
+
 
 
 void resetSettings(){
@@ -2377,8 +2514,12 @@ void setup() {
   //initAudio();
   // Start the device in the main menu
   tft.fillScreen(MAIN_MENU_COLOR);
-  drawMenu();
-  drawMenuCursor(-1, 0); // Draw cursor on the first item
+  
+  // drawMenu();
+  // drawMenuCursor(-1, 0); // Draw cursor on the first item
+
+  drawNewMenu();
+
   //chessSelected();
   Serial.println("Starting up...");
 }
@@ -2403,6 +2544,9 @@ void loop() {
       break;
     case STATE_SETTINGS:
       handleSettingsInput();
+      break;
+    case STATE_NEW_MENU:
+      handleNewMenuInput();
       break;
   }
   //delay(10);
