@@ -160,10 +160,20 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 #define PLAYER_X 1
 #define PLAYER_O 2
 
+#define TTT_START_X 73
+#define TTT_START_Y 38
+#define TTT_CELL_SIZE 58
+#define TTT_PANEL_BG 0x18E3
+#define TTT_BORDER_COL 0x4208
+#define TTT_O_COLOR 0x2D7F
+
 int board[BOARD_SIZE][BOARD_SIZE];
 int currentPlayer = PLAYER_X; // X starts
 int gameStatus = 0; // 0: Running, 1: X Win, 2: O Win, 3: Draw
 bool gameOverScreenDrawn = false;
+int tttXWins = 0;
+int tttOWins = 0;
+int tttDraws = 0;
 
 
 // Cursor position (0-2) for Tic-Tac-Toe
@@ -531,52 +541,159 @@ void settingsSelected(){
 // --- Tic-Tac-Toe Drawing Functions ---
 
 /**
- * @brief Draws the initial board and title.
+ * @brief Draws the top HUD turn/status badge for Tic-Tac-Toe.
+ */
+void drawTicTacToeTurnBadge(const char* label, uint16_t accentColor) {
+  int badgeX = 204;
+  int badgeY = 4;
+  int badgeW = 110;
+  int badgeH = 20;
+
+  tft.fillRect(badgeX, badgeY, badgeW, badgeH, BLACK);
+  tft.drawRect(badgeX, badgeY, badgeW, badgeH, accentColor);
+  tft.fillRect(badgeX, badgeY, 6, badgeH, accentColor);
+
+  tft.setFont();
+  tft.setTextSize(1);
+  tft.setTextColor(accentColor);
+  tft.setCursor(badgeX + 14, badgeY + 6);
+  tft.print(label);
+}
+
+/**
+ * @brief Draws the bottom status/controls bar for Tic-Tac-Toe.
+ */
+void drawTicTacToeFooter(const char* text, uint16_t textColor) {
+  tft.fillRect(0, 220, 320, 20, TTT_PANEL_BG);
+  tft.drawFastHLine(0, 220, 320, TTT_BORDER_COL);
+  tft.setFont();
+  tft.setTextSize(1);
+  tft.setTextColor(textColor);
+  int textLen = strlen(text);
+  int xPos = max(4, (320 - textLen * 6) / 2);
+  tft.setCursor(xPos, 227);
+  tft.print(text);
+}
+
+/**
+ * @brief Draws the left and right score cards for X, O, and Draws.
+ */
+void drawTicTacToeScorePanels() {
+  // Left Card: Player X Wins
+  int leftX = 6;
+  int rightX = 256;
+  int cardW = 58;
+
+  tft.fillRect(leftX, 42, cardW, 76, TTT_PANEL_BG);
+  tft.drawRect(leftX, 42, cardW, 76, TTT_BORDER_COL);
+  tft.fillRect(leftX + 1, 43, cardW - 2, 16, RED);
+  tft.setFont();
+  tft.setTextSize(1);
+  tft.setTextColor(WHITE);
+  tft.setCursor(leftX + 7, 47);
+  tft.print("PLAYER X");
+  tft.setTextSize(3);
+  tft.setTextColor(WHITE);
+  tft.setCursor(leftX + (tttXWins >= 10 ? 12 : 21), 72);
+  tft.print(tttXWins);
+
+  // Left Mini Card: Draws
+  tft.fillRect(leftX, 130, cardW, 64, TTT_PANEL_BG);
+  tft.drawRect(leftX, 130, cardW, 64, TTT_BORDER_COL);
+  tft.fillRect(leftX + 1, 131, cardW - 2, 14, TTT_BORDER_COL);
+  tft.setTextSize(1);
+  tft.setTextColor(YELLOW);
+  tft.setCursor(leftX + 14, 134);
+  tft.print("DRAWS");
+  tft.setTextSize(2);
+  tft.setTextColor(WHITE);
+  tft.setCursor(leftX + (tttDraws >= 10 ? 18 : 24), 156);
+  tft.print(tttDraws);
+
+  // Right Card: Player O Wins
+  tft.fillRect(rightX, 42, cardW, 76, TTT_PANEL_BG);
+  tft.drawRect(rightX, 42, cardW, 76, TTT_BORDER_COL);
+  tft.fillRect(rightX + 1, 43, cardW - 2, 16, TTT_O_COLOR);
+  tft.setTextSize(1);
+  tft.setTextColor(WHITE);
+  tft.setCursor(rightX + 7, 47);
+  tft.print("PLAYER O");
+  tft.setTextSize(3);
+  tft.setTextColor(WHITE);
+  tft.setCursor(rightX + (tttOWins >= 10 ? 12 : 21), 72);
+  tft.print(tttOWins);
+
+  // Right Mini Card: Match Number
+  int matchNum = tttXWins + tttOWins + tttDraws + (gameStatus == 0 ? 1 : 0);
+  tft.fillRect(rightX, 130, cardW, 64, TTT_PANEL_BG);
+  tft.drawRect(rightX, 130, cardW, 64, TTT_BORDER_COL);
+  tft.fillRect(rightX + 1, 131, cardW - 2, 14, TTT_BORDER_COL);
+  tft.setTextSize(1);
+  tft.setTextColor(0xBDF7);
+  tft.setCursor(rightX + 14, 134);
+  tft.print("MATCH");
+  tft.setTextSize(2);
+  tft.setTextColor(WHITE);
+  tft.setCursor(rightX + (matchNum >= 10 ? 18 : 24), 156);
+  tft.print(matchNum);
+}
+
+/**
+ * @brief Draws the initial board, top bar, score cards, and footer.
  */
 void drawBoard() {
   tft.fillScreen(BLACK);
 
-  // Board dimensions setup
-  int startX = 20;
-  int startY = 50;
-  int cellSize = 60;
+  // Top Bar
+  tft.fillRect(0, 0, 320, 28, TTT_PANEL_BG);
+  tft.drawFastHLine(0, 28, 320, TTT_BORDER_COL);
+  tft.setFont();
+  tft.setTextSize(2);
+  tft.setTextColor(WHITE);
+  tft.setCursor(10, 7);
+  tft.print("TIC-TAC-TOE");
+
+  // Centered Board Frame & Grid
+  int startX = TTT_START_X;
+  int startY = TTT_START_Y;
+  int cellSize = TTT_CELL_SIZE;
   int boardDim = cellSize * BOARD_SIZE;
+
+  tft.drawRect(startX - 3, startY - 3, boardDim + 6, boardDim + 6, TTT_BORDER_COL);
+  tft.drawRect(startX - 2, startY - 2, boardDim + 4, boardDim + 4, TTT_BORDER_COL);
 
   // Draw grid lines
   for (int i = 1; i < BOARD_SIZE; i++) {
     // Vertical lines
-    tft.fillRect(startX + i * cellSize - 1, startY, 3, boardDim, WHITE);
+    tft.fillRect(startX + i * cellSize - 1, startY + 2, 3, boardDim - 4, WHITE);
     // Horizontal lines
-    tft.fillRect(startX, startY + i * cellSize - 1, boardDim, 3, WHITE);
+    tft.fillRect(startX + 2, startY + i * cellSize - 1, boardDim - 4, 3, WHITE);
   }
 
-  // Draw Title
-  tft.setFont();
-  tft.setTextSize(2);
-  tft.setTextColor(WHITE);
-  tft.setCursor(30, 10);
-  tft.print("Tic-Tac-Toe Handheld");
+  drawTicTacToeScorePanels();
+  drawTicTacToeTurnBadge("X'S TURN", RED);
+  drawTicTacToeFooter("D-PAD: Move   A: Place   HOME: Menu", 0xBDF7);
 }
 
 /**
  * @brief Draws X or O marker in a cell.
  */
 void drawMarker(int col, int row, int player) {
-  int startX = 20;
-  int startY = 50;
-  int cellSize = 60;
+  int startX = TTT_START_X;
+  int startY = TTT_START_Y;
+  int cellSize = TTT_CELL_SIZE;
   int centerX = startX + col * cellSize + cellSize / 2;
   int centerY = startY + row * cellSize + cellSize / 2;
-  int size = cellSize / 3;
+  int size = cellSize / 3 - 2;
 
   if (player == PLAYER_X) {
-    tft.drawLine(centerX - size, centerY - size, centerX + size, centerY + size, RED);
-    tft.drawLine(centerX - size, centerY + size, centerX + size, centerY - size, RED);
-    tft.drawLine(centerX - size + 1, centerY - size, centerX + size + 1, centerY + size, RED);
-    tft.drawLine(centerX - size + 1, centerY + size, centerX + size + 1, centerY - size, RED);
+    for (int offset = -1; offset <= 1; offset++) {
+      tft.drawLine(centerX - size + offset, centerY - size, centerX + size + offset, centerY + size, RED);
+      tft.drawLine(centerX - size + offset, centerY + size, centerX + size + offset, centerY - size, RED);
+    }
   } else if (player == PLAYER_O) {
-    tft.drawCircle(centerX, centerY, size, BLUE);
-    tft.drawCircle(centerX, centerY, size + 1, BLUE);
+    tft.fillCircle(centerX, centerY, size + 1, TTT_O_COLOR);
+    tft.fillCircle(centerX, centerY, size - 2, BLACK);
   }
 }
 
@@ -584,28 +701,27 @@ void drawMarker(int col, int row, int player) {
  * @brief Draws or erases the cursor outline around the current cell.
  */
 void drawCursor(int prevX, int prevY, int newX, int newY) {
-  int startX = 20;
-  int startY = 50;
-  int cellSize = 60;
-  int margin = 5;
+  int startX = TTT_START_X;
+  int startY = TTT_START_Y;
+  int cellSize = TTT_CELL_SIZE;
+  int margin = 4;
 
   // 1. Erase previous cursor position
   tft.drawRect(startX + prevX * cellSize + margin,
                startY + prevY * cellSize + margin,
                cellSize - 2 * margin, cellSize - 2 * margin, BLACK);
+  tft.drawRect(startX + prevX * cellSize + margin + 1,
+               startY + prevY * cellSize + margin + 1,
+               cellSize - 2 * (margin + 1), cellSize - 2 * (margin + 1), BLACK);
 
-
-  // // 2. Draw new cursor position only if the game is running AND the spot is empty
-  // if (gameStatus == 0 && board[newX][newY] == EMPTY) {
-  //   tft.drawRect(startX + newX * cellSize + margin,
-  //                startY + newY * cellSize + margin,
-  //                cellSize - 2 * margin, cellSize - 2 * margin, CURSOR_COLOR);
-  // }
   // 2. Draw new cursor position only if the game is running
   if (gameStatus == 0) {
     tft.drawRect(startX + newX * cellSize + margin,
                  startY + newY * cellSize + margin,
-                 cellSize - 2 * margin, cellSize - 2 * margin, CURSOR_COLOR);
+                 cellSize - 2 * margin, cellSize - 2 * margin, YELLOW);
+    tft.drawRect(startX + newX * cellSize + margin + 1,
+                 startY + newY * cellSize + margin + 1,
+                 cellSize - 2 * (margin + 1), cellSize - 2 * (margin + 1), YELLOW);
   }
 }
 
@@ -628,7 +744,6 @@ void resetTicTacToe() {
 
   drawBoard();
   drawCursor(0, 0, 0, 0); // Draw initial cursor at 0,0
-  displayStatus("X's Turn", YELLOW);
 }
 
 /**
@@ -669,50 +784,100 @@ bool checkDraw() {
 }
 
 /**
+ * @brief Draws a thick strike-through line across the 3 winning cells.
+ */
+void drawTicTacToeWinningLine(int player) {
+  int startX = TTT_START_X;
+  int startY = TTT_START_Y;
+  int cellSize = TTT_CELL_SIZE;
+  int pad = 10;
+  uint16_t lineColor = YELLOW;
+
+  // Check columns (x = i, y = 0..2)
+  for (int i = 0; i < BOARD_SIZE; i++) {
+    if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
+      int cx = startX + i * cellSize + cellSize / 2;
+      int y1 = startY + pad;
+      int y2 = startY + BOARD_SIZE * cellSize - pad;
+      tft.fillRect(cx - 2, y1, 5, y2 - y1, lineColor);
+      return;
+    }
+  }
+
+  // Check rows (x = 0..2, y = i)
+  for (int i = 0; i < BOARD_SIZE; i++) {
+    if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
+      int cy = startY + i * cellSize + cellSize / 2;
+      int x1 = startX + pad;
+      int x2 = startX + BOARD_SIZE * cellSize - pad;
+      tft.fillRect(x1, cy - 2, x2 - x1, 5, lineColor);
+      return;
+    }
+  }
+
+  // Check top-left to bottom-right diagonal
+  if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
+    int x1 = startX + pad;
+    int y1 = startY + pad;
+    int x2 = startX + BOARD_SIZE * cellSize - pad;
+    int y2 = startY + BOARD_SIZE * cellSize - pad;
+    for (int offset = -2; offset <= 2; offset++) {
+      tft.drawLine(x1 + offset, y1, x2 + offset, y2, lineColor);
+      tft.drawLine(x1, y1 + offset, x2, y2 + offset, lineColor);
+    }
+    return;
+  }
+
+  // Check bottom-left to top-right diagonal
+  if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
+    int x1 = startX + pad;
+    int y1 = startY + BOARD_SIZE * cellSize - pad;
+    int x2 = startX + BOARD_SIZE * cellSize - pad;
+    int y2 = startY + pad;
+    for (int offset = -2; offset <= 2; offset++) {
+      tft.drawLine(x1 + offset, y1, x2 + offset, y2, lineColor);
+      tft.drawLine(x1, y1 + offset, x2, y2 + offset, lineColor);
+    }
+    return;
+  }
+}
+
+/**
  * @brief Handles the game over state for Tic-Tac-Toe.
  * @param winner The player who won (1 for X, 2 for O, 3 for draw).
  */
 void ticTacToeGameOver(int winner) {
-  if(!gameOverScreenDrawn){
-    tft.fillScreen(BLACK); // Clear the screen
-
-    tft.setFont();
-    tft.setTextSize(2);
-    tft.setTextColor(WHITE);
-    tft.setCursor(30, 10);
-    tft.print("Game Over!");
+  if (!gameOverScreenDrawn) {
+    // Erase active cell cursor so the final board is clean
+    drawCursor(cursorX, cursorY, cursorX, cursorY);
 
     if (winner == 1) {
-      tft.setTextColor(RED);
-      tft.setCursor(30, 50);
-      tft.print("X Wins!");
+      tttXWins++;
+      drawTicTacToeWinningLine(PLAYER_X);
+      drawTicTacToeScorePanels();
+      drawTicTacToeTurnBadge("X WINS!", RED);
+      drawTicTacToeFooter("PLAYER X WINS!  SELECT: Replay  HOME: Menu", YELLOW);
     } else if (winner == 2) {
-      tft.setTextColor(BLUE);
-      tft.setCursor(30, 50);
-      tft.print("O Wins!");
-    }else if (winner == 3) {
-      tft.setTextColor(YELLOW);
-      tft.setCursor(30, 50);
-      tft.print("Draw!");
-    }else{
-      displayStatus("ERROR! (Select to Reset)", YELLOW);
+      tttOWins++;
+      drawTicTacToeWinningLine(PLAYER_O);
+      drawTicTacToeScorePanels();
+      drawTicTacToeTurnBadge("O WINS!", TTT_O_COLOR);
+      drawTicTacToeFooter("PLAYER O WINS!  SELECT: Replay  HOME: Menu", YELLOW);
+    } else if (winner == 3) {
+      tttDraws++;
+      drawTicTacToeScorePanels();
+      drawTicTacToeTurnBadge("DRAW GAME", YELLOW);
+      drawTicTacToeFooter("IT'S A DRAW!  SELECT: Replay  HOME: Menu", YELLOW);
+    } else {
+      drawTicTacToeFooter("ERROR! Press SELECT to Reset", RED);
     }
 
-    tft.setTextSize(2);
-    tft.setTextColor(WHITE);
-    tft.setCursor(30, 100);
-    tft.print("Press Select to Reset");
-    tft.setCursor(30, 130);
-    tft.print("Press Menu to Exit");
-
     gameOverScreenDrawn = true;
-
   }
-  if(digitalRead(PIN_SELECT) == LOW) {
-      resetTicTacToe();
-      delay(300);
+  if (digitalRead(PIN_SELECT) == LOW) {
+    resetTicTacToe();
+    delay(300);
   }
-  
 }
 
 /**
@@ -745,7 +910,7 @@ void handleTicTacToeInput() {
     } else if (digitalRead(PIN_RIGHT) == LOW) { 
       cursorX = min(BOARD_SIZE - 1, cursorX + 1);
       moved = true;
-    }else if (digitalRead(PIN_LEFT) == LOW) { 
+    } else if (digitalRead(PIN_LEFT) == LOW) { 
       cursorX = max(0, cursorX - 1);
       moved = true;
     }
@@ -764,26 +929,19 @@ void handleTicTacToeInput() {
       // 1. Place marker
       board[cursorX][cursorY] = currentPlayer;
       drawMarker(cursorX, cursorY, currentPlayer);
-      //drawCursor(cursorX, cursorY, cursorX, cursorY); // This call erases the cursor
 
       // 2. Check game status
       if (checkWin(currentPlayer)) {
         gameStatus = currentPlayer;
-        if (currentPlayer == PLAYER_X) {
-          displayStatus("X WINS! (Select to Reset)", RED);
-        } else {
-          displayStatus("O WINS! (Select to Reset)", BLUE);
-        }
       } else if (checkDraw()) {
         gameStatus = 3;
-        displayStatus("DRAW! (Select to Reset)", YELLOW);
       } else {
         // 3. Switch turn
         currentPlayer = (currentPlayer == PLAYER_X) ? PLAYER_O : PLAYER_X;
         if (currentPlayer == PLAYER_X) {
-          displayStatus("X's Turn", YELLOW);
+          drawTicTacToeTurnBadge("X'S TURN", RED);
         } else {
-          displayStatus("O's Turn", YELLOW);
+          drawTicTacToeTurnBadge("O'S TURN", TTT_O_COLOR);
         }
       }
 
