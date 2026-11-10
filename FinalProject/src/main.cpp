@@ -44,6 +44,8 @@
 #include "Black_Knight.h"
 #include "Black_Pawn.h"
 #include "Icons.h"
+//QR Code
+#include "qrCode.h"
 
 // ==============================================================================
 // 1. PIN DEFINITIONS (ADJUST THESE FOR YOUR WIRING)
@@ -2622,6 +2624,11 @@ void resetSettings(){
 // 6. ARDUINO SETUP & LOOP
 // ==============================================================================
 
+
+void drawQRCode(){
+  tft.drawBitmap(0,0, QR_CODE_BITS, 135, 135, WHITE, BLACK);
+}
+
 void setup() {
   
   //Serial2.begin(SERIAL_BAUD_RATE, SERIAL_8N1, SERIAL_RX_PIN, SERIAL_TX_PIN);
@@ -2673,11 +2680,11 @@ void setup() {
   // Start the device in the main menu
   tft.fillScreen(MAIN_MENU_COLOR);
   
-  // drawMenu();
+  //drawMenu();
   // drawMenuCursor(-1, 0); // Draw cursor on the first item
-
+  
   drawNewMenu();
-
+  
   //chessSelected();
   Serial.println("Starting up...");
 }
