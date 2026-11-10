@@ -16,7 +16,7 @@ Remove the low-level friction of developing, loading, and playing games on a mic
 3. Upload site
 4. Code library
 5. Get it working
-6. CLean instuctions
+6. Clean instuctions
 
 
 ## Nice to have, but not MVP
