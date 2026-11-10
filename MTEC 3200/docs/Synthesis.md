@@ -41,4 +41,4 @@ Indie game developers (`P2`, `P3`, `P4`) and on-the-go players (`P1`, `P2`, `P3`
 > **Indie game developers and on-the-go players** need a way to **rapidly build, test, and play multiple small-scope games on constrained pocket hardware without getting blocked by embedded systems boilerplate, slow hardware iteration loops, hand-cramping ergonomics, or technical file-loading hurdles**, because **raw microcontroller friction stalls creative development and intimidates casual players from picking up the device or trying new games.**
 
 ### How Might We (HMW) Question
-> **How might we** remove the low-level embedded friction of developing, loading, and playing games on a microcontroller handheld so that indie developers can iterate and casual players can comfortably enjoy and swap games anywhere?
+> **How might we** remove the low-level friction of developing, loading, and playing games on a microcontroller handheld so that indie developers can iterate and casual players can comfortably enjoy and swap games anywhere?
