@@ -1,0 +1,40 @@
+
+body{
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+#heading{
+    border-radius:10px ;
+    width: fit-content;
+    padding: 10px;
+    height: fit-content;
+    outline: black solid 2px;
+    font-size: 40px;
+
+}
+
+.buttoncontainer {
+ display:flex;
+ justify-content: 100px;
+ width:fit-content ;
+ height: fit-content;
+}
+
+.buttons {
+    height: 75px;
+    width: 150px;
+    border-radius:10px ;
+    text-align: center;
+    align-content: center;
+    text-decoration: none;
+    color: black;
+    font-size: x-large;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+a{
+    text-decoration: wavy;
+}
+
+
