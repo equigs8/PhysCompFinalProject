@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Handheld SDK — Sprite Studio &amp; Game Scaffolder</title>
+  <style>
+    :root {
+      --bg: #0f131a;
+      --panel: #171d27;
+      --panel-2: #1f2735;
+      --border: #2c374b;
+      --text: #e8eef8;
+      --muted: #93a3bc;
+      --accent: #ff4757;
+      --accent-2: #2ed573;
+      --blue: #4ea8de;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+    }
+    header p {
+      margin: 2px 0 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .tab-btn {
+      background: var(--panel-2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    main {
+      max-width: 1180px;
+      margin: 20px auto;
+      padding: 0 20px 40px;
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) {
+      .tab-pane.active { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    input[type="text"], input[type="number"], select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.88rem;
+    }
+    input[type="color"] {
+      width: 36px;
+      height: 30px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+    }
+    button {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { border-color: var(--blue); }
+    button.active-tool {
+      background: var(--blue);
+      color: #08121c;
+      border-color: var(--blue);
+    }
+    button.primary {
+      background: var(--accent-2);
+      color: #062111;
+      border-color: var(--accent-2);
+    }
+    button.danger {
+      border-color: #6b2430;
+      color: #ff99a4;
+    }
+    .editor-wrap {
+      display: flex;
+      justify-content: center;
+      background: #090c11;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    #pixelCanvas {
+      image-rendering: pixelated;
+      cursor: crosshair;
+      border: 1px solid #3c4a64;
+      background: repeating-conic-gradient(#1f2430 0% 25%, #151922 0% 50%) 50% / 16px 16px;
+      touch-action: none;
+    }
+    .palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+    .swatch.selected { border-color: #fff; transform: scale(1.1); }
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+    .dropzone.dragover {
+      border-color: var(--blue);
+      background: rgba(78, 168, 222, 0.08);
+      color: var(--text);
+    }
+    .preview-strip {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: #fff;
+      color: #111;
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .menu-tile-preview {
+      width: 68px;
+      height: 68px;
+      padding: 2px;
+      background: #ff0000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ff6b6b;
+    }
+    .menu-tile-inner {
+      width: 64px;
+      height: 64px;
+      background: #bdbdbd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-meta { font-size: 0.82rem; color: #333; }
+    .preview-meta strong { display: block; font-size: 0.92rem; color: #000; }
+    pre {
+      background: #0a0e14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.78rem;
+      color: #cfe4ff;
+      max-height: 360px;
+      overflow: auto;
+      margin: 0 0 12px;
+      white-space: pre;
+    }
+    .status {
+      font-size: 0.82rem;
+      color: var(--accent-2);
+      min-height: 18px;
+    }
+    .field-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .field-stack label {
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .field-stack input[type="text"] { width: 100%; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>ESP32-S3 Handheld SDK — Sprite Studio &amp; Game Scaffolder</h1>
+      <p>Draw or drop images to export RGB565 <code>sdk::Sprite</code> headers and plug-and-play game files.</p>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="spriteTab">1. Sprite &amp; Icon Editor</button>
+      <button class="tab-btn" data-tab="gameTab">2. New Game Scaffolder</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: SPRITE & ICON EDITOR -->
+    <section id="spriteTab" class="tab-pane active">
+      <div class="card">
+        <h2>Pixel Canvas &amp; Image Import</h2>
+
+        <div class="row">
+          <label>Preset:
+            <select id="sizePreset">
+              <option value="16x16" selected>16×16 (Menu Icon)</option>
+              <option value="8x8">8×8 (Micro Sprite)</option>
+              <option value="24x24">24×24 (Character)</option>
+              <option value="32x32">32×32 (Large Sprite)</option>
+            </select>
+          </label>
+          <label>W <input id="gridW" type="number" min="4" max="64" value="16" style="width:62px" /></label>
+          <label>H <input id="gridH" type="number" min="4" max="64" value="16" style="width:62px" /></label>
+          <button id="applySizeBtn">Resize</button>
+        </div>
+
+        <div id="dropzone" class="dropzone">
+          Drag &amp; drop any PNG / JPG / GIF here, or <strong>click to choose a file</strong> (auto nearest-neighbor resize &amp; alpha preservation)
+          <input id="fileInput" type="file" accept="image/*" hidden />
+        </div>
+
+        <div class="row">
+          <button class="tool-btn active-tool" data-tool="draw">Brush</button>
+          <button class="tool-btn" data-tool="erase">Eraser</button>
+          <button class="tool-btn" data-tool="fill">Fill</button>
+          <button class="tool-btn" data-tool="pick">Pick</button>
+          <input id="colorPicker" type="color" value="#2ed573" title="Brush Color" />
+          <button id="flipXBtn">Flip H</button>
+          <button id="clearBtn" class="danger">Clear</button>
+        </div>
+
+        <div id="palette" class="palette"></div>
+
+        <div class="editor-wrap">
+          <canvas id="pixelCanvas" width="320" height="320"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Menu Tile Preview &amp; C++ Export</h2>
+
+        <div class="preview-strip">
+          <div class="menu-tile-preview">
+            <div class="menu-tile-inner">
+              <canvas id="preview4x" width="64" height="64" style="image-rendering:pixelated;"></canvas>
+            </div>
+          </div>
+          <div>
+            <canvas id="preview1x" width="32" height="32" style="image-rendering:pixelated;border:1px solid #ccc;background:#bdbdbd;"></canvas>
+          </div>
+          <div class="preview-meta">
+            <strong>Main Menu Preview (4× Tile)</strong>
+            <span id="metaStats">16×16 px · 512 bytes PROGMEM · key 0xF81F</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <label>Symbol Name:
+            <input id="symbolName" type="text" value="MY_GAME_ICON" />
+          </label>
+          <label>
+            <input id="useTransparency" type="checkbox" checked />
+            Transparent empty pixels (<code>0xF81F</code>)
+          </label>
+        </div>
+
+        <pre id="spriteCode"></pre>
+
+        <div class="row">
+          <button id="copySpriteBtn" class="primary">Copy C++ Header</button>
+          <button id="downloadSpriteBtn">Download .h File</button>
+        </div>
+        <div id="spriteStatus" class="status"></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: NEW GAME SCAFFOLDER -->
+    <section id="gameTab" class="tab-pane">
+      <div class="card">
+        <h2>New Game Details</h2>
+        <p style="font-size:0.85rem;color:var(--muted);margin-top:0;">
+          Your current pixel canvas from Tab 1 is automatically embedded as your game's Main Menu icon!
+        </p>
+
+        <div class="field-stack">
+          <label>Game Title (shown in Main Menu top bar):
+            <input id="gameTitle" type="text" value="Space Dodge" maxlength="20" />
+          </label>
+          <label>C++ Class Name (also used as filename):
+            <input id="gameClass" type="text" value="SpaceDodgeGame" />
+          </label>
+          <label style="flex-direction:row;align-items:center;">
+            <input id="gameBuffered" type="checkbox" checked />
+            Use flicker-free 320×240 framebuffer (recommended for action games)
+          </label>
+        </div>
+
+        <h2 style="margin-top:16px;">Step 2: Drop into <code>src/games/</code> &amp; Build</h2>
+        <pre id="registerSnippet"></pre>
+        <div class="row">
+          <button id="copyRegBtn">Copy Path Instructions</button>
+        </div>
+        <div id="gameStatus" class="status"></div>
+      </div>
+
+      <div class="card">
+        <h2>Generated Game Header (<code id="gameFilename">SpaceDodgeGame.h</code>)</h2>
+        <pre id="gameCode"></pre>
+        <div class="row">
+          <button id="downloadGameBtn" class="primary">Download Game .h</button>
+          <button id="copyGameBtn">Copy Game Code</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const TRANSPARENT_KEY = 0xF81F;
+    const SWATCHES = [
+      "#000000", "#ffffff", "#ff4757", "#ff7f50", "#ffa502", "#ffe066",
+      "#2ed573", "#1e90ff", "#5352ed", "#a55eea", "#70a1ff", "#2f3542",
+      "#747d8c", "#ced6e0", "#8b4513", "#ff6b81"
+    ];
+
+    let gridW = 16;
+    let gridH = 16;
+    // null = transparent, otherwise "#rrggbb"
+    let pixels = [];
+    let tool = "draw";
+    let currentColor = "#2ed573";
+    let isDrawing = false;
+
+    const canvas = document.getElementById("pixelCanvas");
+    const ctx = canvas.getContext("2d");
+    const preview4x = document.getElementById("preview4x").getContext("2d");
+    const preview1x = document.getElementById("preview1x").getContext("2d");
+
+    function initGrid(w, h, preserve = false) {
+      const oldW = gridW, oldH = gridH, oldPixels = pixels;
+      gridW = Math.max(4, Math.min(64, w));
+      gridH = Math.max(4, Math.min(64, h));
+      pixels = new Array(gridW * gridH).fill(null);
+      if (preserve && oldPixels.length) {
+        const minW = Math.min(oldW, gridW);
+        const minH = Math.min(oldH, gridH);
+        for (let y = 0; y < minH; y++) {
+          for (let x = 0; x < minW; x++) {
+            pixels[y * gridW + x] = oldPixels[y * oldW + x];
+          }
+        }
+      }
+      document.getElementById("gridW").value = gridW;
+      document.getElementById("gridH").value = gridH;
+      redrawAll();
+    }
+
+    function seedDefaultIcon() {
+      initGrid(16, 16, false);
+      // Draw a clean little starship icon
+      const art = [
+        "................",
+        ".......ww.......",
+        "......wccw......",
+        "......wccw......",
+        ".....wccccw.....",
+        ".....wcbccw.....",
+        "....wccbbccw....",
+        "....wccccccw....",
+        "...rrwccccwrr...",
+        "..rrrwccccwrrr..",
+        "..rr.wccccw.rr..",
+        "..r..wwwwww..r..",
+        ".....oo..oo.....",
+        ".....yy..yy.....",
+        "......y..y......",
+        "................"
+      ];
+      const map = { w: "#ffffff", c: "#70a1ff", b: "#1e90ff", r: "#ff4757", o: "#ffa502", y: "#ffe066" };
+      for (let y = 0; y < 16; y++) {
+        for (let x = 0; x < 16; x++) {
+          const ch = art[y][x];
+          pixels[y * 16 + x] = map[ch] || null;
+        }
+      }
+      redrawAll();
+    }
+
+    function hexToRgb(hex) {
+      return [
+        parseInt(hex.slice(1, 3), 16),
+        parseInt(hex.slice(3, 5), 16),
+        parseInt(hex.slice(5, 7), 16)
+      ];
+    }
+
+    function rgbTo565(r, g, b) {
+      return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+    }
+
+    function hex565(val) {
+      return "0x" + val.toString(16).toUpperCase().padStart(4, "0");
+    }
+
+    function sanitizeSymbol(str, fallback) {
+      let s = (str || "").replace(/[^A-Za-z0-9_]/g, "_").toUpperCase();
+      if (!s || /^[0-9]/.test(s)) s = fallback;
+      return s;
+    }
+
+    function sanitizeClassName(str) {
+      let parts = (str || "MyGame").replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean);
+      let name = parts.map(p => p[0].toUpperCase() + p.slice(1)).join("");
+      if (!name || /^[0-9]/.test(name)) name = "MyGame";
+      if (!name.endsWith("Game")) name += "Game";
+      return name;
+    }
+
+    function redrawAll() {
+      const cell = Math.floor(Math.min(352 / gridW, 352 / gridH));
+      canvas.width = gridW * cell;
+      canvas.height = gridH * cell;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let y = 0; y < gridH; y++) {
+        for (let x = 0; x < gridW; x++) {
+          const col = pixels[y * gridW + x];
+          if (col) {
+            ctx.fillStyle = col;
+            ctx.fillRect(x * cell, y * cell, cell, cell);
+          }
+        }
+      }
+
+      // Subtle grid lines
+      ctx.strokeStyle = "rgba(255,255,255,0.09)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= gridW; x++) {
+        ctx.beginPath(); ctx.moveTo(x * cell + 0.5, 0); ctx.lineTo(x * cell + 0.5, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y <= gridH; y++) {
+        ctx.beginPath(); ctx.moveTo(0, y * cell + 0.5); ctx.lineTo(canvas.width, y * cell + 0.5); ctx.stroke();
+      }
+
+      // Previews
+      preview4x.clearRect(0, 0, 64, 64);
+      const scale4 = Math.min(64 / gridW, 64 / gridH);
+      const offX = Math.floor((64 - gridW * scale4) / 2);
+      const offY = Math.floor((64 - gridH * scale4) / 2);
+      for (let y = 0; y < gridH; y++) {
+        for (let x = 0; x < gridW; x++) {
+          const col = pixels[y * gridW + x];
+          if (col) {
+            preview4x.fillStyle = col;
+            preview4x.fillRect(offX + x * scale4, offY + y * scale4, Math.ceil(scale4), Math.ceil(scale4));
+          }
+        }
+      }
+
+      const p1Canvas = document.getElementById("preview1x");
+      p1Canvas.width = gridW;
+      p1Canvas.height = gridH;
+      p1Canvas.style.width = Math.min(64, gridW * 2) + "px";
+      p1Canvas.style.height = Math.min(64, gridH * 2) + "px";
+      preview1x.clearRect(0, 0, gridW, gridH);
+      for (let y = 0; y < gridH; y++) {
+        for (let x = 0; x < gridW; x++) {
+          const col = pixels[y * gridW + x];
+          if (col) {
+            preview1x.fillStyle = col;
+            preview1x.fillRect(x, y, 1, 1);
+          }
+        }
+      }
+
+      updateOutputs();
+    }
+
+    function getRgb565Array(useTransp) {
+      return pixels.map(col => {
+        if (!col) return useTransp ? TRANSPARENT_KEY : 0x0000;
+        const [r, g, b] = hexToRgb(col);
+        let val = rgbTo565(r, g, b);
+        if (useTransp && val === TRANSPARENT_KEY) val ^= 0x0020;
+        return val;
+      });
+    }
+
+    function formatArrayRows(values) {
+      const rows = [];
+      for (let i = 0; i < values.length; i += 16) {
+        rows.push("  " + values.slice(i, i + 16).map(hex565).join(", ") + ",");
+      }
+      return rows.join("\n");
+    }
+
+    function updateOutputs() {
+      const sym = sanitizeSymbol(document.getElementById("symbolName").value, "MY_SPRITE");
+      const useTransp = document.getElementById("useTransparency").checked;
+      const vals = getRgb565Array(useTransp);
+      const bytes = gridW * gridH * 2;
+      document.getElementById("metaStats").textContent =
+        `${gridW}×${gridH} px · ${bytes} bytes PROGMEM · key ${useTransp ? "0xF81F" : "none"}`;
+
+      const spriteHeader = [
+        "#pragma once",
+        "",
+        "#include <Arduino.h>",
+        '#include "../../../sdk/Sprite.h"',
+        "",
+        `static const uint16_t ${sym}_BITS[${gridW * gridH}] PROGMEM = {`,
+        formatArrayRows(vals),
+        "};",
+        "",
+        `static const sdk::Sprite ${sym} = {`,
+        `  ${sym}_BITS, ${gridW}, ${gridH}, ${hex565(useTransp ? TRANSPARENT_KEY : 0x0000)}, ${useTransp ? "true" : "false"}`,
+        "};",
+        ""
+      ].join("\n");
+      document.getElementById("spriteCode").textContent = spriteHeader;
+
+      // Update Scaffolder tab
+      const title = document.getElementById("gameTitle").value.trim() || "My Game";
+      const cls = sanitizeClassName(document.getElementById("gameClass").value);
+      const buffered = document.getElementById("gameBuffered").checked;
+      const varName = cls[0].toLowerCase() + cls.slice(1);
+      const folderName = cls.replace(/Game$/, "").replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase() || "my_game";
+      const iconSym = sanitizeSymbol(cls + "_ICON", "GAME_ICON");
+      document.getElementById("gameFilename").textContent = `${folderName}/${cls}.h`;
+
+      const gameHeader = [
+        "#pragma once",
+        "",
+        '#include "../../sdk/Game.h"',
+        '#include "../../sdk/Console.h"',
+        "",
+        `static const uint16_t ${iconSym}_BITS[${gridW * gridH}] PROGMEM = {`,
+        formatArrayRows(vals),
+        "};",
+        "",
+        `class ${cls} : public sdk::Game {`,
+        "public:",
+        `  const char* title() const override { return "${title.replace(/"/g, '\\"')}"; }`,
+        "",
+        "  sdk::Sprite icon() const override {",
+        `    return { ${iconSym}_BITS, ${gridW}, ${gridH}, ${hex565(useTransp ? TRANSPARENT_KEY : 0x0000)}, ${useTransp ? "true" : "false"} };`,
+        "  }",
+        "",
+        buffered ? "" : "  bool usesFramebuffer() const override { return false; }\n",
+        "  void onEnter(sdk::Console& console) override {",
+        "    (void)console;",
+        "    playerX_ = 150.0f;",
+        "    playerY_ = 110.0f;",
+        "    score_ = 0;",
+        "  }",
+        "",
+        "  void onUpdate(sdk::Console& console, float dt) override {",
+        "    const float speed = 130.0f;",
+        "    playerX_ = constrain(playerX_ + console.input.axisX() * speed * dt, 8.0f, 292.0f);",
+        "    playerY_ = constrain(playerY_ + console.input.axisY() * speed * dt, 28.0f, 212.0f);",
+        "",
+        "    if (console.input.pressed(sdk::BTN_A)) {",
+        "      ++score_;",
+        "      console.audio.playSelect();",
+        "    }",
+        "  }",
+        "",
+        "  void onRender(sdk::Console& console) override {",
+        "    auto& disp = console.display;",
+        "    disp.clear(sdk::Colors::PanelBg);",
+        "",
+        "    char hud[32];",
+        `    snprintf(hud, sizeof(hud), "${title.replace(/"/g, '\\"')}  |  SCORE: %d", score_);`,
+        "    disp.drawCenteredText(hud, 8, sdk::Colors::Yellow, 1);",
+        "    disp.drawSprite(icon(), (int)playerX_, (int)playerY_, 2);",
+        '    disp.drawCenteredText("D-PAD: Move   A: Action   HOME: Menu", 224, sdk::Colors::LightGray, 1);',
+        "  }",
+        "",
+        "private:",
+        "  float playerX_ = 150.0f;",
+        "  float playerY_ = 110.0f;",
+        "  int score_ = 0;",
+        "};",
+        ""
+      ].filter(line => line !== "").join("\n");
+      document.getElementById("gameCode").textContent = gameHeader;
+
+      const regSnippet = [
+        `// 1. Save ${cls}.h to:`,
+        `//    FinalProject/src/games/${folderName}/${cls}.h`,
+        `//    (put any extra sprites in FinalProject/src/games/${folderName}/assets/)`,
+        ``,
+        `// 2. Build! PlatformIO automatically discovers your folder via`,
+        `//    scripts/discover_games.py and adds it to GameList.h & the Main Menu.`
+      ].join("\n");
+      document.getElementById("registerSnippet").textContent = regSnippet;
+    }
+
+    function getCellFromEvent(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor(((e.clientX - rect.left) / rect.width) * gridW);
+      const y = Math.floor(((e.clientY - rect.top) / rect.height) * gridH);
+      return [x, y];
+    }
+
+    function floodFill(startX, startY, targetColor, replacementColor) {
+      if (targetColor === replacementColor) return;
+      const stack = [[startX, startY]];
+      while (stack.length) {
+        const [x, y] = stack.pop();
+        if (x < 0 || x >= gridW || y < 0 || y >= gridH) continue;
+        const idx = y * gridW + x;
+        if (pixels[idx] !== targetColor) continue;
+        pixels[idx] = replacementColor;
+        stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+      }
+    }
+
+    function applyTool(e) {
+      const [x, y] = getCellFromEvent(e);
+      if (x < 0 || x >= gridW || y < 0 || y >= gridH) return;
+      const idx = y * gridW + x;
+      if (tool === "draw") {
+        pixels[idx] = currentColor;
+      } else if (tool === "erase") {
+        pixels[idx] = null;
+      } else if (tool === "pick") {
+        if (pixels[idx]) {
+          currentColor = pixels[idx];
+          document.getElementById("colorPicker").value = currentColor;
+          setTool("draw");
+        }
+      } else if (tool === "fill") {
+        floodFill(x, y, pixels[idx], currentColor);
+      }
+      redrawAll();
+    }
+
+    function setTool(nextTool) {
+      tool = nextTool;
+      document.querySelectorAll(".tool-btn").forEach(b => {
+        b.classList.toggle("active-tool", b.dataset.tool === tool);
+      });
+    }
+
+    canvas.addEventListener("pointerdown", e => { isDrawing = true; applyTool(e); });
+    canvas.addEventListener("pointermove", e => { if (isDrawing && (tool === "draw" || tool === "erase")) applyTool(e); });
+    window.addEventListener("pointerup", () => { isDrawing = false; });
+
+    document.querySelectorAll(".tool-btn").forEach(btn => {
+      btn.addEventListener("click", () => setTool(btn.dataset.tool));
+    });
+
+    document.getElementById("colorPicker").addEventListener("input", e => {
+      currentColor = e.target.value;
+      setTool("draw");
+    });
+
+    document.getElementById("sizePreset").addEventListener("change", e => {
+      const [w, h] = e.target.value.split("x").map(Number);
+      initGrid(w, h, true);
+    });
+    document.getElementById("applySizeBtn").addEventListener("click", () => {
+      initGrid(Number(document.getElementById("gridW").value), Number(document.getElementById("gridH").value), true);
+    });
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      pixels.fill(null);
+      redrawAll();
+    });
+    document.getElementById("flipXBtn").addEventListener("click", () => {
+      const next = new Array(gridW * gridH).fill(null);
+      for (let y = 0; y < gridH; y++) {
+        for (let x = 0; x < gridW; x++) {
+          next[y * gridW + (gridW - 1 - x)] = pixels[y * gridW + x];
+        }
+      }
+      pixels = next;
+      redrawAll();
+    });
+
+    // Build swatches
+    const palEl = document.getElementById("palette");
+    SWATCHES.forEach(hex => {
+      const b = document.createElement("button");
+      b.className = "swatch" + (hex === currentColor ? " selected" : "");
+      b.style.background = hex;
+      b.title = hex;
+      b.addEventListener("click", () => {
+        currentColor = hex;
+        document.getElementById("colorPicker").value = hex;
+        document.querySelectorAll(".swatch").forEach(s => s.classList.remove("selected"));
+        b.classList.add("selected");
+        setTool("draw");
+      });
+      palEl.appendChild(b);
+    });
+
+    // Image import
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+    dropzone.addEventListener("click", () => fileInput.click());
+    dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("dragover"); });
+    dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+    dropzone.addEventListener("drop", e => {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+      if (e.dataTransfer.files[0]) importImageFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files[0]) importImageFile(fileInput.files[0]);
+    });
+
+    function importImageFile(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const tmp = document.createElement("canvas");
+          tmp.width = gridW;
+          tmp.height = gridH;
+          const tctx = tmp.getContext("2d");
+          tctx.imageSmoothingEnabled = false;
+          tctx.drawImage(img, 0, 0, gridW, gridH);
+          const data = tctx.getImageData(0, 0, gridW, gridH).data;
+          for (let i = 0; i < gridW * gridH; i++) {
+            const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2], a = data[i * 4 + 3];
+            if (a < 128) {
+              pixels[i] = null;
+            } else {
+              pixels[i] = "#" + [r, g, b].map(v => v.toString(16).padStart(2, "0")).join("");
+            }
+          }
+          const base = file.name.replace(/\.[^.]+$/, "");
+          document.getElementById("symbolName").value = sanitizeSymbol(base + "_ICON", "MY_ICON");
+          redrawAll();
+          flashStatus("spriteStatus", `Imported ${file.name} (${gridW}×${gridH})`);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Tabs
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // Inputs -> live code updates
+    ["symbolName", "useTransparency", "gameTitle", "gameClass", "gameBuffered"].forEach(id => {
+      document.getElementById(id).addEventListener("input", updateOutputs);
+      document.getElementById(id).addEventListener("change", updateOutputs);
+    });
+    document.getElementById("gameTitle").addEventListener("input", e => {
+      document.getElementById("gameClass").value = sanitizeClassName(e.target.value);
+      updateOutputs();
+    });
+
+    function flashStatus(elId, msg) {
+      const el = document.getElementById(elId);
+      el.textContent = msg;
+      setTimeout(() => { if (el.textContent === msg) el.textContent = ""; }, 2500);
+    }
+
+    function downloadText(filename, text) {
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("copySpriteBtn").addEventListener("click", () => {
+      navigator.clipboard.writeText(document.getElementById("spriteCode").textContent);
+      flashStatus("spriteStatus", "Copied C++ sprite header to clipboard!");
+    });
+    document.getElementById("downloadSpriteBtn").addEventListener("click", () => {
+      const sym = sanitizeSymbol(document.getElementById("symbolName").value, "my_sprite").toLowerCase();
+      downloadText(sym + ".h", document.getElementById("spriteCode").textContent);
+      flashStatus("spriteStatus", `Downloaded ${sym}.h`);
+    });
+    document.getElementById("copyGameBtn").addEventListener("click", () => {
+      navigator.clipboard.writeText(document.getElementById("gameCode").textContent);
+      flashStatus("gameStatus", "Copied game header to clipboard!");
+    });
+    document.getElementById("downloadGameBtn").addEventListener("click", () => {
+      const fname = document.getElementById("gameFilename").textContent;
+      downloadText(fname, document.getElementById("gameCode").textContent);
+      flashStatus("gameStatus", `Downloaded ${fname}`);
+    });
+    document.getElementById("copyRegBtn").addEventListener("click", () => {
+      navigator.clipboard.writeText(document.getElementById("registerSnippet").textContent);
+      flashStatus("gameStatus", "Copied GameList.h registration snippet!");
+    });
+
+    seedDefaultIcon();
+  </script>
+</body>
+</html>

@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 """
-Convert any image file (PNG, JPG, BMP, GIF) into an RGB565 C header file
-(`src/custom_image.h`) for the ESP32 Handheld Image Viewer app.
+Convert any image file (PNG, JPG, BMP, GIF) into an RGB565 C/C++ PROGMEM header
+for the ESP32-S3 Handheld Console.
 
-Usage:
-    python convert_image.py path/to/your_image.png [--width 160] [--height 120] [--fit]
+Examples:
+  # 1) Create a 16x16 Main Menu icon inside your game's assets/ folder:
+  python convert_image.py my_icon.png --icon --name MY_GAME_ICON -o src/games/my_game/assets/icon.h
 
-Note: Directly addresses interview feedback from P2 (Liam) & P4 (Marcus)
-by automating image-to-PROGMEM byte array conversion!
+  # 2) Create a custom game sprite (e.g. 24x24) inside your game's assets/ folder:
+  python convert_image.py hero.png --sdk --name HERO_SPRITE -W 24 -H 24 -o src/games/my_game/assets/hero.h
+
+  # 3) Legacy mode (default, backward-compatible with src/custom_image.h):
+  python convert_image.py path/to/image.png
 """
 
 import argparse
 import os
+import re
 import sys
 
 try:
@@ -21,21 +26,50 @@ except ImportError:
     sys.exit(1)
 
 
+DEFAULT_TRANSPARENT_RGB565 = 0xF81F  # Magenta key
+
+
 def rgb888_to_rgb565(r: int, g: int, b: int) -> int:
     """Convert 24-bit RGB888 to 16-bit RGB565 expected by Adafruit_ILI9341."""
     return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
 
 
-def convert_image(input_path: str, output_path: str, max_w: int, max_h: int, keep_aspect: bool, title: str):
+def parse_hex_color(value: str) -> int:
+    """Parse '#RRGGBB' (RGB888) or '0xXXXX' (RGB565) into an RGB565 integer."""
+    v = value.strip()
+    if v.startswith("#") and len(v) == 7:
+        r = int(v[1:3], 16)
+        g = int(v[3:5], 16)
+        b = int(v[5:7], 16)
+        return rgb888_to_rgb565(r, g, b)
+    if v.lower().startswith("0x"):
+        return int(v, 16) & 0xFFFF
+    raise ValueError(f"Unsupported color format '{value}'. Use #RRGGBB or 0xXXXX.")
+
+
+def sanitize_symbol(name: str) -> str:
+    clean = re.sub(r"[^A-Za-z0-9_]", "_", name).upper()
+    if not clean or clean[0].isdigit():
+        clean = "SPRITE_" + clean
+    return clean
+
+
+def convert_image(
+    input_path: str,
+    output_path: str,
+    max_w: int,
+    max_h: int,
+    keep_aspect: bool,
+    symbol_name: str,
+    title: str,
+    sdk_mode: bool,
+    transparent_mode: str,
+):
     if not os.path.isfile(input_path):
         print(f"Error: File not found: {input_path}")
         sys.exit(1)
 
     img = Image.open(input_path).convert("RGBA")
-
-    # Composite transparent pixels onto black (0x0000)
-    bg = Image.new("RGBA", img.size, (0, 0, 0, 255))
-    img = Image.alpha_composite(bg, img).convert("RGB")
 
     if keep_aspect:
         img.thumbnail((max_w, max_h), Image.Resampling.NEAREST)
@@ -43,25 +77,65 @@ def convert_image(input_path: str, output_path: str, max_w: int, max_h: int, kee
         img = img.resize((max_w, max_h), Image.Resampling.NEAREST)
 
     w, h = img.size
-    pixels = list(img.getdata())
-    rgb565_values = [rgb888_to_rgb565(r, g, b) for (r, g, b) in pixels]
+    rgba_pixels = list(img.getdata())
+
+    has_transparency = transparent_mode.lower() != "none"
+    if not has_transparency:
+        transparent_key = 0x0000
+    elif transparent_mode.lower() == "auto":
+        transparent_key = DEFAULT_TRANSPARENT_RGB565 if sdk_mode else 0x0000
+    else:
+        transparent_key = parse_hex_color(transparent_mode)
+
+    rgb565_values = []
+    for (r, g, b, a) in rgba_pixels:
+        if has_transparency and a < 128:
+            rgb565_values.append(transparent_key)
+        else:
+            val = rgb888_to_rgb565(r, g, b)
+            # Avoid accidental key collision on opaque pixels when auto-keying alpha
+            if has_transparency and transparent_mode.lower() == "auto" and val == transparent_key:
+                val ^= 0x0020
+            rgb565_values.append(val)
+
+    sym = sanitize_symbol(symbol_name)
+    guard = f"{sym}_H"
+    bits_name = f"{sym}_BITS"
 
     lines = []
-    lines.append("#ifndef CUSTOM_IMAGE_H")
-    lines.append("#define CUSTOM_IMAGE_H")
-    lines.append("")
-    lines.append("#include <Arduino.h>")
+    if sdk_mode:
+        # Compute relative path to src/sdk/Sprite.h when output is under src/...
+        norm_out = output_path.replace("\\", "/")
+        if "/games/" in norm_out and "/assets/" in norm_out:
+            sprite_inc = "../../../sdk/Sprite.h"
+        elif "/games/" in norm_out:
+            sprite_inc = "../../sdk/Sprite.h"
+        else:
+            sprite_inc = "sdk/Sprite.h"
+        lines.append("#pragma once")
+        lines.append("")
+        lines.append("#include <Arduino.h>")
+        lines.append(f'#include "{sprite_inc}"')
+    else:
+        lines.append(f"#ifndef {guard}")
+        lines.append(f"#define {guard}")
+        lines.append("")
+        lines.append("#include <Arduino.h>")
+
     lines.append("")
     lines.append("// ==============================================================================")
-    lines.append("// CUSTOM USER IMAGE FOR IMAGE VIEWER APP")
-    lines.append("// Generated by convert_image.py")
+    lines.append(f"// Generated by convert_image.py from {os.path.basename(input_path)}")
+    lines.append(f"// Dimensions: {w}x{h} px ({w * h * 2} bytes in PROGMEM)")
     lines.append("// ==============================================================================")
-    lines.append(f'#define CUSTOM_IMAGE_TITLE "{title}"')
-    lines.append(f"#define CUSTOM_IMAGE_WIDTH  {w}")
-    lines.append(f"#define CUSTOM_IMAGE_HEIGHT {h}")
-    lines.append("#define CUSTOM_IMAGE_TRANSPARENT 0x0000")
-    lines.append("")
-    lines.append(f"const uint16_t CUSTOM_IMAGE_BITS[{w * h}] PROGMEM = {{")
+    if not sdk_mode:
+        lines.append(f'#define {sym}_TITLE "{title}"')
+        lines.append(f"#define {sym}_WIDTH  {w}")
+        lines.append(f"#define {sym}_HEIGHT {h}")
+        lines.append(f"#define {sym}_TRANSPARENT 0x{transparent_key:04X}")
+        lines.append("")
+
+    storage = "static const" if sdk_mode else "const"
+    lines.append(f"{storage} uint16_t {bits_name}[{w * h}] PROGMEM = {{")
 
     row_str = []
     for idx, val in enumerate(rgb565_values):
@@ -72,24 +146,88 @@ def convert_image(input_path: str, output_path: str, max_w: int, max_h: int, kee
 
     lines.append("};")
     lines.append("")
-    lines.append("#endif // CUSTOM_IMAGE_H")
-    lines.append("")
+
+    if sdk_mode:
+        has_tr_cpp = "true" if has_transparency else "false"
+        lines.append(f"static const sdk::Sprite {sym} = {{")
+        lines.append(f"    {bits_name}, {w}, {h}, 0x{transparent_key:04X}, {has_tr_cpp}")
+        lines.append("};")
+        lines.append("")
+    else:
+        lines.append(f"#endif // {guard}")
+        lines.append("")
+
+    out_dir = os.path.dirname(output_path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
-    print(f"Successfully converted '{input_path}' -> '{output_path}' ({w}x{h} pixels, {w * h * 2} bytes in PROGMEM).")
+    mode_label = "sdk::Sprite" if sdk_mode else "legacy"
+    print(
+        f"Converted '{input_path}' -> '{output_path}' "
+        f"({w}x{h}, {w * h * 2} bytes PROGMEM, {mode_label}, key=0x{transparent_key:04X})."
+    )
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Convert an image to src/custom_image.h (RGB565 PROGMEM).")
+    parser = argparse.ArgumentParser(
+        description="Convert an image to an RGB565 PROGMEM C++ header for the Handheld Console."
+    )
     parser.add_argument("image", help="Path to the input image file (PNG, JPG, BMP, GIF)")
-    parser.add_argument("-o", "--output", default="src/custom_image.h", help="Output header path (default: src/custom_image.h)")
-    parser.add_argument("-W", "--width", type=int, default=160, help="Target width in pixels (default: 160, max screen: 320)")
-    parser.add_argument("-H", "--height", type=int, default=120, help="Target height in pixels (default: 120, max screen: 240)")
-    parser.add_argument("--stretch", action="store_true", help="Stretch to exact width/height instead of preserving aspect ratio")
-    parser.add_argument("-t", "--title", default=None, help="Display title for the image in the viewer")
+    parser.add_argument(
+        "-o", "--output", default="src/custom_image.h",
+        help="Output header path (default: src/custom_image.h)"
+    )
+    parser.add_argument(
+        "-n", "--name", default=None,
+        help="C++ symbol name (e.g. HERO_SPRITE). Defaults to CUSTOM_IMAGE in legacy mode or filename in --sdk mode."
+    )
+    parser.add_argument("-W", "--width", type=int, default=160, help="Target width in pixels (default: 160)")
+    parser.add_argument("-H", "--height", type=int, default=120, help="Target height in pixels (default: 120)")
+    parser.add_argument(
+        "--icon", action="store_true",
+        help="Preset for 16x16 Main Menu icon (sets --width 16 --height 16 --stretch --sdk)"
+    )
+    parser.add_argument(
+        "--sdk", action="store_true",
+        help="Emit a ready-to-use sdk::Sprite header for use with console.display.drawSprite()"
+    )
+    parser.add_argument(
+        "--transparent", default="auto",
+        help="Transparency key: 'auto' (alpha -> 0xF81F in --sdk mode), '#RRGGBB', '0xXXXX', or 'none'"
+    )
+    parser.add_argument(
+        "--stretch", action="store_true",
+        help="Stretch to exact width/height instead of preserving aspect ratio"
+    )
+    parser.add_argument("-t", "--title", default=None, help="Display title (legacy image viewer mode)")
 
     args = parser.parse_args()
-    img_title = args.title if args.title else os.path.splitext(os.path.basename(args.image))[0][:18]
-    convert_image(args.image, args.output, args.width, args.height, not args.stretch, img_title)
+
+    sdk_mode = args.sdk or args.icon
+    width = 16 if args.icon else args.width
+    height = 16 if args.icon else args.height
+    keep_aspect = not (args.stretch or args.icon)
+
+    base_name = os.path.splitext(os.path.basename(args.image))[0]
+    if args.name:
+        symbol = args.name
+    elif sdk_mode:
+        symbol = base_name + ("_ICON" if args.icon else "_SPRITE")
+    else:
+        symbol = "CUSTOM_IMAGE"
+
+    img_title = args.title if args.title else base_name[:18]
+    convert_image(
+        input_path=args.image,
+        output_path=args.output,
+        max_w=width,
+        max_h=height,
+        keep_aspect=keep_aspect,
+        symbol_name=symbol,
+        title=img_title,
+        sdk_mode=sdk_mode,
+        transparent_mode=args.transparent,
+    )
